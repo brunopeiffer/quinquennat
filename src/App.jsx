@@ -564,12 +564,30 @@ function ending(ind, sc) {
     text: "La fracture sociale a eu raison de votre mandat. Sans cohésion, aucune réforme ne tient." };
   if (ind.popularite >= 48 && sc.total >= 62) return { key: "triomphe", title: "Réélu·e triomphalement", icon: "crown", color: "#F4C64A",
     text: "Comptes tenus, pays apaisé : les électeurs vous renouvellent largement leur confiance. Un quinquennat de référence." };
-  if (ind.popularite >= 38) return { key: "reelu", title: "Réélu·e", icon: "confetti", color: "#8FD1B0",
+  // La réélection exige AUSSI un bilan minimal : la seule popularité ne suffit pas.
+  if (ind.popularite >= 38 && sc.total >= 40) return { key: "reelu", title: "Réélu·e", icon: "confetti", color: "#8FD1B0",
     text: "Un bilan contrasté, mais suffisant pour l'emporter au second tour. Gouverner, c'est arbitrer." };
+  if (sc.total < 40 && ind.popularite >= 38) return { key: "battu", title: "Battu·e malgré votre popularité", icon: "mood-sad", color: "#6F94C9",
+    text: "Vous étiez apprécié·e, mais votre bilan (dette, déficit, emploi) était trop faible : les électeurs ont voulu du concret. L'immobilisme ne paie pas." };
   if (ind.popularite >= 28) return { key: "battu", title: "Battu·e au second tour", icon: "mood-sad", color: "#6F94C9",
     text: "Malgré des réformes, l'opinion a préféré tourner la page. Les efforts budgétaires paient rarement à court terme." };
   return { key: "desavoue", title: "Désavoué·e par les urnes", icon: "thumb-down", color: "#F19A9A",
     text: "Le pays a sanctionné votre mandat. L'impopularité des choix a eu le dernier mot." };
+}
+
+// Explication dynamique du résultat, à partir du bilan chiffré du mandat
+function expliquerFin(game) {
+  const h = game.history || [];
+  if (!h.length) return "";
+  const last = h[h.length - 1].ind;
+  const avgSolde = h.reduce((s, r) => s + r.ind.solde, 0) / h.length;
+  const detteDelta = last.dette - 116;
+  const p = [];
+  p.push(`Sur 5 ans, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
+  p.push(detteDelta > 2 ? `la dette est passée de 116 % à ${fmt(last.dette, 0)} % (+${fmt(detteDelta, 0)} points)` : detteDelta < -2 ? `la dette a reculé de 116 % à ${fmt(last.dette, 0)} %` : `la dette est restée stable (${fmt(last.dette, 0)} %)`);
+  p.push(last.chomage < 7 ? `le chômage a baissé à ${fmt(last.chomage, 1)} %` : last.chomage > 9 ? `le chômage a grimpé à ${fmt(last.chomage, 1)} %` : `le chômage s'établit à ${fmt(last.chomage, 1)} %`);
+  if (last.integrite < 40) p.push(`et votre intégrité, entamée (${fmt(last.integrite, 0)}/100), a nourri les scandales`);
+  return p.join(", ").replace(/,([^,]*)$/, "$1") + ".";
 }
 
 function lessonFor(ind) {
@@ -661,24 +679,42 @@ function Home({ onStart, onResume, onLeaderboard, hasSave }) {
   const canStart = code.trim() && team.trim() && doc;
   return (
     <div>
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 11, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={24} color="#12203A" /></div>
-          <h1 style={{ margin: 0, color: C.ink, fontFamily: "Fraunces,serif", fontSize: 30, fontWeight: 600 }}>Quinquennat</h1>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 15, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={34} color="#12203A" /></div>
+          <h1 style={{ margin: 0, color: C.ink, fontFamily: "Fraunces,serif", fontSize: 46, fontWeight: 600 }}>Quinquennat</h1>
         </div>
-        <p style={{ color: C.dim, fontSize: 14, margin: 0 }}>À vous de gouverner la France pendant 5 ans. Chaque décision compte.</p>
+        <p style={{ color: C.dim, fontSize: 17, margin: 0 }}>À vous de gouverner la France pendant 5 ans. Chaque décision compte.</p>
       </div>
+
+      {/* Guidage : 3 étapes à compléter avant de commencer */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        {[["Code de classe", !!code.trim()], ["Nom d'équipe", !!team.trim()], ["Doctrine", !!doc]].map(([label, done], i) => (
+          <React.Fragment key={i}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: done ? C.mint : C.ink }}>
+              <span style={{ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, background: done ? C.mint : "transparent", color: done ? "#12203A" : C.dim, border: `1.5px solid ${done ? C.mint : C.line}` }}>
+                {done ? "✓" : i + 1}
+              </span>
+              {label}
+            </div>
+            {i < 2 && <span style={{ color: C.line }}>→</span>}
+          </React.Fragment>
+        ))}
+      </div>
+      <div style={{ textAlign: "center", fontSize: 12, color: C.dim, marginBottom: 14 }}>Complétez les 3 étapes ci-dessous pour lancer la partie.</div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-        <label style={{ fontSize: 12, color: C.dim }}>Code de la classe
+        <label style={{ fontSize: 12, color: C.dim }}>① Code de la classe <span style={{ color: C.coral }}>*</span>
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="STMG-A" style={inp} />
+          <span style={{ fontSize: 10.5, color: C.dim }}>Le même pour toutes les équipes de la classe (pour le classement).</span>
         </label>
-        <label style={{ fontSize: 12, color: C.dim }}>Nom de l'équipe
+        <label style={{ fontSize: 12, color: C.dim }}>② Nom de l'équipe <span style={{ color: C.coral }}>*</span>
           <input value={team} onChange={(e) => setTeam(e.target.value)} placeholder="Les Réformateurs" style={inp} />
+          <span style={{ fontSize: 10.5, color: C.dim }}>Choisissez un nom qui vous représente.</span>
         </label>
       </div>
 
-      <div style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>Choisissez votre doctrine — une simple orientation : vous restez libre de tous vos choix ensuite.</div>
+      <div style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>③ Choisissez votre doctrine <span style={{ color: C.coral }}>*</span> — une simple orientation : vous restez libre de tous vos choix ensuite.</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 18 }}>
         {DOCTRINES.map((d) => (
           <div key={d.id} onClick={() => setDoc(d.id)} style={{ cursor: "pointer", background: C.card, border: `2px solid ${doc === d.id ? d.color : C.line}`, borderRadius: 12, padding: 12 }}>
@@ -693,13 +729,19 @@ function Home({ onStart, onResume, onLeaderboard, hasSave }) {
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <Btn kind="primary" disabled={!canStart} onClick={() => onStart(code.trim().toUpperCase(), team.trim(), doc)}>
           <Icon n="player-play" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Commencer le mandat
         </Btn>
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre</Btn>}
         <Btn onClick={() => onLeaderboard(code.trim().toUpperCase())}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
       </div>
+      {!canStart && (
+        <div style={{ marginTop: 10, fontSize: 12, color: C.gold, display: "flex", alignItems: "center", gap: 6 }}>
+          <Icon n="info-circle" size={14} />
+          Avant de commencer, complétez : {[!code.trim() && "le code de classe", !team.trim() && "le nom d'équipe", !doc && "la doctrine"].filter(Boolean).join(", ")}.
+        </div>
+      )}
     </div>
   );
 }
@@ -710,32 +752,32 @@ function Mission({ team, doctrine, onGo }) {
   return (
     <div>
       <ScreenTitle icon="target-arrow" title="Votre mission" sub={`${team} · doctrine ${doctrine?.label}`} />
-      <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
-        <p style={{ color: C.ink, fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+      <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 16, padding: 22, marginBottom: 18 }}>
+        <p style={{ color: C.ink, fontSize: 16, lineHeight: 1.65, margin: 0 }}>
           Vous dirigez la France pendant <b>5 ans</b>. Chaque année : vous votez un <b>budget</b> (ce que l'État gagne et dépense), puis vous affrontez <b>3 événements</b> imprévus. À la fin, les Français votent.
         </p>
-        <p style={{ color: C.sub, fontSize: 13, lineHeight: 1.6, margin: "10px 0 0" }}>
+        <p style={{ color: C.sub, fontSize: 15, lineHeight: 1.65, margin: "12px 0 0" }}>
           Au départ, le pays va mal : un <b style={{ color: C.coral }}>déficit de 5 %</b> (l'État dépense plus qu'il ne gagne) et une <b style={{ color: C.coral }}>dette de 116 %</b> du PIB. Votre but : redresser les comptes <b>sans casser la société</b>. Attention, tout se tient — aucune décision n'est gratuite.
         </p>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-        <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 13 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 12.5, fontWeight: 500, marginBottom: 8 }}><Icon n="target" size={16} /> Vos objectifs</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
+        <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 500, marginBottom: 10 }}><Icon n="target" size={18} /> Vos objectifs</div>
           {OBJECTIFS.map((o) => (
-            <div key={o.id} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: C.sub, padding: "3px 0" }}>
-              <Icon n={o.icon} size={14} color={C.dim} /> {o.label}
+            <div key={o.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: C.sub, padding: "4px 0" }}>
+              <Icon n={o.icon} size={15} color={C.dim} /> {o.label}
             </div>
           ))}
         </div>
-        <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 13 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 12.5, fontWeight: 500, marginBottom: 8 }}><Icon n="trophy" size={16} /> Comment vous êtes noté·e</div>
-          <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.7 }}>
+        <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 500, marginBottom: 10 }}><Icon n="trophy" size={18} /> Comment vous êtes noté·e</div>
+          <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.8 }}>
             <div><b style={{ color: C.mint }}>Économie</b> 55 % · <b style={{ color: "#7FB0C9" }}>Social</b> 30 % · <b style={{ color: C.gold }}>Popularité</b> 15 %</div>
-            <div style={{ color: C.dim, fontSize: 11.5, marginTop: 6 }}>Le <b>score</b> décide du classement entre équipes. Mais votre <b>réélection</b> dépend surtout de votre <b>popularité</b> le jour du vote !</div>
+            <div style={{ color: C.dim, fontSize: 13, marginTop: 8 }}>Le <b>score</b> décide du classement entre équipes. Mais votre <b>réélection</b> dépend surtout de votre <b>popularité</b> le jour du vote !</div>
           </div>
         </div>
       </div>
-      <Btn kind="primary" onClick={onGo}><Icon n="player-play" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Entrer en fonction</Btn>
+      <Btn kind="primary" onClick={onGo} style={{ fontSize: 16, padding: "13px 22px" }}><Icon n="player-play" size={17} style={{ verticalAlign: -3, marginRight: 7 }} />Entrer en fonction</Btn>
     </div>
   );
 }
@@ -764,6 +806,15 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const balance = preview.balanceMd;
   const setLevel = (id, v) => setLevels({ ...levels, [id]: clamp(v, LEVEL_MIN, LEVEL_MAX) });
   const list = LEVERS.filter((l) => l.cat === tab);
+  // Projection : si on garde ce solde jusqu'en 2031, où finit la dette ?
+  const detteProjetee = useMemo(() => {
+    let d = indPrev.dette; const g = (preview.ind.croissance + 1.3) / 100;
+    for (let i = year; i <= YEARS; i++) d = d + (-preview.ind.solde) - d * g;
+    return d;
+  }, [indPrev.dette, preview.ind.solde, preview.ind.croissance, year]);
+  const detteMonte = detteProjetee > indPrev.dette + 1;
+  const alerteDeficit = preview.ind.solde < -6;
+  const alerteDette = detteProjetee > 140;
   return (
     <div>
       <ScreenTitle icon="wallet" title={`Budget ${2026 + year}`} sub={`Année ${year}/${YEARS} — ajustez par crans. Les taux se conservent d'une année sur l'autre.`} />
@@ -789,11 +840,21 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
           <Btn kind="primary" onClick={onValidate}>Valider le budget <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
         </div>
         {/* Aperçu complet des conséquences prévues */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 10 }}>
-          <PreviewChip label="Solde prévu" value={`${fmt(preview.ind.solde, 1)} %`} tone={preview.ind.solde < -3 ? "bad" : preview.ind.solde > -1 ? "good" : "mid"} />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 10 }}>
+          <PreviewChip label="Solde prévu" value={`${fmt(preview.ind.solde, 1)} %`} tone={preview.ind.solde < -6 ? "bad" : preview.ind.solde > -1 ? "good" : "mid"} />
+          <PreviewChip label="Dette en 2031" value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
           <PreviewChip label="Croissance" value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
           <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
         </div>
+        <div style={{ fontSize: 11, color: C.dim, marginTop: 6, textAlign: "center" }}>
+          Dette {fmt(indPrev.dette, 0)} % → <b style={{ color: detteMonte ? C.coral : C.mint }}>{fmt(detteProjetee, 0)} %</b> en fin de mandat si vous gardez ce cap.
+        </div>
+        {(alerteDeficit || alerteDette) && (
+          <div style={{ marginTop: 10, background: "#3A1E1E", border: `1px solid ${C.coral}66`, borderRadius: 9, padding: "9px 12px", color: C.coral, fontSize: 12.5, display: "flex", alignItems: "flex-start", gap: 8 }}>
+            <Icon n="alert-triangle" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+            <span>{alerteDeficit && `Déficit très élevé (${fmt(preview.ind.solde, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
+          </div>
+        )}
         <div style={{ color: C.dim, fontSize: 11, marginTop: 8, textAlign: "center" }}>Prévision avant événements — les 3 cartes de l'année viendront tout bousculer.</div>
       </div>
     </div>
@@ -905,6 +966,11 @@ function ChoiceRow({ choice, onClick }) {
         <Icon n="chevron-right" size={16} color={C.gold} />
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 }}>{fxChips}</div>
+      {(choice.fx.integrite || 0) <= -5 && (
+        <div style={{ marginTop: 7, fontSize: 11, color: "#E0A96D", display: "flex", alignItems: "center", gap: 5 }}>
+          <Icon n="alert-triangle" size={13} /> Entame fortement votre intégrité — risque de scandale plus tard.
+        </div>
+      )}
       {choice.note && <Note text={choice.note} />}
     </div>
   );
@@ -921,8 +987,129 @@ function ScreenTitle({ icon, title, sub }) {
   );
 }
 
+/* ============================================================
+   FLUX (PIB, recettes, dépenses en Md€) — calculés à la clôture
+   pour alimenter les graphiques. Le jeu raisonne en % du PIB ;
+   on reconstruit ici des montants cohérents avec le solde affiché.
+   ============================================================ */
+const RECETTES0 = 1450, DEPENSES0 = 1600;
+function computeFlows(ind, levels, pibPrev) {
+  const pib = pibPrev * (1 + (ind.croissance + 1.3) / 100);
+  let revBalance = 0;
+  for (const lev of LEVERS) if (lev.cat === "rec") revBalance += (levels[lev.id] || 0) * lev.eurStep;
+  const recettes = RECETTES0 * (pib / PIB) + revBalance;
+  const soldeMd = ind.solde * pib / 100;          // cohérent avec le solde affiché
+  const depenses = recettes - soldeMd;
+  return { pib, recettes, depenses };
+}
+
+/* ============================================================
+   GRAPHIQUES SVG MAISON (sans dépendance)
+   ============================================================ */
+function ChartFrame({ title, legend, children }) {
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 12px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <span style={{ color: C.ink, fontSize: 12.5, fontWeight: 500 }}>{title}</span>
+        {legend && <span style={{ display: "flex", gap: 8 }}>{legend.map((l) => (
+          <span key={l.label} style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 10, color: C.dim }}>
+            <span style={{ width: 8, height: 8, borderRadius: 2, background: l.color }} />{l.label}
+          </span>
+        ))}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+function niceBounds(lo, hi) {
+  if (lo === hi) { lo -= 1; hi += 1; }
+  const pad = (hi - lo) * 0.14;
+  return [lo - pad, hi + pad];
+}
+function LineChartSVG({ data, color, refValue, refLabel, decimals = 0 }) {
+  const W = 300, H = 136, L = 34, R = 10, T = 12, B = 20;
+  if (!data.length) return null;
+  const ys = data.map((d) => d.y);
+  let lo = Math.min(...ys), hi = Math.max(...ys);
+  if (refValue != null) { lo = Math.min(lo, refValue); hi = Math.max(hi, refValue); }
+  [lo, hi] = niceBounds(lo, hi);
+  const x = (i) => L + (data.length <= 1 ? (W - L - R) / 2 : (i / (data.length - 1)) * (W - L - R));
+  const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  const line = data.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(d.y).toFixed(1)}`).join(" ");
+  const area = data.length > 1 ? `${line} L${x(data.length - 1).toFixed(1)},${y(lo).toFixed(1)} L${x(0).toFixed(1)},${y(lo).toFixed(1)} Z` : "";
+  const gid = "grad" + Math.random().toString(36).slice(2, 8);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+      <defs><linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stopColor={color} stopOpacity="0.25" /><stop offset="1" stopColor={color} stopOpacity="0" />
+      </linearGradient></defs>
+      {[0, 0.5, 1].map((t, i) => { const vy = T + t * (H - T - B); const val = hi - t * (hi - lo); return (
+        <g key={i}><line x1={L} x2={W - R} y1={vy} y2={vy} stroke={C.line} strokeWidth="0.5" />
+          <text x={L - 4} y={vy + 3} textAnchor="end" fill={C.dim} style={{ font: "8px monospace" }}>{fmt(val, decimals)}</text></g>); })}
+      {refValue != null && <g>
+        <line x1={L} x2={W - R} y1={y(refValue)} y2={y(refValue)} stroke={C.gold} strokeDasharray="3 3" strokeWidth="0.8" opacity="0.7" />
+        {refLabel && <text x={W - R} y={y(refValue) - 3} textAnchor="end" fill={C.gold} style={{ font: "8px monospace" }} opacity="0.85">{refLabel}</text>}
+      </g>}
+      {area && <path d={area} fill={`url(#${gid})`} />}
+      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
+      {data.map((d, i) => <circle key={i} cx={x(i)} cy={y(d.y)} r="2.4" fill={color} />)}
+      {data.map((d, i) => <text key={i} x={x(i)} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace" }}>{d.x}</text>)}
+    </svg>
+  );
+}
+function GroupedBarsSVG({ data, colorA, colorB }) {
+  const W = 300, H = 136, L = 34, R = 10, T = 12, B = 20;
+  if (!data.length) return null;
+  const vals = data.flatMap((d) => [d.a, d.b]);
+  let lo = Math.min(...vals) * 0.96, hi = Math.max(...vals) * 1.03;
+  const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  const n = data.length, gw = (W - L - R) / n, bw = Math.min(13, gw * 0.3);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+      {[0, 0.5, 1].map((t, i) => { const vy = T + t * (H - T - B); const val = hi - t * (hi - lo); return (
+        <g key={i}><line x1={L} x2={W - R} y1={vy} y2={vy} stroke={C.line} strokeWidth="0.5" />
+          <text x={L - 4} y={vy + 3} textAnchor="end" fill={C.dim} style={{ font: "8px monospace" }}>{fmt(val, 0)}</text></g>); })}
+      {data.map((d, i) => { const cx = L + gw * i + gw / 2; return (
+        <g key={i}>
+          <rect x={cx - bw - 1} y={y(d.a)} width={bw} height={Math.max(0, y(lo) - y(d.a))} fill={colorA} rx="1.5" />
+          <rect x={cx + 1} y={y(d.b)} width={bw} height={Math.max(0, y(lo) - y(d.b))} fill={colorB} rx="1.5" />
+          <text x={cx} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace" }}>{d.x}</text>
+        </g>); })}
+    </svg>
+  );
+}
+function EvolutionCharts({ history }) {
+  if (!history || history.length === 0)
+    return <div style={{ color: C.dim, fontSize: 12.5, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14 }}>Les graphiques d'évolution apparaîtront à la fin de la première année.</div>;
+  let pib = PIB;
+  const rows = history.map((h) => {
+    pib = pib * (1 + (h.ind.croissance + 1.3) / 100);
+    const P = h.pib ?? pib;
+    const rec = h.recettes ?? (RECETTES0 * (P / PIB));
+    const dep = h.depenses ?? (rec - h.ind.solde * P / 100);
+    return { x: "'" + String(2026 + h.year).slice(2), dette: h.ind.dette, chomage: h.ind.chomage, pib: P, rec, dep };
+  });
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <ChartFrame title="Dette (% du PIB)">
+        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.dette.toFixed(1) }))} color={C.coral} refValue={116} refLabel="départ 116" decimals={0} />
+      </ChartFrame>
+      <ChartFrame title="PIB (Md€)">
+        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: Math.round(r.pib) }))} color={C.mint} decimals={0} />
+        <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>PIB nominal (en euros courants) : il progresse avec la croissance <em>et</em> l'inflation (~1,3 %/an supposée).</div>
+      </ChartFrame>
+      <ChartFrame title="Recettes vs Dépenses (Md€)" legend={[{ label: "Recettes", color: C.mint }, { label: "Dépenses", color: C.coral }]}>
+        <GroupedBarsSVG data={rows.map((r) => ({ x: r.x, a: r.rec, b: r.dep }))} colorA={C.mint} colorB={C.coral} />
+      </ChartFrame>
+      <ChartFrame title="Chômage (%)">
+        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.chomage.toFixed(1) }))} color={C.gold} refValue={7.5} refLabel="départ 7,5" decimals={1} />
+      </ChartFrame>
+    </div>
+  );
+}
+
 /* ---------- Bilan d'année + Conseiller ---------- */
-function YearSummary({ year, indBefore, ind, flags, onNext, onTable }) {
+function YearSummary({ year, indBefore, ind, flags, onNext, onTable, history }) {
   const bilan = useMemo(() => conseiller(indBefore, ind, flags), [indBefore, ind, flags]);
   const wins = useMemo(() => victoires(indBefore, ind), [indBefore, ind]);
   return (
@@ -954,6 +1141,12 @@ function YearSummary({ year, indBefore, ind, flags, onNext, onTable }) {
         </div>
       </div>
 
+      {/* Graphiques d'évolution */}
+      <div style={{ marginTop: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.ink, fontSize: 13.5, fontWeight: 500, marginBottom: 8 }}><Icon n="chart-dots" size={16} color={C.gold} /> Évolution depuis le début du mandat</div>
+        <EvolutionCharts history={history} />
+      </div>
+
       <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
         <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Tableau de bord</Btn>
         <Btn kind="primary" onClick={onNext}>{year >= YEARS ? "Élection présidentielle" : `Passer à ${2027 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
@@ -978,6 +1171,8 @@ function ResultsTable({ history, onClose }) {
       {history.length === 0
         ? <div style={{ color: C.dim, fontSize: 13, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16 }}>Aucune année terminée pour l'instant. Le tableau se remplira à la fin de chaque année.</div>
         : (
+          <>
+          <div style={{ marginBottom: 14 }}><EvolutionCharts history={history} /></div>
           <div style={{ overflowX: "auto", background: C.card, border: `1px solid ${C.line}`, borderRadius: 12 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: "monospace" }}>
               <thead><tr style={{ color: C.dim }}>
@@ -994,6 +1189,7 @@ function ResultsTable({ history, onClose }) {
               </tbody>
             </table>
           </div>
+          </>
         )}
       <div style={{ marginTop: 14 }}><Btn kind="primary" onClick={onClose}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Revenir au jeu</Btn></div>
     </div>
@@ -1027,6 +1223,10 @@ function Debrief({ game, sc, end, leaderboard, onReplay, onHome }) {
         <Icon n={end.icon} size={46} color={end.color} />
         <h2 style={{ color: end.color, fontFamily: "Fraunces,serif", fontSize: 26, margin: "10px 0 6px" }}>{end.title}</h2>
         <p style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.6, maxWidth: 520, margin: "0 auto" }}>{end.text}</p>
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${end.color}33`, maxWidth: 560, margin: "12px auto 0" }}>
+          <div style={{ fontSize: 10.5, color: C.dim, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 3 }}>Ce qui explique ce résultat</div>
+          <div style={{ color: C.ink, fontSize: 13, lineHeight: 1.55 }}>{expliquerFin(game)}</div>
+        </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
         {[["Économie", sc.eco, "55 %"], ["Social", sc.social, "30 %"], ["Politique", sc.politique, "15 %"], ["SCORE", sc.total, "final"]].map(([l, v, w], i) => (
@@ -1040,6 +1240,7 @@ function Debrief({ game, sc, end, leaderboard, onReplay, onHome }) {
         <div style={{ color: C.dim, fontSize: 11, textTransform: "uppercase", marginBottom: 4 }}>Leçon du mandat</div>
         <div style={{ color: C.ink, fontSize: 14 }}>{lessonFor(game.ind)}</div>
       </div>
+      <DecisionsRecap decisions={game.decisions} />
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 8 }}><Icon n="trophy" size={18} color={C.gold} /> Classement — {game.code}</div>
         {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13 }}>Aucun score enregistré pour l'instant.</div>}
@@ -1061,6 +1262,40 @@ function Debrief({ game, sc, end, leaderboard, onReplay, onHome }) {
         <Btn kind="primary" onClick={onReplay}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Rejouer</Btn>
         <Btn onClick={onHome}><Icon n="home" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Accueil</Btn>
       </div>
+    </div>
+  );
+}
+function DecisionsRecap({ decisions }) {
+  const [open, setOpen] = useState(false);
+  if (!decisions || !decisions.length) return null;
+  const byYear = {};
+  for (const d of decisions) { (byYear[d.year] = byYear[d.year] || []).push(d); }
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+      <button onClick={() => setOpen(!open)} style={{ background: "none", border: "none", cursor: "pointer", color: C.ink, fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, padding: 0, width: "100%" }}>
+        <Icon n="list-check" size={16} color={C.gold} /> Vos {decisions.length} décisions face aux événements
+        <span style={{ marginLeft: "auto", color: C.dim }}>{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+          {Object.keys(byYear).sort((a, b) => a - b).map((y) => (
+            <div key={y}>
+              <div style={{ fontSize: 11, color: C.gold, fontWeight: 500, marginBottom: 4 }}>{2026 + Number(y)}</div>
+              <div style={{ display: "grid", gap: 4 }}>
+                {byYear[y].map((d, i) => {
+                  const t = TYPES[d.type] || {};
+                  return (
+                    <div key={i} style={{ fontSize: 12.5, color: C.sub, display: "flex", gap: 7, alignItems: "flex-start" }}>
+                      <Icon n={(t.icon || "point").replace("ti-", "")} size={13} color={t.color || C.dim} style={{ marginTop: 2, flexShrink: 0 }} />
+                      <span><span style={{ color: C.ink }}>{d.event}</span> → {d.choice}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1136,13 +1371,17 @@ export default function App() {
   }
 
   function chooseEvent(choice) {
+    const ev = evts[evtIdx];
     const newInd = applyFx(game.ind, choice.fx);
-    const usedIds = [...game.usedIds, evts[evtIdx].id];
-    if (evtIdx + 1 < evts.length) { setGame({ ...game, ind: newInd, usedIds }); setEvtIdx(evtIdx + 1); }
+    const usedIds = [...game.usedIds, ev.id];
+    const decisions = [...(game.decisions || []), { year: game.year, event: ev.title, type: ev.type, choice: choice.label }];
+    if (evtIdx + 1 < evts.length) { setGame({ ...game, ind: newInd, usedIds, decisions }); setEvtIdx(evtIdx + 1); }
     else {
       const { ind: finalInd, flags: fl } = finalizeYear(newInd);
-      const history = [...game.history, { year: game.year, ind: finalInd }];
-      const g2 = { ...game, ind: finalInd, usedIds, history, pendingFlags: fl };
+      const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB;
+      const flows = computeFlows(finalInd, game.levels, pibPrev);
+      const history = [...game.history, { year: game.year, ind: finalInd, ...flows }];
+      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl };
       setFlags(fl); setGame(g2); persist(g2); setScreen("summary");
     }
   }
@@ -1174,7 +1413,7 @@ export default function App() {
         @import url('https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.11.0/tabler-icons.min.css');
         * { box-sizing: border-box; } button:hover { filter: brightness(1.08); }
         ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: #2C4372; border-radius: 4px; }`}</style>
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "18px 16px 40px" }}>
+      <div style={{ maxWidth: (screen === "home" || screen === "mission") ? 1040 : 760, margin: "0 auto", padding: (screen === "home" || screen === "mission") ? "40px 24px 48px" : "18px 16px 40px" }}>
         {game && screen !== "home" && (
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -1196,7 +1435,7 @@ export default function App() {
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
-        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} />}
+        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} history={game.history} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "election" && game && <Election onReveal={reveal} />}
         {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} onReplay={() => start(game.code, game.team, game.doctrineId)} onHome={() => { setGame(null); setScreen("home"); }} />}
