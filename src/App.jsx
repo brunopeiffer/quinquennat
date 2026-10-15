@@ -19,6 +19,11 @@ const SOLDE_DIV = 14;       // Md€ pour bouger le solde de 1 point de PIB (ré
 const IMPACT = 1.4;         // amplifie l'effet des leviers sur les jauges (popularité, cohésion…)
 const IMPULSE_GAIN = 1.5;   // amplifie l'effet des décisions sur la croissance
 const LEVEL_MIN = -8, LEVEL_MAX = 10;   // bornes cumulées d'un levier
+// --- Coût de la dette : taux d'emprunt dynamique (réaction des marchés) ---
+const PRIMARY_BASE = -3.0;  // solde PRIMAIRE de départ (hors intérêts) ; + charge ≈ -5 % total
+const TAUX0 = 1.7;          // taux d'emprunt initial (%)
+const TAUX_BASE = 1.0, TAUX_KDETTE = 0.03, TAUX_KDEF = 0.5, TAUX_KCONF = 0.35; // sensibilité (forte)
+const TAUX_ADJ = 0.5, TAUX_MIN = 1.0, TAUX_MAX = 8.0; // vitesse d'ajustement et bornes
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const fmt = (n, d = 0) => (n ?? 0).toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d });
 
@@ -91,6 +96,14 @@ const LEVERS = [
     eur0: 45, eurStep: 4.5, rate0: null, unit: "", mult: 0.5,
     fx: { popularite: -2, cohesion: -1, environnement: 2 },
     hint: "Taxe l'énergie et le carbone. Incite à la transition mais peut déclencher une révolte fiscale." },
+  { id: "fraude_fisc", cat: "rec", label: "Lutte contre la fraude fiscale", icon: "search",
+    eur0: 0, eurStep: 4, rate0: null, unit: "", mult: 0.3, lmin: 0, concave: true,
+    fx: { popularite: 1 },
+    hint: "Récupérer l'impôt éludé est populaire, mais le rendement est limité et décroissant : il faut des contrôleurs, du temps, et une partie reste irrécupérable." },
+  { id: "fraude_soc", cat: "rec", label: "Lutte contre la fraude sociale", icon: "shield-check",
+    eur0: 0, eurStep: 1.6, rate0: null, unit: "", mult: 0.3, lmin: 0, concave: true,
+    fx: { popularite: 1, cohesion: -0.5 },
+    hint: "Traquer les prestations indues rapporte peu (les montants sont faibles) et peut stigmatiser les allocataires. Souvent surestimé dans les débats." },
   // ---------------- DÉPENSES ----------------
   { id: "retraites", cat: "dep", label: "Retraites", icon: "old",
     eur0: 340, eurStep: 7, rate0: null, unit: "", mult: 1.1,
@@ -139,7 +152,7 @@ const LEVERS = [
 ];
 
 // Helpers d'affichage : montant et taux courants d'un levier selon son niveau cumulé
-const levEur = (lev, level) => Math.max(0, lev.eur0 + (level || 0) * lev.eurStep);
+const levEur = (lev, level) => (lev.concave && (level || 0) > 0) ? lev.eur0 + lev.eurStep * Math.pow(level, 0.6) : Math.max(0, lev.eur0 + (level || 0) * lev.eurStep);
 const levRate = (lev, level) => (lev.rate0 == null ? null : lev.rate0 + (level || 0) * lev.rateStep);
 
 /* ---- Doctrines de départ (inspirées de vrais modèles) ---- */
@@ -419,25 +432,29 @@ function clampInd(ind) {
 }
 function scale(fx, k) { const o = {}; for (const key in fx) o[key] = fx[key] * k; return o; }
 
-// Solde apporté par les NIVEAUX cumulés (persistant : un impôt maintenu rapporte chaque année)
+// Rendement d'un levier selon son niveau. Les leviers "concave" (fraude) ont un
+// rendement décroissant : les premiers crans rapportent, puis de moins en moins.
+function gainLevier(lev, lvl) {
+  if (!lvl) return 0;
+  if (lev.concave && lvl > 0) return lev.eurStep * Math.pow(lvl, 0.6);
+  return lev.eurStep * lvl;
+}
+// Solde PRIMAIRE (hors intérêts) apporté par les NIVEAUX cumulés
 function balanceFromLevels(levels, doctrine) {
-  const mod = doctrine?.mod || {};
   let md = 0;
   for (const lev of LEVERS) {
-    const lvl = levels[lev.id] || 0;
-    if (!lvl) continue;
-    let eur = lvl * lev.eurStep;                       // Md€ vs base
+    const eur = gainLevier(lev, levels[lev.id] || 0);
     md += lev.cat === "rec" ? eur : -eur;              // recette améliore le solde, dépense le dégrade
   }
   return md;
 }
 
-// Début d'année : réinitialise croissance & solde à leur base structurelle
+// Début d'année : réinitialise croissance & solde PRIMAIRE (hors charge de la dette)
 function startYear(indPrev, year, doctrine) {
   const mod = doctrine?.mod || {};
   const dragCoef = 0.012 * (mod.dragRelief ? mod.dragRelief : 1);
   const drag = -dragCoef * Math.max(0, indPrev.dette - 90);
-  return { ...indPrev, croissance: 1.0 + drag, solde: -5.0 };
+  return { ...indPrev, croissance: 1.0 + drag, solde: PRIMARY_BASE };
 }
 
 // Applique le budget de l'année : solde = base + niveaux ; impulsion = CHANGEMENT de l'année
@@ -472,21 +489,42 @@ function applyBudgetYear(indPrev, levels, prevLevels, year, doctrine) {
   return { ind: clampInd(ind), balanceMd, impulse, changes };
 }
 
-// Clôture : loi d'Okun, dynamique de dette, usure, pénalités
-function finalizeYear(ind0) {
+// Clôture : chômage (Okun) → taux d'emprunt (marchés) → charge de la dette → dette → pénalités.
+// À l'entrée, n.solde est le solde PRIMAIRE (hors intérêts). tauxPrev = taux de l'an dernier.
+function finalizeYear(ind0, tauxPrev = TAUX0) {
   let n = { ...ind0 };
+  const soldePrimaire = n.solde;
   n.chomage = clamp(n.chomage - 0.35 * (n.croissance - 1.0), 3, 20);
+
+  // 1) Taux d'emprunt : les marchés réagissent à la dette et au déficit primaire.
+  //    Dette élevée ou déficit qui dérape → taux qui monte (défiance) ; excédent → taux qui baisse (confiance).
+  const tauxCible = TAUX_BASE
+    + TAUX_KDETTE * Math.max(0, n.dette - 100)
+    + TAUX_KDEF * Math.max(0, -soldePrimaire - 2)
+    - TAUX_KCONF * Math.max(0, soldePrimaire);
+  const taux = clamp(tauxPrev + (tauxCible - tauxPrev) * TAUX_ADJ, TAUX_MIN, TAUX_MAX);
+
+  // 2) Charge de la dette (intérêts) = taux × dette, en points de PIB puis en Md€.
+  const chargePct = taux * n.dette / 100;
+  const chargeMd = chargePct * PIB / 100;
+
+  // 3) Solde total = solde primaire − charge de la dette.
+  n.solde = clamp(soldePrimaire - chargePct, -18, 8);
+
+  // 4) Dynamique de dette (le déficit total s'ajoute, la croissance nominale dilue).
   const nominalG = (n.croissance + 1.3) / 100;
-  n.dette = clamp(n.dette + (-n.solde) - n.dette * nominalG, 40, 220);
-  n.popularite = clamp(n.popularite - 0.6, 0, 100);      // usure du pouvoir (adoucie)
+  n.dette = clamp(n.dette + (-n.solde) - n.dette * nominalG, 40, 240);
+
+  n.popularite = clamp(n.popularite - 0.6, 0, 100);      // usure du pouvoir
   n.environnement = clamp(n.environnement - 0.7, 0, 100);
+
   const flags = [];
-  if (n.dette > 130) { n.solde = clamp(n.solde - 0.5, -15, 6); n.popularite = clamp(n.popularite - 3, 0, 100); flags.push("marches"); }
+  if (taux > 3.5) flags.push("taux");                    // les marchés s'affolent
   if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, -6, 6); flags.push("defiance"); }
   if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, -6, 6); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
   if (n.popularite < 22) flags.push("censure");
   if (n.integrite < 30) flags.push("scandale");
-  return { ind: clampInd(n), flags };
+  return { ind: clampInd(n), flags, taux: +taux.toFixed(2), chargeMd: Math.round(chargeMd), soldePrimaire: +soldePrimaire.toFixed(1) };
 }
 
 // tirage des 3 événements de l'année
@@ -530,7 +568,7 @@ function conseiller(before, after, flags, bigEvent) {
   else if (up("environnement", 1)) social += `. Les indicateurs écologiques progressent.`;
   else social += `.`;
   // Alerte
-  const alertMap = { marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
+  const alertMap = { taux: "Les marchés s'affolent : votre taux d'emprunt grimpe, la charge de la dette explose — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
   const alerte = flags.map((f) => alertMap[f]).filter(Boolean);
   return { eco, social, alerte };
 }
@@ -717,10 +755,11 @@ function Note({ text }) {
 
 /* ---------- Écran d'accueil ---------- */
 function Home({ onStart, onResume, onLeaderboard, hasSave }) {
-  const [code, setCode] = useState("STMG");
+  const [code, setCode] = useState("CLASSE");
   const [team, setTeam] = useState("");
   const [doc, setDoc] = useState(null);
-  const canStart = code.trim() && team.trim() && doc;
+  const codeOk = (code.trim() || "CLASSE");
+  const canStart = team.trim() && doc;
   return (
     <div>
       <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -731,34 +770,28 @@ function Home({ onStart, onResume, onLeaderboard, hasSave }) {
         <p style={{ color: C.dim, fontSize: 17, margin: 0 }}>À vous de gouverner la France pendant 5 ans. Chaque décision compte.</p>
       </div>
 
-      {/* Guidage : 3 étapes à compléter avant de commencer */}
+      {/* Guidage : 2 étapes obligatoires */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14, flexWrap: "wrap", justifyContent: "center" }}>
-        {[["Code de classe", !!code.trim()], ["Nom d'équipe", !!team.trim()], ["Doctrine", !!doc]].map(([label, done], i) => (
+        {[["Nom d'équipe", !!team.trim()], ["Doctrine", !!doc]].map(([label, done], i) => (
           <React.Fragment key={i}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: done ? C.mint : C.ink }}>
-              <span style={{ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, background: done ? C.mint : "transparent", color: done ? "#12203A" : C.dim, border: `1.5px solid ${done ? C.mint : C.line}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: done ? C.mint : C.ink }}>
+              <span style={{ width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, background: done ? C.mint : "transparent", color: done ? "#12203A" : C.dim, border: `1.5px solid ${done ? C.mint : C.line}` }}>
                 {done ? "✓" : i + 1}
               </span>
               {label}
             </div>
-            {i < 2 && <span style={{ color: C.line }}>→</span>}
+            {i < 1 && <span style={{ color: C.line }}>→</span>}
           </React.Fragment>
         ))}
       </div>
-      <div style={{ textAlign: "center", fontSize: 12, color: C.dim, marginBottom: 14 }}>Complétez les 3 étapes ci-dessous pour lancer la partie.</div>
+      <div style={{ textAlign: "center", fontSize: 12.5, color: C.dim, marginBottom: 16 }}>Deux étapes seulement pour lancer la partie.</div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-        <label style={{ fontSize: 12, color: C.dim }}>① Code de la classe <span style={{ color: C.coral }}>*</span>
-          <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="STMG-A" style={inp} />
-          <span style={{ fontSize: 10.5, color: C.dim }}>Le même pour toutes les équipes de la classe (pour le classement).</span>
-        </label>
-        <label style={{ fontSize: 12, color: C.dim }}>② Nom de l'équipe <span style={{ color: C.coral }}>*</span>
-          <input value={team} onChange={(e) => setTeam(e.target.value)} placeholder="Les Réformateurs" style={inp} />
-          <span style={{ fontSize: 10.5, color: C.dim }}>Choisissez un nom qui vous représente.</span>
-        </label>
-      </div>
+      <label style={{ fontSize: 13, color: C.dim, display: "block", marginBottom: 14 }}>① Nom de votre équipe <span style={{ color: C.coral }}>*</span>
+        <input value={team} onChange={(e) => setTeam(e.target.value)} placeholder="Les Réformateurs" style={{ ...inp, fontSize: 15 }} autoFocus />
+        <span style={{ fontSize: 11, color: C.dim }}>Choisissez un nom qui vous représente.</span>
+      </label>
 
-      <div style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>③ Choisissez votre doctrine <span style={{ color: C.coral }}>*</span> — une simple orientation : vous restez libre de tous vos choix ensuite.</div>
+      <div style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>② Choisissez votre doctrine <span style={{ color: C.coral }}>*</span> — une simple orientation : vous restez libre de tous vos choix ensuite.</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 18 }}>
         {DOCTRINES.map((d) => (
           <div key={d.id} onClick={() => setDoc(d.id)} style={{ cursor: "pointer", background: C.card, border: `2px solid ${doc === d.id ? d.color : C.line}`, borderRadius: 12, padding: 12 }}>
@@ -773,17 +806,23 @@ function Home({ onStart, onResume, onLeaderboard, hasSave }) {
         ))}
       </div>
 
+      {/* Champ classe : optionnel, pré-rempli, sans impression de "code secret" */}
+      <label style={{ fontSize: 12, color: C.dim, display: "block", marginBottom: 18 }}>Classe <span style={{ color: C.dim, fontWeight: 400 }}>(facultatif)</span>
+        <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="CLASSE" style={{ ...inp, maxWidth: 240 }} />
+        <span style={{ fontSize: 10.5, color: C.dim }}>Sert seulement à regrouper les scores dans le classement. Déjà rempli — à modifier uniquement si votre professeur vous donne un nom précis.</span>
+      </label>
+
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <Btn kind="primary" disabled={!canStart} onClick={() => onStart(code.trim().toUpperCase(), team.trim(), doc)}>
+        <Btn kind="primary" disabled={!canStart} onClick={() => onStart(codeOk.toUpperCase(), team.trim(), doc)}>
           <Icon n="player-play" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Commencer le mandat
         </Btn>
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre</Btn>}
-        <Btn onClick={() => onLeaderboard(code.trim().toUpperCase())}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
+        <Btn onClick={() => onLeaderboard(codeOk.toUpperCase())}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
       </div>
       {!canStart && (
         <div style={{ marginTop: 10, fontSize: 12, color: C.gold, display: "flex", alignItems: "center", gap: 6 }}>
           <Icon n="info-circle" size={14} />
-          Avant de commencer, complétez : {[!code.trim() && "le code de classe", !team.trim() && "le nom d'équipe", !doc && "la doctrine"].filter(Boolean).join(", ")}.
+          Avant de commencer, complétez : {[!team.trim() && "le nom d'équipe", !doc && "la doctrine"].filter(Boolean).join(" et ")}.
         </div>
       )}
     </div>
@@ -871,30 +910,54 @@ function ObjBar({ ind }) {
     </div>
   );
 }
+// Bandeau "marchés financiers" : taux d'emprunt + charge de la dette
+function MarketStrip({ taux, dette }) {
+  const chargeMd = Math.round(taux * dette / 100 * PIB / 100);
+  const tcol = taux > 3.5 ? C.coral : taux > 2.5 ? C.gold : C.mint;
+  return (
+    <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: C.card, border: `1px solid ${tcol}44`, borderRadius: 10, padding: "7px 12px" }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.dim, fontSize: 11.5, fontWeight: 500 }}><Icon n="building-bank" size={14} color={tcol} /> Marchés financiers</span>
+      <span style={{ fontSize: 12, color: C.sub }}>Taux d'emprunt <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(taux, 1)} %</b></span>
+      <span style={{ color: C.line }}>·</span>
+      <span style={{ fontSize: 12, color: C.sub }}>Charge de la dette <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(chargeMd)} Md€/an</b></span>
+    </div>
+  );
+}
 
 /* ---------- Écran Budget (16 leviers, onglets Recettes/Dépenses) ---------- */
-function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, onValidate }) {
-  const [tab, setTab] = useState("rec");
+function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, taux = TAUX0, onValidate }) {
+  const [tab, setTabState] = useState("rec");
+  const [visited, setVisited] = useState({ rec: true, dep: false }); // "rec" affiché par défaut
+  const [confirm, setConfirm] = useState(false);
+  const setTab = (id) => { setTabState(id); setVisited((v) => ({ ...v, [id]: true })); setConfirm(false); };
+  const nonVus = [["rec", "Recettes"], ["dep", "Dépenses"]].filter(([id]) => !visited[id]);
   const preview = useMemo(() => applyBudgetYear(indPrev, levels, baseLevels, year, doctrine), [indPrev, levels, baseLevels, year, doctrine]);
   const balance = preview.balanceMd;
-  const setLevel = (id, v) => setLevels({ ...levels, [id]: clamp(v, LEVEL_MIN, LEVEL_MAX) });
+  const setLevel = (id, v) => { const lv = LEVERS.find((l) => l.id === id); setLevels({ ...levels, [id]: clamp(v, lv?.lmin ?? LEVEL_MIN, LEVEL_MAX) }); };
   const list = LEVERS.filter((l) => l.cat === tab);
-  // Projection : si on garde ce solde jusqu'en 2031, où finit la dette ?
+  const handleValider = () => { if (nonVus.length && !confirm) { setConfirm(true); } else { onValidate(); } };
+  // Charge de la dette (intérêts) = taux × dette, et solde TOTAL = primaire − charge
+  const chargePct = taux * indPrev.dette / 100;
+  const chargeMd = Math.round(chargePct * PIB / 100);
+  const soldePrimaire = preview.ind.solde;
+  const soldeTotal = soldePrimaire - chargePct;
+  // Projection : si on garde ce solde total jusqu'en 2031, où finit la dette ?
   const detteProjetee = useMemo(() => {
     let d = indPrev.dette; const g = (preview.ind.croissance + 1.3) / 100;
-    for (let i = year; i <= YEARS; i++) d = d + (-preview.ind.solde) - d * g;
+    for (let i = year; i <= YEARS; i++) d = d + (-soldeTotal) - d * g;
     return d;
-  }, [indPrev.dette, preview.ind.solde, preview.ind.croissance, year]);
+  }, [indPrev.dette, soldeTotal, preview.ind.croissance, year]);
   const detteMonte = detteProjetee > indPrev.dette + 1;
-  const alerteDeficit = preview.ind.solde < -6;
+  const alerteDeficit = soldeTotal < -6;
   const alerteDette = detteProjetee > 140;
   return (
     <div>
       <ScreenTitle icon="wallet" title={`Budget ${2026 + year}`} sub={`Année ${year}/${YEARS} — ajustez par crans. Les taux se conservent d'une année sur l'autre.`} />
       <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
         {[["rec", "Recettes", C.mint], ["dep", "Dépenses", C.coral]].map(([id, lab, col]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: "9px 0", borderRadius: 9, cursor: "pointer", fontSize: 13.5, fontWeight: 500, border: `1px solid ${tab === id ? col : C.line}`, background: tab === id ? col + "22" : "transparent", color: tab === id ? col : C.dim }}>
+          <button key={id} onClick={() => setTab(id)} style={{ position: "relative", flex: 1, padding: "9px 0", borderRadius: 9, cursor: "pointer", fontSize: 13.5, fontWeight: 500, border: `1px solid ${tab === id ? col : !visited[id] ? "#E0A96D" : C.line}`, background: tab === id ? col + "22" : "transparent", color: tab === id ? col : C.dim }}>
             {lab} <span style={{ opacity: .7, fontSize: 11 }}>({LEVERS.filter((l) => l.cat === id).length})</span>
+            {!visited[id] && <span style={{ marginLeft: 6, fontSize: 10.5, color: "#E0A96D", fontWeight: 600 }}>● à voir</span>}
           </button>
         ))}
       </div>
@@ -910,14 +973,24 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
             <div style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 600, color: balance >= 0 ? C.mint : C.coral }}>{balance >= 0 ? "+" : ""}{fmt(balance)} Md€</div>
             {balance !== 0 && <div style={{ fontSize: 10.5, color: C.dim }}>soit {eqHab(balance)} et par an</div>}
           </div>
-          <Btn kind="primary" onClick={onValidate}>Valider le budget <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+          <Btn kind="primary" onClick={handleValider}>{confirm && nonVus.length ? "Valider quand même" : "Valider le budget"} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
         </div>
+        {confirm && nonVus.length > 0 && (
+          <div style={{ marginTop: 10, background: "#3A2E1A", border: "1px solid #E0A96D66", borderRadius: 9, padding: "9px 12px", color: "#E0A96D", fontSize: 12.5, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <Icon n="eye-off" size={16} style={{ flexShrink: 0 }} />
+            <span style={{ flex: 1, minWidth: 180 }}>Vous n'avez pas ouvert l'onglet <b>« {nonVus[0][1]} »</b>. Jetez-y un œil avant de valider — c'est la moitié de votre budget !</span>
+            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "#E0A96D", color: "#12203A", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Voir les {nonVus[0][1].toLowerCase()}</button>
+          </div>
+        )}
         {/* Aperçu complet des conséquences prévues */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 10 }}>
-          <PreviewChip label="Solde prévu" value={`${fmt(preview.ind.solde, 1)} %`} tone={preview.ind.solde < -6 ? "bad" : preview.ind.solde > -1 ? "good" : "mid"} />
+          <PreviewChip label="Solde total" value={`${fmt(soldeTotal, 1)} %`} tone={soldeTotal < -6 ? "bad" : soldeTotal > -1 ? "good" : "mid"} />
           <PreviewChip label="Dette en 2031" value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
           <PreviewChip label="Croissance" value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
           <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
+        </div>
+        <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, textAlign: "center", background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px" }}>
+          Solde primaire <b style={{ fontFamily: "monospace" }}>{fmt(soldePrimaire, 1)} %</b> − charge de la dette <b style={{ fontFamily: "monospace", color: C.coral }}>{fmt(chargePct, 1)} %</b> (≈ {fmt(chargeMd)} Md€, taux {fmt(taux, 1)} %) = solde total <b style={{ fontFamily: "monospace", color: soldeTotal < -3 ? C.coral : C.gold }}>{fmt(soldeTotal, 1)} %</b>
         </div>
         <div style={{ fontSize: 11, color: C.dim, marginTop: 6, textAlign: "center" }}>
           Dette {fmt(indPrev.dette, 0)} % → <b style={{ color: detteMonte ? C.coral : C.mint }}>{fmt(detteProjetee, 0)} %</b> en fin de mandat si vous gardez ce cap.
@@ -1171,7 +1244,7 @@ function EvolutionCharts({ history }) {
     const P = h.pib ?? pib;
     const rec = h.recettes ?? (RECETTES0 * (P / PIB));
     const dep = h.depenses ?? (rec - h.ind.solde * P / 100);
-    return { x: "'" + String(2026 + h.year).slice(2), dette: h.ind.dette, chomage: h.ind.chomage, pib: P, rec, dep };
+    return { x: "'" + String(2026 + h.year).slice(2), dette: h.ind.dette, chomage: h.ind.chomage, pib: P, rec, dep, taux: h.taux };
   });
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -1188,6 +1261,12 @@ function EvolutionCharts({ history }) {
       <ChartFrame title="Chômage (%)">
         <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.chomage.toFixed(1) }))} color={C.gold} refValue={7.5} refLabel="départ 7,5" decimals={1} />
       </ChartFrame>
+      {rows.some((r) => r.taux != null) && (
+        <ChartFrame title="Taux d'emprunt (%)">
+          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.taux ?? TAUX0).toFixed(1) }))} color="#B57BA6" refValue={TAUX0} refLabel="départ 1,7" decimals={1} />
+          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>Le taux monte si les marchés s'inquiètent (déficit, dette), baisse s'ils sont rassurés.</div>
+        </ChartFrame>
+      )}
     </div>
   );
 }
@@ -1442,7 +1521,7 @@ export default function App() {
   }, []);
 
   function start(code, team, doctrineId) {
-    const g = { code, team, doctrineId, year: 1, ind: { ...START }, levels: {}, history: [], usedIds: [], pendingFlags: [] };
+    const g = { code, team, doctrineId, year: 1, ind: { ...START }, levels: {}, taux: TAUX0, history: [], usedIds: [], pendingFlags: [] };
     setGame(g); setWorkLevels({}); setScreen("mission"); persist(g);
   }
   async function resume() {
@@ -1468,11 +1547,12 @@ export default function App() {
     const decisions = [...(game.decisions || []), { year: game.year, event: ev.title, type: ev.type, choice: choice.label }];
     if (evtIdx + 1 < evts.length) { setGame({ ...game, ind: newInd, usedIds, decisions }); setEvtIdx(evtIdx + 1); }
     else {
-      const { ind: finalInd, flags: fl } = finalizeYear(newInd);
+      const fr = finalizeYear(newInd, game.taux ?? TAUX0);
+      const finalInd = fr.ind, fl = fr.flags;
       const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB;
       const flows = computeFlows(finalInd, game.levels, pibPrev);
-      const history = [...game.history, { year: game.year, ind: finalInd, ...flows }];
-      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl };
+      const history = [...game.history, { year: game.year, ind: finalInd, taux: fr.taux, charge: fr.chargeMd, soldePrimaire: fr.soldePrimaire, ...flows }];
+      const g2 = { ...game, ind: finalInd, taux: fr.taux, usedIds, decisions, history, pendingFlags: fl };
       setFlags(fl); setGame(g2); persist(g2); setScreen("summary");
     }
   }
@@ -1518,13 +1598,13 @@ export default function App() {
               </div>
             </div>
             <div style={{ height: 6, borderRadius: 4, background: "#1E3157", overflow: "hidden" }}><div style={{ width: `${progress}%`, height: "100%", background: C.gold, transition: "width .4s" }} /></div>
-            {["budget", "events"].includes(screen) && <div style={{ marginTop: 10 }}><HUD ind={game.ind} /><ObjBar ind={game.ind} /></div>}
+            {["budget", "events"].includes(screen) && <div style={{ marginTop: 10 }}><HUD ind={game.ind} /><ObjBar ind={game.ind} /><MarketStrip taux={game.taux ?? TAUX0} dette={game.ind.dette} /></div>}
           </div>
         )}
 
         {screen === "home" && <Home hasSave={hasSave} onStart={start} onResume={resume} onLeaderboard={openLeaderboard} />}
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} onGo={() => setScreen("budget")} />}
-        {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} onValidate={validateBudget} />}
+        {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
         {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} history={game.history} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
