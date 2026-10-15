@@ -101,9 +101,9 @@ const LEVERS = [
     fx: { popularite: 2, cohesion: 2 },
     hint: "Sous-investir crée des déserts médicaux et sature les urgences ; coût social différé élevé." },
   { id: "education", cat: "dep", label: "Éducation", icon: "school",
-    eur0: 141, eurStep: 4, rate0: null, unit: "", mult: 1.0,
+    eur0: 155, eurStep: 4, rate0: null, unit: "", mult: 1.0,
     fx: { popularite: 1, cohesion: 2 }, cho: -0.04,
-    hint: "Investissement dans le capital humain : rendement de long terme sur la croissance potentielle." },
+    hint: "Dépense publique d'éducation (État + collectivités). Investissement dans le capital humain : rendement de long terme sur la croissance." },
   { id: "aides", cat: "dep", label: "Aides & minima sociaux (RSA, APL, prime d'activité)", icon: "heart-handshake",
     eur0: 70, eurStep: 5, rate0: null, unit: "", mult: 1.3,
     fx: { popularite: 2, cohesion: 3 },
@@ -601,6 +601,50 @@ function lessonFor(ind) {
   return "Vous avez " + L.slice(0, 3).join(", ") + ".";
 }
 
+// Bilan pédagogique développé : analyse par domaine des conséquences des choix
+function leconDetaillee(game) {
+  const h = game.history || [];
+  const last = h.length ? h[h.length - 1].ind : game.ind;
+  const avgSolde = h.length ? h.reduce((s, r) => s + r.ind.solde, 0) / h.length : game.ind.solde;
+  const detteDelta = last.dette - 116;
+  const S = [];
+
+  // 1. Finances publiques
+  let fin;
+  if (detteDelta > 5)
+    fin = `Votre dette publique est passée de 116 % à ${fmt(last.dette, 0)} % du PIB. Le mécanisme est simple : chaque année où l'État dépense plus qu'il ne gagne (votre déficit moyen : ${fmt(avgSolde, 1)} % du PIB), le manque s'ajoute à la dette. Et plus la dette est élevée, plus les intérêts à rembourser sont lourds — c'est « l'effet boule de neige », qui rend le redressement de plus en plus difficile. Pour mémoire, les règles européennes (critères de Maastricht) visent un déficit sous 3 % du PIB et une dette sous 60 %.`;
+  else if (detteDelta < -2)
+    fin = `Vous avez fait reculer la dette, de 116 % à ${fmt(last.dette, 0)} % du PIB — c'est rare et difficile. Cela suppose un déficit maîtrisé (le vôtre : ${fmt(avgSolde, 1)} % en moyenne) et une croissance qui « dilue » la dette dans un PIB plus grand. Règle clé : dès que le déficit passe sous ~3 % du PIB, la dette tend à se stabiliser, puis à baisser, quand l'économie croît.`;
+  else
+    fin = `Votre dette est restée globalement stable autour de ${fmt(last.dette, 0)} % du PIB, avec un déficit moyen de ${fmt(avgSolde, 1)} %. Stabiliser la dette sans la réduire, c'est déjà éviter l'effet boule de neige — mais la France reste nettement au-dessus des seuils européens (déficit 3 %, dette 60 %).`;
+  S.push({ t: "Vos finances publiques", c: fin });
+
+  // 2. Croissance et emploi
+  let emp = last.chomage < 7 ? `Le chômage a baissé à ${fmt(last.chomage, 1)} %. ` : last.chomage > 9 ? `Le chômage a grimpé à ${fmt(last.chomage, 1)} %. ` : `Le chômage s'établit à ${fmt(last.chomage, 1)} %. `;
+  emp += `Emploi et croissance vont de pair (c'est la loi d'Okun) : quand l'activité accélère, les entreprises embauchent ; quand elle ralentit, le chômage monte. Mais tous les leviers n'agissent pas de la même façon : l'investissement et l'éducation nourrissent la croissance de demain (effet d'offre), tandis qu'une forte hausse d'impôts freine la demande à court terme, et qu'alourdir les cotisations renchérit le coût du travail.`;
+  S.push({ t: "Croissance et emploi", c: emp });
+
+  // 3. Cohésion / société
+  let soc = last.cohesion > 60 ? `La société est restée apaisée (cohésion ${fmt(last.cohesion, 0)}/100). Dépenses sociales, services publics et redistribution y contribuent : ils réduisent les inégalités et amortissent les crises. ` : last.cohesion < 35 ? `La cohésion sociale s'est dégradée (${fmt(last.cohesion, 0)}/100). Des coupes trop fortes dans les aides, les services publics ou les dotations aux collectivités fracturent la société et peuvent déclencher grèves et émeutes. ` : `La cohésion sociale est moyenne (${fmt(last.cohesion, 0)}/100). `;
+  soc += `C'est l'arbitrage central du gouvernant : réduire la dépense assainit les comptes, mais chaque euro économisé a un coût social pour quelqu'un.`;
+  S.push({ t: "Vos choix de société", c: soc });
+
+  // 4. Éthique (conditionnel)
+  if (last.integrite < 55)
+    S.push({ t: "Éthique et confiance", c: `Votre intégrité a souffert (${fmt(last.integrite, 0)}/100). Céder aux lobbies ou étouffer une affaire rapporte à court terme, mais mine la confiance démocratique : la transparence protège mieux que le secret, et les scandales finissent par éclater — souvent au pire moment.` });
+
+  // 5. Environnement (conditionnel)
+  if (last.environnement > 62)
+    S.push({ t: "Transition écologique", c: `Vous avez investi pour le climat (${fmt(last.environnement, 0)}/100) : un coût immédiat, mais un bénéfice de long terme — moins de dépendance énergétique et une transition engagée.` });
+  else if (last.environnement < 40)
+    S.push({ t: "Transition écologique", c: `L'environnement a été négligé (${fmt(last.environnement, 0)}/100) : des économies à court terme, mais une facture écologique et sanitaire reportée sur les générations suivantes.` });
+
+  // 6. Leçon essentielle (toujours)
+  S.push({ t: "Ce qu'il faut retenir", c: `Gouverner, c'est arbitrer. Un budget n'est jamais un simple tableur : toute dépense doit être financée, toute économie a un coût social, toute hausse d'impôt pèse sur l'activité. Il n'existe pas de choix parfait, seulement des équilibres à trouver. Le bon gouvernant n'est pas celui qui fait plaisir à tout le monde, mais celui qui concilie des comptes tenables, l'emploi et la cohésion du pays.` });
+
+  return S;
+}
+
 /* ============================================================
    UI
    ============================================================ */
@@ -749,6 +793,7 @@ const inp = { display: "block", width: "100%", marginTop: 4, boxSizing: "border-
 
 /* ---------- Écran Mission (objectif clair avant de jouer) ---------- */
 function Mission({ team, doctrine, onGo }) {
+  const [infoChiffres, setInfoChiffres] = useState(false);
   return (
     <div>
       <ScreenTitle icon="target-arrow" title="Votre mission" sub={`${team} · doctrine ${doctrine?.label}`} />
@@ -777,6 +822,34 @@ function Mission({ team, doctrine, onGo }) {
           </div>
         </div>
       </div>
+      {/* Accordéon : explication du périmètre et des chiffres */}
+      <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, marginBottom: 18, overflow: "hidden" }}>
+        <button onClick={() => setInfoChiffres(!infoChiffres)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", color: C.ink, fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 8, padding: "13px 16px" }}>
+          <Icon n="info-circle" size={17} color={C.gold} /> En savoir plus sur les chiffres utilisés
+          <span style={{ marginLeft: "auto", color: C.dim }}>{infoChiffres ? "▲" : "▼"}</span>
+        </button>
+        {infoChiffres && (
+          <div style={{ padding: "0 16px 16px", color: C.sub, fontSize: 13.5, lineHeight: 1.65 }}>
+            <p style={{ margin: "0 0 10px" }}>
+              Le jeu simule <b style={{ color: C.ink }}>les dépenses publiques de la France</b> — l'ensemble des administrations publiques : l'<b>État</b>, la <b>Sécurité sociale</b> (retraites, santé, chômage) et les <b>collectivités locales</b>. Ce n'est donc pas seulement « le budget de l'État » au sens strict : c'est le périmètre utilisé quand on parle du <b>déficit public</b> (~5 % du PIB) et de la <b>dette</b> (~116 %). Les dépenses <b>privées</b> des ménages et des entreprises n'y figurent pas.
+            </p>
+            <p style={{ margin: "0 0 10px" }}>
+              Les chiffres de départ sont des <b style={{ color: C.ink }}>ordres de grandeur 2025, arrondis</b>, issus de sources publiques (projet de loi de finances, INSEE, Cour des comptes).
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 18px", fontSize: 13, fontFamily: "monospace", color: C.dim, background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
+              <div>PIB ≈ 3 000 Md€</div><div>Dette ≈ 116 % du PIB</div>
+              <div>Recettes ≈ 1 450 Md€</div><div>Déficit ≈ 5 % du PIB</div>
+              <div>Dépenses ≈ 1 600 Md€</div><div>Chômage ≈ 7,5 %</div>
+            </div>
+            <div style={{ fontSize: 12.5, lineHeight: 1.7 }}>
+              <div><b style={{ color: C.mint }}>Recettes</b> : TVA ~211 · impôt sur le revenu ~95 · CSG ~130 · impôt sur les sociétés ~58 · cotisations ~610 Md€</div>
+              <div style={{ marginTop: 4 }}><b style={{ color: C.coral }}>Dépenses</b> : retraites ~340 · santé ~300 · éducation ~155 (État + collectivités) · défense ~50 Md€</div>
+            </div>
+            <p style={{ margin: "10px 0 0", color: C.dim, fontSize: 12.5 }}>Ces chiffres rendent le jeu crédible ; ce n'est pas une prévision officielle.</p>
+          </div>
+        )}
+      </div>
+
       <Btn kind="primary" onClick={onGo} style={{ fontSize: 16, padding: "13px 22px" }}><Icon n="player-play" size={17} style={{ verticalAlign: -3, marginRight: 7 }} />Entrer en fonction</Btn>
     </div>
   );
@@ -937,41 +1010,52 @@ function EventScreen({ event, index, total, onChoose }) {
   const t = TYPES[event.type];
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <span style={{ fontSize: 12, color: C.dim }}>Événement {index + 1} / {total}</span>
-        <div style={{ display: "flex", gap: 4 }}>{Array.from({ length: total }).map((_, i) => <div key={i} style={{ width: 22, height: 4, borderRadius: 3, background: i <= index ? C.gold : C.line }} />)}</div>
+      {/* En-tête : numéro d'événement bien visible + progression */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <span style={{ fontSize: 20, fontWeight: 600, color: C.ink, fontFamily: "Fraunces,serif" }}>Événement {index + 1} <span style={{ color: C.dim, fontSize: 15 }}>sur {total}</span></span>
+        <div style={{ display: "flex", gap: 5 }}>{Array.from({ length: total }).map((_, i) => <div key={i} style={{ width: 26, height: 5, borderRadius: 3, background: i <= index ? C.gold : C.line }} />)}</div>
       </div>
       <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16 }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: t.color + "26", color: t.color, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}>
           <Icon n={t.icon.replace("ti-", "")} size={14} /> {t.label}
         </div>
-        <h3 style={{ margin: "0 0 6px", color: C.ink, fontSize: 18, fontFamily: "Fraunces,serif", fontWeight: 600 }}>{event.title}</h3>
+        <h3 style={{ margin: "0 0 6px", color: C.ink, fontSize: 19, fontFamily: "Fraunces,serif", fontWeight: 600 }}>{event.title}</h3>
         <p style={{ margin: "0 0 14px", color: C.sub, fontSize: 13.5, lineHeight: 1.6 }}>{event.desc}</p>
+        {/* Consigne claire */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontWeight: 500, marginBottom: 10 }}>
+          <Icon n="hand-click" size={16} /> Sélectionnez l'un des {event.choices.length} choix ci-dessous :
+        </div>
         <div style={{ display: "grid", gap: 9 }}>
-          {event.choices.map((ch, i) => <ChoiceRow key={i} choice={ch} onClick={() => onChoose(ch)} />)}
+          {event.choices.map((ch, i) => <ChoiceRow key={i} choice={ch} num={i + 1} onClick={() => onChoose(ch)} />)}
         </div>
       </div>
     </div>
   );
 }
-function ChoiceRow({ choice, onClick }) {
+function ChoiceRow({ choice, num, onClick }) {
   const fxChips = Object.entries(choice.fx).map(([k, v]) => {
     const m = IND_META.find((x) => x.id === k); if (!m) return null;
     return <span key={k} style={{ fontSize: 10.5, fontFamily: "monospace", color: v > 0 ? C.mint : C.coral, background: "#12203A", padding: "1px 6px", borderRadius: 5, border: `1px solid ${C.line}` }}>{m.label} {v > 0 ? "+" : ""}{fmt(v, 1)}</span>;
   }).filter(Boolean);
   return (
-    <div style={{ background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 10, padding: "11px 13px" }}>
-      <div onClick={onClick} style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
-        <span style={{ color: C.ink, fontSize: 13.5, flex: 1 }}>{choice.label}</span>
-        <Icon n="chevron-right" size={16} color={C.gold} />
+    <div style={{ background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 13px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
+        <span style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: C.line, color: C.ink, fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}>{num}</span>
+        <span style={{ color: C.ink, fontSize: 14, flex: 1, lineHeight: 1.4 }}>{choice.label}</span>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 }}>{fxChips}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8, paddingLeft: 31 }}>{fxChips}</div>
       {(choice.fx.integrite || 0) <= -5 && (
-        <div style={{ marginTop: 7, fontSize: 11, color: "#E0A96D", display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ marginTop: 7, paddingLeft: 31, fontSize: 11, color: "#E0A96D", display: "flex", alignItems: "center", gap: 5 }}>
           <Icon n="alert-triangle" size={13} /> Entame fortement votre intégrité — risque de scandale plus tard.
         </div>
       )}
-      {choice.note && <Note text={choice.note} />}
+      <div style={{ paddingLeft: 31 }}>{choice.note && <Note text={choice.note} />}</div>
+      {/* Bouton d'action bien visible */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+        <button onClick={onClick} style={{ background: C.gold, color: "#12203A", border: "none", borderRadius: 9, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+          Faire ce choix <Icon n="arrow-right" size={15} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -1236,9 +1320,16 @@ function Debrief({ game, sc, end, leaderboard, onReplay, onHome }) {
           </div>
         ))}
       </div>
-      <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
-        <div style={{ color: C.dim, fontSize: 11, textTransform: "uppercase", marginBottom: 4 }}>Leçon du mandat</div>
-        <div style={{ color: C.ink, fontSize: 14 }}>{lessonFor(game.ind)}</div>
+      <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 12 }}><Icon n="school" size={18} color={C.gold} /> Le bilan pédagogique de votre mandat</div>
+        <div style={{ display: "grid", gap: 13 }}>
+          {leconDetaillee(game).map((s, i) => (
+            <div key={i}>
+              <div style={{ color: C.gold, fontSize: 13, fontWeight: 600, marginBottom: 3 }}>{s.t}</div>
+              <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.6 }}>{s.c}</div>
+            </div>
+          ))}
+        </div>
       </div>
       <DecisionsRecap decisions={game.decisions} />
       <div style={{ marginBottom: 16 }}>
