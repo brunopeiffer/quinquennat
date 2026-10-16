@@ -24,6 +24,9 @@ const PRIMARY_BASE = -3.0;  // solde PRIMAIRE de départ (hors intérêts) ; + c
 const TAUX0 = 1.7;          // taux d'emprunt initial (%)
 const TAUX_BASE = 1.0, TAUX_KDETTE = 0.03, TAUX_KDEF = 0.5, TAUX_KCONF = 0.35; // sensibilité (forte)
 const TAUX_ADJ = 0.5, TAUX_MIN = 1.0, TAUX_MAX = 8.0; // vitesse d'ajustement et bornes
+// Bornes de croissance annuelle : même en poussant tous les curseurs, pas de miracle (4 %),
+// et une récession plafonnée à -3,5 % (plus réaliste que ±6 %).
+const GROWTH_MIN = -3.5, GROWTH_MAX = 4.0;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const fmt = (n, d = 0) => (n ?? 0).toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d });
 
@@ -439,7 +442,7 @@ function applyFx(ind, fx, mult = 1) {
 function clampInd(ind) {
   return {
     solde: clamp(ind.solde, -15, 6), dette: clamp(ind.dette, 40, 220),
-    chomage: clamp(ind.chomage, 3, 20), croissance: clamp(ind.croissance, -6, 6),
+    chomage: clamp(ind.chomage, 3, 20), croissance: clamp(ind.croissance, GROWTH_MIN, GROWTH_MAX),
     popularite: clamp(ind.popularite, 0, 100), cohesion: clamp(ind.cohesion, 0, 100),
     integrite: clamp(ind.integrite, 0, 100), environnement: clamp(ind.environnement, 0, 100),
     inegalites: clamp(ind.inegalites ?? 45, 0, 100),
@@ -496,12 +499,12 @@ function applyBudgetYear(indPrev, levels, prevLevels, year, doctrine) {
     ind = applyFx(ind, scale(fx, d * IMPACT));
     if (lev.cho) ind.chomage = clamp(ind.chomage + lev.cho * d * IMPACT, 3, 20);
     if (INEG[lev.id]) ind.inegalites = clamp((ind.inegalites ?? 45) + INEG[lev.id] * d * IMPACT, 0, 100);
-    if (lev.cro) ind.croissance = clamp(ind.croissance + lev.cro * d * IMPACT, -6, 6);
+    if (lev.cro) ind.croissance = clamp(ind.croissance + lev.cro * d * IMPACT, GROWTH_MIN, GROWTH_MAX);
   }
   // Effet d'offre : l'investissement et l'éducation accumulés relèvent durablement
   // la croissance potentielle — rendement de long terme, bien visible.
   const supply = Math.min(0.10 * Math.max(0, levels.invest || 0) + 0.06 * Math.max(0, levels.education || 0), 0.8);
-  ind.croissance = clamp(ind.croissance + (impulse / PIB) * 100 * IMPULSE_GAIN + supply, -6, 6);
+  ind.croissance = clamp(ind.croissance + (impulse / PIB) * 100 * IMPULSE_GAIN + supply, GROWTH_MIN, GROWTH_MAX);
   return { ind: clampInd(ind), balanceMd, impulse, changes };
 }
 
@@ -529,7 +532,9 @@ function finalizeYear(ind0, tauxPrev = TAUX0) {
 
   // 4) Dynamique de dette (le déficit total s'ajoute, la croissance nominale dilue).
   const nominalG = (n.croissance + 1.3) / 100;
-  n.dette = clamp(n.dette + (-n.solde) - n.dette * nominalG, 40, 240);
+  // Dynamique de dette (% du PIB) : le déficit s'ajoute, la croissance nominale dilue.
+  // Vraie formule : dette diluée = dette / (1 + g) ; le déficit s'ajoute en plein.
+  n.dette = clamp(n.dette / (1 + nominalG) + (-n.solde), 40, 240);
 
   n.popularite = clamp(n.popularite - 0.6, 0, 100);      // usure du pouvoir
   n.environnement = clamp(n.environnement - 0.7, 0, 100);
@@ -537,8 +542,8 @@ function finalizeYear(ind0, tauxPrev = TAUX0) {
 
   const flags = [];
   if (taux > 3.5) flags.push("taux");                    // les marchés s'affolent
-  if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, -6, 6); flags.push("defiance"); }
-  if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, -6, 6); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
+  if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, GROWTH_MIN, GROWTH_MAX); flags.push("defiance"); }
+  if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
   if (n.popularite < 22) flags.push("censure");
   if (n.integrite < 30) flags.push("scandale");
   return { ind: clampInd(n), flags, taux: +taux.toFixed(2), chargeMd: Math.round(chargeMd), soldePrimaire: +soldePrimaire.toFixed(1) };
@@ -733,15 +738,24 @@ const Icon = ({ n, size = 18, color, style }) => (
 
 // Métadonnées d'affichage des indicateurs
 const IND_META = [
-  { id: "solde", label: "Solde", icon: "ti-wallet", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > -3, bad: (v) => v < -6, grp: "Économie" },
-  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie" },
-  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie" },
-  { id: "croissance", label: "Croissance", icon: "ti-trending-up", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > 1.3, bad: (v) => v < 0.3, grp: "Économie" },
-  { id: "cohesion", label: "Cohésion", icon: "ti-users-group", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société" },
-  { id: "inegalites", label: "Inégalités", icon: "ti-stairs", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v < 38, bad: (v) => v > 55, grp: "Société", inv: true },
-  { id: "environnement", label: "Environnement", icon: "ti-leaf", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société" },
-  { id: "popularite", label: "Popularité", icon: "ti-mood-smile", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 55, bad: (v) => v < 35, grp: "Politique" },
-  { id: "integrite", label: "Intégrité", icon: "ti-scale", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 70, bad: (v) => v < 40, grp: "Politique" },
+  { id: "solde", label: "Solde", icon: "ti-wallet", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > -3, bad: (v) => v < -6, grp: "Économie",
+    info: "Différence entre ce que l'État encaisse (recettes) et ce qu'il dépense, en % du PIB. Négatif = déficit : il dépense plus qu'il ne gagne. Objectif : se rapprocher de 0, voire d'un excédent." },
+  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie",
+    info: "Total de tous les déficits passés, exprimé en % du PIB. Plus elle est élevée, plus les intérêts à rembourser sont lourds (effet boule de neige). La règle européenne vise 60 %." },
+  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie",
+    info: "Part de la population active sans emploi. Il baisse quand l'économie crée des emplois (croissance) et monte quand elle ralentit : c'est la loi d'Okun." },
+  { id: "croissance", label: "Croissance", icon: "ti-trending-up", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > 1.3, bad: (v) => v < 0.3, grp: "Économie",
+    info: "Évolution du PIB, la richesse produite dans le pays. Forte, elle crée des emplois et des recettes ; faible ou négative, c'est la récession." },
+  { id: "cohesion", label: "Cohésion", icon: "ti-users-group", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
+    info: "Mesure l'unité et la paix sociale du pays. Renforcée par les services publics et la redistribution ; fragilisée par les coupes budgétaires et les inégalités. Trop basse, elle mène aux émeutes." },
+  { id: "inegalites", label: "Inégalités", icon: "ti-stairs", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v < 38, bad: (v) => v > 55, grp: "Société", inv: true,
+    info: "Écart entre les plus riches et les plus modestes. Réduites par l'impôt progressif (sur le revenu, le patrimoine) et les aides ; aggravées par les impôts régressifs (TVA) et les coupes sociales. Plus c'est bas, mieux c'est." },
+  { id: "environnement", label: "Environnement", icon: "ti-leaf", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
+    info: "État de la transition écologique. Progresse avec l'investissement vert et la fiscalité carbone ; se dégrade peu à peu si on l'ignore." },
+  { id: "popularite", label: "Popularité", icon: "ti-mood-smile", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 55, bad: (v) => v < 35, grp: "Politique",
+    info: "Soutien de l'opinion publique. Décisive le jour de l'élection. Elle s'use naturellement avec le temps (« usure du pouvoir »)." },
+  { id: "integrite", label: "Intégrité", icon: "ti-scale", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 70, bad: (v) => v < 40, grp: "Politique",
+    info: "Probité de votre gouvernement. Entamée par les compromissions (accepter un lobby, étouffer une affaire). Une intégrité trop basse finit par déclencher des scandales." },
 ];
 const indColor = (m, v) => (m.bad(v) ? C.coral : m.good(v) ? C.mint : C.gold);
 // Groupes d'indicateurs, affichés séparément dans le tableau de bord
@@ -750,24 +764,28 @@ const IND_GROUPS = [
   { key: "Société", label: "Société & environnement", icon: "heart-handshake", color: C.mint },
   { key: "Politique", label: "Vie politique", icon: "speakerphone", color: "#B57BA6" },
 ];
-function IndicatorChip({ m, ind, prev }) {
+function IndicatorChip({ m, ind, prev, open, onToggle }) {
   const v = ind[m.id]; const col = indColor(m, v);
   const d = prev ? v - prev[m.id] : 0;
   const dShow = prev && Math.abs(d) >= 0.05;
   const improved = prev && (m.inv ? -d : d) >= 1;
   return (
-    <div className={improved ? "qwin" : ""} style={{ flex: "1 1 92px", minWidth: 84, maxWidth: 180, background: C.card, borderRadius: 10, padding: "8px 9px", border: `1px solid ${improved ? C.mint : C.line}` }}>
+    <button onClick={onToggle} title="En savoir plus" className={improved ? "qwin" : ""}
+      style={{ textAlign: "left", cursor: "pointer", flex: "1 1 92px", minWidth: 84, maxWidth: 180, background: C.card, borderRadius: 10, padding: "8px 9px", border: `1px solid ${open ? C.gold : improved ? C.mint : C.line}` }}>
       <div style={{ display: "flex", alignItems: "center", gap: 4, color: C.dim, fontSize: 10.5, marginBottom: 3 }}>
         <Icon n={m.icon.replace("ti-", "")} size={13} /> {m.label}
+        <Icon n="help-circle" size={11} color={open ? C.gold : C.dim} style={{ marginLeft: "auto" }} />
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
         <span style={{ color: col, fontFamily: "monospace", fontSize: 17, fontWeight: 600 }}>{m.fmt(v)}<span style={{ fontSize: 10, color: C.dim }}>{m.unit}</span></span>
         {dShow && <span style={{ fontSize: 10, fontFamily: "monospace", color: (m.inv ? -d : d) > 0 ? C.mint : C.coral }}>{d > 0 ? "▲" : "▼"}{fmt(Math.abs(d), 1)}</span>}
       </div>
-    </div>
+    </button>
   );
 }
 function HUD({ ind, prev }) {
+  const [openInd, setOpenInd] = useState(null);
+  const openMeta = IND_META.find((m) => m.id === openInd);
   return (
     <div style={{ display: "grid", gap: 10 }}>
       {IND_GROUPS.map((g) => (
@@ -776,8 +794,16 @@ function HUD({ ind, prev }) {
             <Icon n={g.icon} size={12} /> {g.label}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {IND_META.filter((m) => m.grp === g.key).map((m) => <IndicatorChip key={m.id} m={m} ind={ind} prev={prev} />)}
+            {IND_META.filter((m) => m.grp === g.key).map((m) => (
+              <IndicatorChip key={m.id} m={m} ind={ind} prev={prev} open={openInd === m.id} onToggle={() => setOpenInd(openInd === m.id ? null : m.id)} />
+            ))}
           </div>
+          {openMeta && openMeta.grp === g.key && (
+            <div style={{ marginTop: 6, background: "#12203A", border: `1px solid ${C.gold}55`, borderRadius: 9, padding: "9px 12px", fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.gold, fontWeight: 600, marginBottom: 3 }}><Icon n="bulb" size={13} /> {openMeta.label}</span>
+              {openMeta.info}
+            </div>
+          )}
         </div>
       ))}
     </div>
