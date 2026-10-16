@@ -2,7 +2,7 @@
 
 Jeu de gestion budgétaire de la France, conçu pour des **élèves de Terminale STMG**.
 Chaque équipe gouverne le pays pendant **5 ans** : elle vote un budget annuel
-(19 leviers de recettes et de dépenses), affronte des **événements** (crises,
+(16 leviers de recettes et de dépenses), affronte des **événements** (crises,
 canicule, pandémie, émeutes, choc énergétique…), des **lobbies** et des
 **dilemmes éthiques**, puis passe devant les électeurs. Un **conseiller** livre
 un bilan après chaque année, et une **élection finale** tranche entre réélection,
