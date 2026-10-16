@@ -8,7 +8,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 
 const START = {
   solde: -5.0, dette: 116, chomage: 7.5, croissance: 1.0,
-  popularite: 52, cohesion: 55, integrite: 70, environnement: 50,
+  popularite: 52, cohesion: 55, integrite: 70, environnement: 50, inegalites: 45,
 };
 const PIB = 3000;           // Md€ (1 % PIB ≈ 30 Md€)
 const YEARS = 5;
@@ -24,6 +24,9 @@ const PRIMARY_BASE = -3.0;  // solde PRIMAIRE de départ (hors intérêts) ; + c
 const TAUX0 = 1.7;          // taux d'emprunt initial (%)
 const TAUX_BASE = 1.0, TAUX_KDETTE = 0.03, TAUX_KDEF = 0.5, TAUX_KCONF = 0.35; // sensibilité (forte)
 const TAUX_ADJ = 0.5, TAUX_MIN = 1.0, TAUX_MAX = 8.0; // vitesse d'ajustement et bornes
+// Bornes de croissance annuelle : même en poussant tous les curseurs, pas de miracle (4 %),
+// et une récession plafonnée à -3,5 % (plus réaliste que ±6 %).
+const GROWTH_MIN = -3.5, GROWTH_MAX = 4.0;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const fmt = (n, d = 0) => (n ?? 0).toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d });
 
@@ -96,14 +99,6 @@ const LEVERS = [
     eur0: 45, eurStep: 4.5, rate0: null, unit: "", mult: 0.5,
     fx: { popularite: -2, cohesion: -1, environnement: 2 },
     hint: "Taxe l'énergie et le carbone. Incite à la transition mais peut déclencher une révolte fiscale." },
-  { id: "fraude_fisc", cat: "rec", label: "Lutte contre la fraude fiscale", icon: "search",
-    eur0: 0, eurStep: 4, rate0: null, unit: "", mult: 0.3, lmin: 0, concave: true,
-    fx: { popularite: 1 },
-    hint: "Récupérer l'impôt éludé est populaire, mais le rendement est limité et décroissant : il faut des contrôleurs, du temps, et une partie reste irrécupérable." },
-  { id: "fraude_soc", cat: "rec", label: "Lutte contre la fraude sociale", icon: "shield-check",
-    eur0: 0, eurStep: 1.6, rate0: null, unit: "", mult: 0.3, lmin: 0, concave: true,
-    fx: { popularite: 1, cohesion: -0.5 },
-    hint: "Traquer les prestations indues rapporte peu (les montants sont faibles) et peut stigmatiser les allocataires. Souvent surestimé dans les débats." },
   // ---------------- DÉPENSES ----------------
   { id: "retraites", cat: "dep", label: "Retraites", icon: "old",
     eur0: 340, eurStep: 7, rate0: null, unit: "", mult: 1.1,
@@ -152,6 +147,14 @@ const LEVERS = [
 ];
 
 // Helpers d'affichage : montant et taux courants d'un levier selon son niveau cumulé
+// Effet de chaque levier sur les INÉGALITÉS, par cran (+ = augmente les inégalités).
+// Impôts progressifs (IR, patrimoine) et dépenses sociales réduisent les inégalités ;
+// impôts régressifs (TVA, CSG, écolo) et coupes sociales les aggravent.
+const INEG = {
+  tva: 1.5, csg: 1.0, ir: -1.5, patrimoine: -2.2, is: -0.5, cotpat: -0.3, cotsal: 0.5, ecolo: 0.6,
+  retraites: -1.0, sante: -1.2, education: -1.5, aides: -2.5, invest: -0.3, fonction: -0.4,
+  subventions: 0.4, collectivites: -0.6,
+};
 const levEur = (lev, level) => (lev.concave && (level || 0) > 0) ? lev.eur0 + lev.eurStep * Math.pow(level, 0.6) : Math.max(0, lev.eur0 + (level || 0) * lev.eurStep);
 const levRate = (lev, level) => (lev.rate0 == null ? null : lev.rate0 + (level || 0) * lev.rateStep);
 
@@ -385,6 +388,20 @@ const EVENTS = [
       { label: "Quotas et contrôle renforcé", fx: { solde: -0.2, popularite: 3, cohesion: -1 }, note: "Une politique d'équilibre, souvent critiquée des deux bords." },
       { label: "Fermeture des frontières", fx: { popularite: 4, cohesion: -4, integrite: -4, croissance: -0.1 }, note: "Le repli séduit une part de l'opinion mais heurte les engagements humanitaires." },
     ] },
+  { id: "fraude_fisc", type: "opportunite", title: "Lutte contre la fraude fiscale",
+    desc: "Un rapport révèle des milliards d'impôts éludés par de grandes entreprises et des particuliers fortunés. L'opinion réclame des comptes.",
+    choices: [
+      { label: "Grand plan de contrôle fiscal (recruter des inspecteurs)", fx: { solde: 0.4, popularite: 3, croissance: -0.05 }, note: "Récupérer l'impôt éludé est populaire et rapporte un gain réel, mais limité : il faut des contrôleurs, du temps, et une partie de la fraude reste irrécupérable. Cela ne comble jamais le déficit à soi seul." },
+      { label: "Quelques contrôles ciblés et médiatisés", fx: { solde: 0.15, popularite: 2 }, note: "Un effort modeste mais rapide et consensuel ; le rendement budgétaire reste faible." },
+      { label: "Ne rien changer", fx: { popularite: -3, integrite: -2 }, note: "L'inaction face à la fraude fiscale est très mal perçue et nourrit le sentiment d'injustice." },
+    ] },
+  { id: "fraude_soc", type: "social", title: "Débat sur la fraude sociale",
+    desc: "L'opposition réclame un grand plan contre les prestations sociales versées à tort (RSA, allocations…). Le sujet divise.",
+    choices: [
+      { label: "Renforcer fortement les contrôles des allocataires", fx: { solde: 0.15, popularite: 2, cohesion: -3 }, note: "Les montants récupérés sont faibles : la fraude sociale est bien moindre que la fraude fiscale. Et des contrôles trop zélés stigmatisent les plus modestes." },
+      { label: "Croiser les fichiers sans stigmatiser", fx: { solde: 0.08, integrite: 1 }, note: "Approche technique et mesurée : un petit gain, sans heurter la cohésion." },
+      { label: "Rappeler que la fraude sociale est marginale", fx: { popularite: -2, cohesion: 1 }, note: "Factuellement juste, mais une partie de l'opinion y voit du laxisme." },
+    ] },
   { id: "basezero", type: "opportunite", title: "Réviser toutes les dépenses (budget base zéro)",
     desc: "Vos conseillers proposent d'arrêter de reconduire automatiquement les budgets : chaque dépense devrait être justifiée à partir de zéro, chaque année.",
     choices: [
@@ -425,9 +442,10 @@ function applyFx(ind, fx, mult = 1) {
 function clampInd(ind) {
   return {
     solde: clamp(ind.solde, -15, 6), dette: clamp(ind.dette, 40, 220),
-    chomage: clamp(ind.chomage, 3, 20), croissance: clamp(ind.croissance, -6, 6),
+    chomage: clamp(ind.chomage, 3, 20), croissance: clamp(ind.croissance, GROWTH_MIN, GROWTH_MAX),
     popularite: clamp(ind.popularite, 0, 100), cohesion: clamp(ind.cohesion, 0, 100),
     integrite: clamp(ind.integrite, 0, 100), environnement: clamp(ind.environnement, 0, 100),
+    inegalites: clamp(ind.inegalites ?? 45, 0, 100),
   };
 }
 function scale(fx, k) { const o = {}; for (const key in fx) o[key] = fx[key] * k; return o; }
@@ -480,51 +498,49 @@ function applyBudgetYear(indPrev, levels, prevLevels, year, doctrine) {
     if (mod.defenseBonus && lev.id === "defense") fx = scale(fx, mod.defenseBonus);
     ind = applyFx(ind, scale(fx, d * IMPACT));
     if (lev.cho) ind.chomage = clamp(ind.chomage + lev.cho * d * IMPACT, 3, 20);
-    if (lev.cro) ind.croissance = clamp(ind.croissance + lev.cro * d * IMPACT, -6, 6);
+    if (INEG[lev.id]) ind.inegalites = clamp((ind.inegalites ?? 45) + INEG[lev.id] * d * IMPACT, 0, 100);
+    if (lev.cro) ind.croissance = clamp(ind.croissance + lev.cro * d * IMPACT, GROWTH_MIN, GROWTH_MAX);
   }
   // Effet d'offre : l'investissement et l'éducation accumulés relèvent durablement
   // la croissance potentielle — rendement de long terme, bien visible.
   const supply = Math.min(0.10 * Math.max(0, levels.invest || 0) + 0.06 * Math.max(0, levels.education || 0), 0.8);
-  ind.croissance = clamp(ind.croissance + (impulse / PIB) * 100 * IMPULSE_GAIN + supply, -6, 6);
+  ind.croissance = clamp(ind.croissance + (impulse / PIB) * 100 * IMPULSE_GAIN + supply, GROWTH_MIN, GROWTH_MAX);
   return { ind: clampInd(ind), balanceMd, impulse, changes };
 }
 
 // Clôture : chômage (Okun) → taux d'emprunt (marchés) → charge de la dette → dette → pénalités.
 // À l'entrée, n.solde est le solde PRIMAIRE (hors intérêts). tauxPrev = taux de l'an dernier.
-function finalizeYear(ind0, tauxPrev = TAUX0) {
-  let n = { ...ind0 };
-  const soldePrimaire = n.solde;
-  n.chomage = clamp(n.chomage - 0.35 * (n.croissance - 1.0), 3, 20);
-
-  // 1) Taux d'emprunt : les marchés réagissent à la dette et au déficit primaire.
-  //    Dette élevée ou déficit qui dérape → taux qui monte (défiance) ; excédent → taux qui baisse (confiance).
+// Taux d'emprunt : les marchés réagissent à la dette et au déficit primaire.
+// Calculé dès la validation du budget, pour que la charge soit intégrée tout de suite.
+function computeTaux(tauxPrev, dette, soldePrimaire) {
   const tauxCible = TAUX_BASE
-    + TAUX_KDETTE * Math.max(0, n.dette - 100)
+    + TAUX_KDETTE * Math.max(0, dette - 100)
     + TAUX_KDEF * Math.max(0, -soldePrimaire - 2)
     - TAUX_KCONF * Math.max(0, soldePrimaire);
-  const taux = clamp(tauxPrev + (tauxCible - tauxPrev) * TAUX_ADJ, TAUX_MIN, TAUX_MAX);
+  return +clamp(tauxPrev + (tauxCible - tauxPrev) * TAUX_ADJ, TAUX_MIN, TAUX_MAX).toFixed(2);
+}
+// Clôture de l'année. À l'entrée, n.solde est DÉJÀ le solde TOTAL (charge de la dette comprise,
+// appliquée à la validation du budget). taux = taux d'emprunt de l'année (pour l'alerte marchés).
+function finalizeYear(ind0, taux = TAUX0) {
+  let n = { ...ind0 };
+  n.chomage = clamp(n.chomage - 0.35 * (n.croissance - 1.0), 3, 20);
 
-  // 2) Charge de la dette (intérêts) = taux × dette, en points de PIB puis en Md€.
-  const chargePct = taux * n.dette / 100;
-  const chargeMd = chargePct * PIB / 100;
-
-  // 3) Solde total = solde primaire − charge de la dette.
-  n.solde = clamp(soldePrimaire - chargePct, -18, 8);
-
-  // 4) Dynamique de dette (le déficit total s'ajoute, la croissance nominale dilue).
+  // Dynamique de dette (% du PIB) : le déficit TOTAL s'ajoute, la croissance nominale dilue.
+  // Vraie formule : dette diluée = dette / (1 + g) ; le déficit s'ajoute en plein.
   const nominalG = (n.croissance + 1.3) / 100;
-  n.dette = clamp(n.dette + (-n.solde) - n.dette * nominalG, 40, 240);
+  n.dette = clamp(n.dette / (1 + nominalG) + (-n.solde), 40, 240);
 
   n.popularite = clamp(n.popularite - 0.6, 0, 100);      // usure du pouvoir
   n.environnement = clamp(n.environnement - 0.7, 0, 100);
+  if ((n.inegalites ?? 45) > 58) n.cohesion = clamp(n.cohesion - ((n.inegalites - 58) * 0.06), 0, 100); // les inégalités minent la cohésion
 
   const flags = [];
   if (taux > 3.5) flags.push("taux");                    // les marchés s'affolent
-  if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, -6, 6); flags.push("defiance"); }
-  if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, -6, 6); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
+  if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, GROWTH_MIN, GROWTH_MAX); flags.push("defiance"); }
+  if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
   if (n.popularite < 22) flags.push("censure");
   if (n.integrite < 30) flags.push("scandale");
-  return { ind: clampInd(n), flags, taux: +taux.toFixed(2), chargeMd: Math.round(chargeMd), soldePrimaire: +soldePrimaire.toFixed(1) };
+  return { ind: clampInd(n), flags };
 }
 
 // tirage des 3 événements de l'année
@@ -585,7 +601,8 @@ function scoreBreakdown(ind) {
     choScore * 0.20 +
     sc(ind.croissance, 0.5, 2) * 0.20
   );
-  const social = ind.cohesion * 0.5 + ind.environnement * 0.25 + choScore * 0.25;
+  const egalite = 100 - (ind.inegalites ?? 45); // moins d'inégalités = meilleur score social
+  const social = ind.cohesion * 0.4 + egalite * 0.25 + ind.environnement * 0.2 + choScore * 0.15;
   const politique = ind.popularite * 0.6 + ind.integrite * 0.4;
   const totalRaw = eco * 0.55 + social * 0.30 + politique * 0.15;
   // Légère courbe de notation (douce) : le barème est déjà atteignable
@@ -625,7 +642,7 @@ function expliquerFin(game) {
   p.push(detteDelta > 2 ? `la dette est passée de 116 % à ${fmt(last.dette, 0)} % (+${fmt(detteDelta, 0)} points)` : detteDelta < -2 ? `la dette a reculé de 116 % à ${fmt(last.dette, 0)} %` : `la dette est restée stable (${fmt(last.dette, 0)} %)`);
   p.push(last.chomage < 7 ? `le chômage a baissé à ${fmt(last.chomage, 1)} %` : last.chomage > 9 ? `le chômage a grimpé à ${fmt(last.chomage, 1)} %` : `le chômage s'établit à ${fmt(last.chomage, 1)} %`);
   if (last.integrite < 40) p.push(`et votre intégrité, entamée (${fmt(last.integrite, 0)}/100), a nourri les scandales`);
-  return p.join(", ").replace(/,([^,]*)$/, "$1") + ".";
+  return p.join(", ") + ".";
 }
 
 function lessonFor(ind) {
@@ -684,6 +701,24 @@ function leconDetaillee(game) {
 }
 
 /* ============================================================
+   TROPHÉES collectionnables (gardés d'une partie à l'autre)
+   ============================================================ */
+const TROPHIES = [
+  { id: "equilibre", label: "Équilibriste", icon: "scale", desc: "Finir avec un budget à l'équilibre ou en excédent.", check: (g) => g.ind.solde >= 0 },
+  { id: "desendet", label: "Désendetteur·se", icon: "trending-down", desc: "Faire reculer la dette sous 110 % du PIB.", check: (g) => g.ind.dette < 110 },
+  { id: "pleinemploi", label: "Plein emploi", icon: "briefcase", desc: "Ramener le chômage sous 6 %.", check: (g) => g.ind.chomage < 6 },
+  { id: "mainspropres", label: "Mains propres", icon: "shield-check", desc: "Garder une intégrité d'au moins 90.", check: (g) => g.ind.integrite >= 90 },
+  { id: "vert", label: "Président·e vert·e", icon: "leaf", desc: "Atteindre 70 en environnement.", check: (g) => g.ind.environnement >= 70 },
+  { id: "rassembleur", label: "Rassembleur·se", icon: "users-group", desc: "Maintenir une cohésion d'au moins 75.", check: (g) => g.ind.cohesion >= 75 },
+  { id: "justice", label: "Justice sociale", icon: "stairs", desc: "Réduire les inégalités sous 35.", check: (g) => (g.ind.inegalites ?? 45) < 35 },
+  { id: "croissance", label: "Moteur de croissance", icon: "rocket", desc: "Finir avec une croissance supérieure à 2 %.", check: (g) => g.ind.croissance > 2 },
+  { id: "triomphe", label: "Plébiscité·e", icon: "crown", desc: "Être réélu·e triomphalement.", check: (g, sc, end) => end && end.key === "triomphe" },
+  { id: "sansfaute", label: "Sans-faute", icon: "star", desc: "Obtenir un score d'au moins 75.", check: (g, sc) => sc && sc.total >= 75 },
+];
+const trophiesWon = (game, sc, end) => TROPHIES.filter((t) => { try { return t.check(game, sc, end); } catch { return false; } });
+const TROPHY_KEY = "quinq:trophies";
+
+/* ============================================================
    UI
    ============================================================ */
 const C = {
@@ -697,40 +732,102 @@ const Icon = ({ n, size = 18, color, style }) => (
 
 // Métadonnées d'affichage des indicateurs
 const IND_META = [
-  { id: "solde", label: "Solde", icon: "ti-wallet", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > -3, bad: (v) => v < -6, grp: "Économie" },
-  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie" },
-  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie" },
-  { id: "croissance", label: "Croissance", icon: "ti-trending-up", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > 1.3, bad: (v) => v < 0.3, grp: "Économie" },
-  { id: "cohesion", label: "Cohésion", icon: "ti-users-group", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société" },
-  { id: "environnement", label: "Environnement", icon: "ti-leaf", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société" },
-  { id: "popularite", label: "Popularité", icon: "ti-mood-smile", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 55, bad: (v) => v < 35, grp: "Politique" },
-  { id: "integrite", label: "Intégrité", icon: "ti-scale", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 70, bad: (v) => v < 40, grp: "Politique" },
+  { id: "solde", label: "Solde", icon: "ti-wallet", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > -3, bad: (v) => v < -6, grp: "Économie",
+    info: "Différence entre ce que l'État encaisse (recettes) et ce qu'il dépense, en % du PIB. Négatif = déficit : il dépense plus qu'il ne gagne. Objectif : se rapprocher de 0, voire d'un excédent." },
+  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie",
+    info: "Total de tous les déficits passés, exprimé en % du PIB. Plus elle est élevée, plus les intérêts à rembourser sont lourds (effet boule de neige). La règle européenne vise 60 %." },
+  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie",
+    info: "Part de la population active sans emploi. Il baisse quand l'économie crée des emplois (croissance) et monte quand elle ralentit : c'est la loi d'Okun." },
+  { id: "croissance", label: "Croissance", icon: "ti-trending-up", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > 1.3, bad: (v) => v < 0.3, grp: "Économie",
+    info: "Évolution du PIB, la richesse produite dans le pays. Forte, elle crée des emplois et des recettes ; faible ou négative, c'est la récession." },
+  { id: "cohesion", label: "Cohésion", icon: "ti-users-group", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
+    info: "Mesure l'unité et la paix sociale du pays. Renforcée par les services publics et la redistribution ; fragilisée par les coupes budgétaires et les inégalités. Trop basse, elle mène aux émeutes." },
+  { id: "inegalites", label: "Inégalités", icon: "ti-stairs", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v < 38, bad: (v) => v > 55, grp: "Société", inv: true,
+    info: "Écart entre les plus riches et les plus modestes. Réduites par l'impôt progressif (sur le revenu, le patrimoine) et les aides ; aggravées par les impôts régressifs (TVA) et les coupes sociales. Plus c'est bas, mieux c'est." },
+  { id: "environnement", label: "Environnement", icon: "ti-leaf", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
+    info: "État de la transition écologique. Progresse avec l'investissement vert et la fiscalité carbone ; se dégrade peu à peu si on l'ignore." },
+  { id: "popularite", label: "Popularité", icon: "ti-mood-smile", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 55, bad: (v) => v < 35, grp: "Politique",
+    info: "Soutien de l'opinion publique. Décisive le jour de l'élection. Elle s'use naturellement avec le temps (« usure du pouvoir »)." },
+  { id: "integrite", label: "Intégrité", icon: "ti-scale", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 70, bad: (v) => v < 40, grp: "Politique",
+    info: "Probité de votre gouvernement. Entamée par les compromissions (accepter un lobby, étouffer une affaire). Une intégrité trop basse finit par déclencher des scandales." },
 ];
 const indColor = (m, v) => (m.bad(v) ? C.coral : m.good(v) ? C.mint : C.gold);
-
-function HUD({ ind, prev }) {
+// Groupes d'indicateurs, affichés séparément dans le tableau de bord
+const IND_GROUPS = [
+  { key: "Économie", label: "Économie", icon: "coin", color: C.gold },
+  { key: "Société", label: "Société & environnement", icon: "heart-handshake", color: C.mint },
+  { key: "Politique", label: "Vie politique", icon: "speakerphone", color: "#B57BA6" },
+];
+function IndicatorChip({ m, ind, prev, open, onToggle }) {
+  const v = ind[m.id]; const col = indColor(m, v);
+  const d = prev ? v - prev[m.id] : 0;
+  const dShow = prev && Math.abs(d) >= 0.05;
+  const improved = prev && (m.inv ? -d : d) >= 1;
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(84px,1fr))", gap: 8 }}>
-      {IND_META.map((m) => {
-        const v = ind[m.id]; const col = indColor(m, v);
-        const d = prev ? v - prev[m.id] : 0;
-        const dShow = prev && Math.abs(d) >= 0.05;
-        return (
-          <div key={m.id} style={{ background: C.card, borderRadius: 10, padding: "8px 9px", border: `1px solid ${C.line}` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4, color: C.dim, fontSize: 10.5, marginBottom: 3 }}>
-              <Icon n={m.icon.replace("ti-", "")} size={13} /> {m.label}
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span style={{ color: col, fontFamily: "monospace", fontSize: 17, fontWeight: 600 }}>{m.fmt(v)}<span style={{ fontSize: 10, color: C.dim }}>{m.unit}</span></span>
-              {dShow && <span style={{ fontSize: 10, fontFamily: "monospace", color: d > 0 ? C.mint : C.coral }}>{d > 0 ? "▲" : "▼"}{fmt(Math.abs(d), 1)}</span>}
-            </div>
+    <button onClick={onToggle} title="En savoir plus" className={improved ? "qwin" : ""}
+      style={{ textAlign: "left", cursor: "pointer", flex: "1 1 92px", minWidth: 84, maxWidth: 180, background: C.card, borderRadius: 10, padding: "8px 9px", border: `1px solid ${open ? C.gold : improved ? C.mint : C.line}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, color: C.dim, fontSize: 10.5, marginBottom: 3 }}>
+        <Icon n={m.icon.replace("ti-", "")} size={13} /> {m.label}
+        <Icon n="help-circle" size={11} color={open ? C.gold : C.dim} style={{ marginLeft: "auto" }} />
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+        <span style={{ color: col, fontFamily: "monospace", fontSize: 17, fontWeight: 600 }}>{m.fmt(v)}<span style={{ fontSize: 10, color: C.dim }}>{m.unit}</span></span>
+        {dShow && <span style={{ fontSize: 10, fontFamily: "monospace", color: (m.inv ? -d : d) > 0 ? C.mint : C.coral }}>{d > 0 ? "▲" : "▼"}{fmt(Math.abs(d), 1)}</span>}
+      </div>
+    </button>
+  );
+}
+function HUD({ ind, prev }) {
+  const [openInd, setOpenInd] = useState(null);
+  const openMeta = IND_META.find((m) => m.id === openInd);
+  return (
+    <div style={{ display: "grid", gap: 10 }}>
+      {IND_GROUPS.map((g) => (
+        <div key={g.key}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: g.color, fontWeight: 600, marginBottom: 5 }}>
+            <Icon n={g.icon} size={12} /> {g.label}
           </div>
-        );
-      })}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {IND_META.filter((m) => m.grp === g.key).map((m) => (
+              <IndicatorChip key={m.id} m={m} ind={ind} prev={prev} open={openInd === m.id} onToggle={() => setOpenInd(openInd === m.id ? null : m.id)} />
+            ))}
+          </div>
+          {openMeta && openMeta.grp === g.key && (
+            <div style={{ marginTop: 6, background: "#12203A", border: `1px solid ${C.gold}55`, borderRadius: 9, padding: "9px 12px", fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.gold, fontWeight: 600, marginBottom: 3 }}><Icon n="bulb" size={13} /> {openMeta.label}</span>
+              {openMeta.info}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
 
+// Compteur animé : le nombre défile de 0 jusqu'à la valeur finale
+function CountUp({ to, dur = 1100 }) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    let raf, t0;
+    const tick = (t) => { if (!t0) t0 = t; const p = Math.min(1, (t - t0) / dur); setV(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf);
+  }, [to, dur]);
+  return <>{v}</>;
+}
+// Pluie de confettis (sur la réélection triomphale)
+function Confetti() {
+  const cols = ["#F4C64A", "#8FD1B0", "#C97B7B", "#6F94C9", "#B57BA6", "#F6F1E4"];
+  const bits = Array.from({ length: 70 });
+  return (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden", zIndex: 50 }} aria-hidden="true">
+      {bits.map((_, i) => {
+        const left = Math.random() * 100, delay = Math.random() * 0.8, dur = 2.4 + Math.random() * 1.8, size = 6 + Math.random() * 7;
+        const col = cols[i % cols.length];
+        return <span key={i} style={{ position: "absolute", top: "-16px", left: left + "%", width: size, height: size * 0.5, background: col, borderRadius: 2, opacity: 0.9, animation: `qfall ${dur}s linear ${delay}s forwards` }} />;
+      })}
+    </div>
+  );
+}
 function Btn({ onClick, children, kind = "ghost", disabled, style }) {
   const base = { border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 16px", fontSize: 14, cursor: disabled ? "default" : "pointer", fontWeight: 500, transition: "all .15s", opacity: disabled ? 0.5 : 1 };
   const kinds = {
@@ -754,7 +851,7 @@ function Note({ text }) {
 }
 
 /* ---------- Écran d'accueil ---------- */
-function Home({ onStart, onResume, onLeaderboard, hasSave }) {
+function Home({ onStart, onResume, onLeaderboard, onTrophies, hasSave }) {
   const [code, setCode] = useState("CLASSE");
   const [team, setTeam] = useState("");
   const [doc, setDoc] = useState(null);
@@ -817,7 +914,8 @@ function Home({ onStart, onResume, onLeaderboard, hasSave }) {
           <Icon n="player-play" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Commencer le mandat
         </Btn>
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre</Btn>}
-        <Btn onClick={() => onLeaderboard(codeOk.toUpperCase())}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
+        <Btn onClick={() => onLeaderboard(codeOk.toUpperCase())}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
+        <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Trophées</Btn>
       </div>
       {!canStart && (
         <div style={{ marginTop: 10, fontSize: 12, color: C.gold, display: "flex", alignItems: "center", gap: 6 }}>
@@ -937,7 +1035,8 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const list = LEVERS.filter((l) => l.cat === tab);
   const handleValider = () => { if (nonVus.length && !confirm) { setConfirm(true); } else { onValidate(); } };
   // Charge de la dette (intérêts) = taux × dette, et solde TOTAL = primaire − charge
-  const chargePct = taux * indPrev.dette / 100;
+  const tauxPrev = computeTaux(taux, indPrev.dette, preview.ind.solde);
+  const chargePct = tauxPrev * indPrev.dette / 100;
   const chargeMd = Math.round(chargePct * PIB / 100);
   const soldePrimaire = preview.ind.solde;
   const soldeTotal = soldePrimaire - chargePct;
@@ -1002,6 +1101,11 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
           </div>
         )}
         <div style={{ color: C.dim, fontSize: 11, marginTop: 8, textAlign: "center" }}>Prévision avant événements — les 3 cartes de l'année viendront tout bousculer.</div>
+        {year > 1 && (
+          <div style={{ color: C.dim, fontSize: 10.5, marginTop: 4, textAlign: "center", fontStyle: "italic", lineHeight: 1.4 }}>
+            Le solde repart de sa base chaque année : vos choix budgétaires durables sont conservés, mais les chocs ponctuels de l'an dernier ne se répètent pas. Seule la <b style={{ fontStyle: "normal", color: C.sub }}>dette</b> s'accumule.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1378,10 +1482,12 @@ function Election({ onReveal }) {
 }
 
 /* ---------- Débriefing ---------- */
-function Debrief({ game, sc, end, leaderboard, onReplay, onHome }) {
+function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHome }) {
   const podium = [...(leaderboard || [])].sort((a, b) => b.score - a.score);
+  const wonNew = TROPHIES.filter((t) => newTrophies.includes(t.id));
   return (
     <div>
+      {end.key === "triomphe" && <Confetti />}
       <div style={{ textAlign: "center", background: end.color + "1A", border: `1px solid ${end.color}66`, borderRadius: 16, padding: 22, marginBottom: 16 }}>
         <Icon n={end.icon} size={46} color={end.color} />
         <h2 style={{ color: end.color, fontFamily: "Fraunces,serif", fontSize: 26, margin: "10px 0 6px" }}>{end.title}</h2>
@@ -1395,10 +1501,23 @@ function Debrief({ game, sc, end, leaderboard, onReplay, onHome }) {
         {[["Économie", sc.eco, "55 %"], ["Social", sc.social, "30 %"], ["Politique", sc.politique, "15 %"], ["SCORE", sc.total, "final"]].map(([l, v, w], i) => (
           <div key={l} style={{ background: i === 3 ? C.gold : C.card, borderRadius: 12, padding: "12px 10px", textAlign: "center", border: `1px solid ${i === 3 ? C.gold : C.line}` }}>
             <div style={{ fontSize: 10.5, color: i === 3 ? "#12203A" : C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>{l} <span style={{ opacity: .7 }}>{w}</span></div>
-            <div style={{ fontFamily: "monospace", fontSize: 26, fontWeight: 600, color: i === 3 ? "#12203A" : indScoreCol(v) }}>{v}</div>
+            <div style={{ fontFamily: "monospace", fontSize: 26, fontWeight: 600, color: i === 3 ? "#12203A" : indScoreCol(v) }}>{i === 3 ? <CountUp to={v} /> : v}</div>
           </div>
         ))}
       </div>
+      {wonNew.length > 0 && (
+        <div style={{ background: C.gold + "14", border: `1px solid ${C.gold}66`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 10 }}><Icon n="trophy" size={18} /> {wonNew.length === 1 ? "Nouveau trophée débloqué !" : `${wonNew.length} nouveaux trophées débloqués !`}</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {wonNew.map((t) => (
+              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, background: C.card, border: `1px solid ${C.gold}`, borderRadius: 20, padding: "6px 13px 6px 7px" }}>
+                <span style={{ width: 28, height: 28, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n={t.icon} size={15} color="#12203A" /></span>
+                <span style={{ color: C.gold, fontSize: 13, fontWeight: 600 }}>{t.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 12 }}><Icon n="school" size={18} color={C.gold} /> Le bilan pédagogique de votre mandat</div>
         <div style={{ display: "grid", gap: 13 }}>
@@ -1472,6 +1591,31 @@ function DecisionsRecap({ decisions }) {
 const indScoreCol = (v) => (v >= 65 ? C.mint : v >= 45 ? C.gold : C.coral);
 
 /* ---------- Classement autonome ---------- */
+function TrophiesView({ unlocked, onBack }) {
+  const have = new Set(unlocked || []);
+  return (
+    <div>
+      <ScreenTitle icon="trophy" title="Vos trophées" sub={`${have.size} / ${TROPHIES.length} débloqués — rejouez pour tous les obtenir !`} />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+        {TROPHIES.map((t) => {
+          const got = have.has(t.id);
+          return (
+            <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 11, background: got ? C.gold + "18" : C.card, border: `1px solid ${got ? C.gold : C.line}`, borderRadius: 12, padding: 12, opacity: got ? 1 : 0.6 }}>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, background: got ? C.gold : C.line, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icon n={got ? t.icon : "lock"} size={21} color={got ? "#12203A" : C.dim} />
+              </div>
+              <div>
+                <div style={{ color: got ? C.gold : C.dim, fontSize: 13.5, fontWeight: 600 }}>{t.label}</div>
+                <div style={{ color: C.sub, fontSize: 11.5, lineHeight: 1.4 }}>{t.desc}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <Btn kind="primary" onClick={onBack}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Retour</Btn>
+    </div>
+  );
+}
 function LeaderboardView({ code, entries, onBack }) {
   const podium = [...(entries || [])].sort((a, b) => b.score - a.score);
   return (
@@ -1507,6 +1651,8 @@ export default function App() {
   const [end, setEnd] = useState(null);
   const [sc, setSc] = useState(null);
   const [board, setBoard] = useState([]);
+  const [newTrophies, setNewTrophies] = useState([]);
+  const [unlockedTrophies, setUnlockedTrophies] = useState([]);
   const [hasSave, setHasSave] = useState(false);
   const [boardCode, setBoardCode] = useState("STMG");
 
@@ -1533,10 +1679,16 @@ export default function App() {
   function validateBudget() {
     const doc = doctrineOf(game);
     const res = applyBudgetYear(game.ind, workLevels, game.levels, game.year, doc);
+    // Le taux réagit au budget voté ; la charge de la dette est appliquée TOUT DE SUITE,
+    // pour que le "Solde" affiché soit le solde TOTAL de façon cohérente (et non le primaire).
+    const soldePrimaire = res.ind.solde;
+    const taux = computeTaux(game.taux ?? TAUX0, game.ind.dette, soldePrimaire);
+    const chargePct = taux * game.ind.dette / 100;
+    const indTotal = { ...res.ind, solde: clamp(soldePrimaire - chargePct, -18, 8) };
     setIndBefore(game.ind);                         // état avant l'année (pour le conseiller)
     const drawn = drawEvents(game.year, game.usedIds, game.pendingFlags);
     setEvts(drawn); setEvtIdx(0);
-    setGame({ ...game, ind: res.ind, levels: { ...workLevels } });
+    setGame({ ...game, ind: indTotal, levels: { ...workLevels }, taux, _soldePrim: +soldePrimaire.toFixed(1), _chargeMd: Math.round(chargePct * PIB / 100) });
     setScreen("events");
   }
 
@@ -1551,8 +1703,8 @@ export default function App() {
       const finalInd = fr.ind, fl = fr.flags;
       const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB;
       const flows = computeFlows(finalInd, game.levels, pibPrev);
-      const history = [...game.history, { year: game.year, ind: finalInd, taux: fr.taux, charge: fr.chargeMd, soldePrimaire: fr.soldePrimaire, ...flows }];
-      const g2 = { ...game, ind: finalInd, taux: fr.taux, usedIds, decisions, history, pendingFlags: fl };
+      const history = [...game.history, { year: game.year, ind: finalInd, taux: game.taux, charge: game._chargeMd, soldePrimaire: game._soldePrim, ...flows }];
+      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl };
       setFlags(fl); setGame(g2); persist(g2); setScreen("summary");
     }
   }
@@ -1566,15 +1718,24 @@ export default function App() {
   async function reveal() {
     const score = scoreBreakdown(game.ind);
     const e = ending(game.ind, score);
+    // Une fin catastrophique plafonne le score : impossible de "bien noter" un mandat qui s'effondre.
+    if (["faillite", "chaos", "scandale"].includes(e.key)) score.total = Math.min(score.total, 35);
     setSc(score); setEnd(e);
     const entry = { team: game.team, score: score.total, eco: score.eco, social: score.social, politique: score.politique, ending: e.title, date: Date.now() };
     const existing = (await storage.get(lbKey(game.code), true)) || [];
     const updated = [...existing.filter((x) => x.team !== game.team), entry];
     await storage.set(lbKey(game.code), updated, true);
+    // Trophées : calculer les gagnés, repérer les NOUVEAUX, fusionner et persister
+    const won = trophiesWon(game, score, e).map((t) => t.id);
+    const stored = (await storage.get(TROPHY_KEY)) || [];
+    const fresh = won.filter((id) => !stored.includes(id));
+    await storage.set(TROPHY_KEY, [...new Set([...stored, ...won])]);
+    setNewTrophies(fresh);
     await storage.del(saveKey(game.code, game.team)); await storage.del(saveKey("STMG", "__any__"));
     setHasSave(false); setBoard(updated); setScreen("debrief");
   }
   async function openLeaderboard(code) { setBoardCode(code); const e = (await storage.get(lbKey(code), true)) || []; setBoard(e); setScreen("leaderboard"); }
+  async function openTrophies() { const t = (await storage.get(TROPHY_KEY)) || []; setUnlockedTrophies(t); setScreen("trophies"); }
 
   const progress = game ? ((game.year - 1) / YEARS) * 100 : 0;
 
@@ -1583,6 +1744,9 @@ export default function App() {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
         @import url('https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.11.0/tabler-icons.min.css');
         * { box-sizing: border-box; } button:hover { filter: brightness(1.08); }
+        @keyframes qfall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
+        @keyframes qpulse { 0% { box-shadow: 0 0 0 0 rgba(143,209,154,0.5); } 70% { box-shadow: 0 0 0 7px rgba(143,209,154,0); } 100% { box-shadow: 0 0 0 0 rgba(143,209,154,0); } }
+        .qwin { animation: qpulse 1.2s ease-out 2; }
         ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: #2C4372; border-radius: 4px; }`}</style>
       <div style={{ maxWidth: (screen === "home" || screen === "mission") ? 1040 : 760, margin: "0 auto", padding: (screen === "home" || screen === "mission") ? "40px 24px 48px" : "18px 16px 40px" }}>
         {game && screen !== "home" && (
@@ -1602,14 +1766,15 @@ export default function App() {
           </div>
         )}
 
-        {screen === "home" && <Home hasSave={hasSave} onStart={start} onResume={resume} onLeaderboard={openLeaderboard} />}
+        {screen === "home" && <Home hasSave={hasSave} onStart={start} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
+        {screen === "trophies" && <TrophiesView unlocked={unlockedTrophies} onBack={() => setScreen("home")} />}
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
         {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} history={game.history} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "election" && game && <Election onReveal={reveal} />}
-        {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} onReplay={() => start(game.code, game.team, game.doctrineId)} onHome={() => { setGame(null); setScreen("home"); }} />}
+        {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} newTrophies={newTrophies} onReplay={() => start(game.code, game.team, game.doctrineId)} onHome={() => { setGame(null); setScreen("home"); }} />}
         {screen === "leaderboard" && <LeaderboardView code={boardCode} entries={board} onBack={() => setScreen("home")} />}
       </div>
     </div>
