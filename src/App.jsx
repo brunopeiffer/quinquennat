@@ -721,10 +721,13 @@ const TROPHY_KEY = "quinq:trophies";
 /* ============================================================
    UI
    ============================================================ */
+// Palette référencée par variables CSS -> permet de basculer dark/clair instantanément.
 const C = {
-  bg: "#12203A", card: "#182B4C", card2: "#1B2E52", line: "#2C4372",
-  gold: "#F4C64A", mint: "#8FD1B0", coral: "#F19A9A",
-  ink: "#F6F1E4", sub: "#B7C4DC", dim: "#8CA0C4",
+  bg: "var(--bg)", card: "var(--card)", card2: "var(--card2)", line: "var(--line)",
+  gold: "var(--gold)", mint: "var(--mint)", coral: "var(--coral)",
+  ink: "var(--ink)", sub: "var(--sub)", dim: "var(--dim)",
+  inset: "var(--inset)", onAccent: "var(--on-accent)", track: "var(--track)",
+  coralBg: "var(--coral-bg)", amberBg: "var(--amber-bg)",
 };
 const Icon = ({ n, size = 18, color, style }) => (
   <i className={"ti ti-" + n} style={{ fontSize: size, color, lineHeight: 1, ...style }} aria-hidden="true" />
@@ -793,7 +796,7 @@ function HUD({ ind, prev }) {
             ))}
           </div>
           {openMeta && openMeta.grp === g.key && (
-            <div style={{ marginTop: 6, background: "#12203A", border: `1px solid ${C.gold}55`, borderRadius: 9, padding: "9px 12px", fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
+            <div style={{ marginTop: 6, background: C.inset, border: `1px solid ${C.gold}55`, borderRadius: 9, padding: "9px 12px", fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
               <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.gold, fontWeight: 600, marginBottom: 3 }}><Icon n="bulb" size={13} /> {openMeta.label}</span>
               {openMeta.info}
             </div>
@@ -816,7 +819,7 @@ function CountUp({ to, dur = 1100 }) {
 }
 // Pluie de confettis (sur la réélection triomphale)
 function Confetti() {
-  const cols = ["#F4C64A", "#8FD1B0", "#C97B7B", "#6F94C9", "#B57BA6", "#F6F1E4"];
+  const cols = ["#F4C64A", "#8FD1B0", "#C97B7B", "#6F94C9", "#B57BA6", C.ink];
   const bits = Array.from({ length: 70 });
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden", zIndex: 50 }} aria-hidden="true">
@@ -831,8 +834,8 @@ function Confetti() {
 function Btn({ onClick, children, kind = "ghost", disabled, style }) {
   const base = { border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 16px", fontSize: 14, cursor: disabled ? "default" : "pointer", fontWeight: 500, transition: "all .15s", opacity: disabled ? 0.5 : 1 };
   const kinds = {
-    primary: { background: C.gold, color: "#12203A", border: "1px solid " + C.gold },
-    mint: { background: C.mint, color: "#12203A", border: "1px solid " + C.mint },
+    primary: { background: C.gold, color: C.onAccent, border: "1px solid " + C.gold },
+    mint: { background: C.mint, color: C.onAccent, border: "1px solid " + C.mint },
     ghost: { background: "transparent", color: C.ink },
   };
   return <button onClick={disabled ? undefined : onClick} style={{ ...base, ...kinds[kind], ...style }}>{children}</button>;
@@ -845,7 +848,7 @@ function Note({ text }) {
       <button onClick={() => setOpen(!open)} style={{ background: "transparent", border: "none", color: C.gold, fontSize: 11.5, cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 4 }}>
         <Icon n="bulb" size={13} /> Le saviez-vous ? {open ? "▲" : "▼"}
       </button>
-      {open && <div style={{ marginTop: 5, fontSize: 12, color: C.sub, lineHeight: 1.55, background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px" }}>{text}</div>}
+      {open && <div style={{ marginTop: 5, fontSize: 12, color: C.sub, lineHeight: 1.55, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px" }}>{text}</div>}
     </div>
   );
 }
@@ -861,7 +864,7 @@ function Home({ onStart, onResume, onLeaderboard, onTrophies, hasSave }) {
     <div>
       <div style={{ textAlign: "center", marginBottom: 32 }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
-          <div style={{ width: 56, height: 56, borderRadius: 15, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={34} color="#12203A" /></div>
+          <div style={{ width: 56, height: 56, borderRadius: 15, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={34} color="var(--on-accent)" /></div>
           <h1 style={{ margin: 0, color: C.ink, fontFamily: "Fraunces,serif", fontSize: 46, fontWeight: 600 }}>Quinquennat</h1>
         </div>
         <p style={{ color: C.dim, fontSize: 17, margin: 0 }}>À vous de gouverner la France pendant 5 ans. Chaque décision compte.</p>
@@ -872,7 +875,7 @@ function Home({ onStart, onResume, onLeaderboard, onTrophies, hasSave }) {
         {[["Nom d'équipe", !!team.trim()], ["Doctrine", !!doc]].map(([label, done], i) => (
           <React.Fragment key={i}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: done ? C.mint : C.ink }}>
-              <span style={{ width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, background: done ? C.mint : "transparent", color: done ? "#12203A" : C.dim, border: `1.5px solid ${done ? C.mint : C.line}` }}>
+              <span style={{ width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, background: done ? C.mint : "transparent", color: done ? "var(--on-accent)" : C.dim, border: `1.5px solid ${done ? C.mint : C.line}` }}>
                 {done ? "✓" : i + 1}
               </span>
               {label}
@@ -926,7 +929,7 @@ function Home({ onStart, onResume, onLeaderboard, onTrophies, hasSave }) {
     </div>
   );
 }
-const inp = { display: "block", width: "100%", marginTop: 4, boxSizing: "border-box", background: "#12203A", border: "1px solid #2C4372", borderRadius: 8, color: "#F6F1E4", padding: "9px 11px", fontSize: 14 };
+const inp = { display: "block", width: "100%", marginTop: 4, boxSizing: "border-box", background: C.inset, border: "1px solid #2C4372", borderRadius: 8, color: C.ink, padding: "9px 11px", fontSize: 14 };
 
 /* ---------- Écran Mission (objectif clair avant de jouer) ---------- */
 function Mission({ team, doctrine, onGo }) {
@@ -973,7 +976,7 @@ function Mission({ team, doctrine, onGo }) {
             <p style={{ margin: "0 0 10px" }}>
               Les chiffres de départ sont des <b style={{ color: C.ink }}>ordres de grandeur 2025, arrondis</b>, issus de sources publiques (projet de loi de finances, INSEE, Cour des comptes).
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 18px", fontSize: 13, fontFamily: "monospace", color: C.dim, background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 18px", fontSize: 13, fontFamily: "monospace", color: C.dim, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
               <div>PIB ≈ 3 000 Md€</div><div>Dette ≈ 116 % du PIB</div>
               <div>Recettes ≈ 1 450 Md€</div><div>Déficit ≈ 5 % du PIB</div>
               <div>Dépenses ≈ 1 600 Md€</div><div>Chômage ≈ 7,5 %</div>
@@ -1075,10 +1078,10 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
           <Btn kind="primary" onClick={handleValider}>{confirm && nonVus.length ? "Valider quand même" : "Valider le budget"} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
         </div>
         {confirm && nonVus.length > 0 && (
-          <div style={{ marginTop: 10, background: "#3A2E1A", border: "1px solid #E0A96D66", borderRadius: 9, padding: "9px 12px", color: "#E0A96D", fontSize: 12.5, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ marginTop: 10, background: C.amberBg, border: "1px solid #E0A96D66", borderRadius: 9, padding: "9px 12px", color: "#E0A96D", fontSize: 12.5, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <Icon n="eye-off" size={16} style={{ flexShrink: 0 }} />
             <span style={{ flex: 1, minWidth: 180 }}>Vous n'avez pas ouvert l'onglet <b>« {nonVus[0][1]} »</b>. Jetez-y un œil avant de valider — c'est la moitié de votre budget !</span>
-            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "#E0A96D", color: "#12203A", border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Voir les {nonVus[0][1].toLowerCase()}</button>
+            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "#E0A96D", color: C.onAccent, border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Voir les {nonVus[0][1].toLowerCase()}</button>
           </div>
         )}
         {/* Aperçu complet des conséquences prévues */}
@@ -1088,14 +1091,14 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
           <PreviewChip label="Croissance" value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
           <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
         </div>
-        <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, textAlign: "center", background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px" }}>
+        <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, textAlign: "center", background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px" }}>
           Solde primaire <b style={{ fontFamily: "monospace" }}>{fmt(soldePrimaire, 1)} %</b> − charge de la dette <b style={{ fontFamily: "monospace", color: C.coral }}>{fmt(chargePct, 1)} %</b> (≈ {fmt(chargeMd)} Md€, taux {fmt(taux, 1)} %) = solde total <b style={{ fontFamily: "monospace", color: soldeTotal < -3 ? C.coral : C.gold }}>{fmt(soldeTotal, 1)} %</b>
         </div>
         <div style={{ fontSize: 11, color: C.dim, marginTop: 6, textAlign: "center" }}>
           Dette {fmt(indPrev.dette, 0)} % → <b style={{ color: detteMonte ? C.coral : C.mint }}>{fmt(detteProjetee, 0)} %</b> en fin de mandat si vous gardez ce cap.
         </div>
         {(alerteDeficit || alerteDette) && (
-          <div style={{ marginTop: 10, background: "#3A1E1E", border: `1px solid ${C.coral}66`, borderRadius: 9, padding: "9px 12px", color: C.coral, fontSize: 12.5, display: "flex", alignItems: "flex-start", gap: 8 }}>
+          <div style={{ marginTop: 10, background: C.coralBg, border: `1px solid ${C.coral}66`, borderRadius: 9, padding: "9px 12px", color: C.coral, fontSize: 12.5, display: "flex", alignItems: "flex-start", gap: 8 }}>
             <Icon n="alert-triangle" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
             <span>{alerteDeficit && `Déficit très élevé (${fmt(preview.ind.solde, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
           </div>
@@ -1115,7 +1118,7 @@ function PreviewChip({ label, value, tone, delta }) {
   if (tone === "bad") col = C.coral; else if (tone === "good") col = C.mint;
   else if (delta != null) col = delta > 0.03 ? C.mint : delta < -0.03 ? C.coral : C.gold;
   return (
-    <div style={{ background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 9, padding: "7px 10px", textAlign: "center" }}>
+    <div style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 9, padding: "7px 10px", textAlign: "center" }}>
       <div style={{ fontSize: 10, color: C.dim, textTransform: "uppercase" }}>{label}</div>
       <div style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 600, color: col }}>{value}</div>
     </div>
@@ -1176,11 +1179,11 @@ function LeverRow({ lever, level, baseLevel, onChange }) {
         </div>
       )}
       {!changed && <div style={{ fontSize: 10.5, color: C.dim, paddingLeft: 25, marginTop: 2 }}>{lever.hint}</div>}
-      {info && <div style={{ fontSize: 11.5, color: C.sub, lineHeight: 1.5, background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px", marginTop: 6, marginLeft: 25 }}><Icon n="bulb" size={12} color={C.gold} /> {lever.hint}</div>}
+      {info && <div style={{ fontSize: 11.5, color: C.sub, lineHeight: 1.5, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px", marginTop: 6, marginLeft: 25 }}><Icon n="bulb" size={12} color={C.gold} /> {lever.hint}</div>}
     </div>
   );
 }
-const stepBtn = { width: 24, height: 24, borderRadius: 6, border: "1px solid #2C4372", background: "#12203A", color: "#F6F1E4", fontSize: 16, cursor: "pointer", lineHeight: 1 };
+const stepBtn = { width: 24, height: 24, borderRadius: 6, border: "1px solid #2C4372", background: C.inset, color: C.ink, fontSize: 16, cursor: "pointer", lineHeight: 1 };
 
 /* ---------- Écran Événements ---------- */
 function EventScreen({ event, index, total, onChoose }) {
@@ -1212,10 +1215,10 @@ function EventScreen({ event, index, total, onChoose }) {
 function ChoiceRow({ choice, num, onClick }) {
   const fxChips = Object.entries(choice.fx).map(([k, v]) => {
     const m = IND_META.find((x) => x.id === k); if (!m) return null;
-    return <span key={k} style={{ fontSize: 10.5, fontFamily: "monospace", color: v > 0 ? C.mint : C.coral, background: "#12203A", padding: "1px 6px", borderRadius: 5, border: `1px solid ${C.line}` }}>{m.label} {v > 0 ? "+" : ""}{fmt(v, 1)}</span>;
+    return <span key={k} style={{ fontSize: 10.5, fontFamily: "monospace", color: v > 0 ? C.mint : C.coral, background: C.inset, padding: "1px 6px", borderRadius: 5, border: `1px solid ${C.line}` }}>{m.label} {v > 0 ? "+" : ""}{fmt(v, 1)}</span>;
   }).filter(Boolean);
   return (
-    <div style={{ background: "#12203A", border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 13px" }}>
+    <div style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 13px" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
         <span style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: C.line, color: C.ink, fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}>{num}</span>
         <span style={{ color: C.ink, fontSize: 14, flex: 1, lineHeight: 1.4 }}>{choice.label}</span>
@@ -1229,7 +1232,7 @@ function ChoiceRow({ choice, num, onClick }) {
       <div style={{ paddingLeft: 31 }}>{choice.note && <Note text={choice.note} />}</div>
       {/* Bouton d'action bien visible */}
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
-        <button onClick={onClick} style={{ background: C.gold, color: "#12203A", border: "none", borderRadius: 9, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+        <button onClick={onClick} style={{ background: C.gold, color: C.onAccent, border: "none", borderRadius: 9, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
           Faire ce choix <Icon n="arrow-right" size={15} />
         </button>
       </div>
@@ -1398,7 +1401,7 @@ function YearSummary({ year, indBefore, ind, flags, onNext, onTable, history }) 
       {/* Le conseiller */}
       <div style={{ marginTop: 14, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-check" size={18} color="#12203A" /></div>
+          <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-check" size={18} color="var(--on-accent)" /></div>
           <div><div style={{ color: C.ink, fontSize: 13.5, fontWeight: 500 }}>Le mot de votre conseiller</div><div style={{ color: C.dim, fontSize: 11 }}>Bilan de l'année {2026 + year}</div></div>
         </div>
         <div style={{ display: "grid", gap: 8 }}>
@@ -1500,8 +1503,8 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
         {[["Économie", sc.eco, "55 %"], ["Social", sc.social, "30 %"], ["Politique", sc.politique, "15 %"], ["SCORE", sc.total, "final"]].map(([l, v, w], i) => (
           <div key={l} style={{ background: i === 3 ? C.gold : C.card, borderRadius: 12, padding: "12px 10px", textAlign: "center", border: `1px solid ${i === 3 ? C.gold : C.line}` }}>
-            <div style={{ fontSize: 10.5, color: i === 3 ? "#12203A" : C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>{l} <span style={{ opacity: .7 }}>{w}</span></div>
-            <div style={{ fontFamily: "monospace", fontSize: 26, fontWeight: 600, color: i === 3 ? "#12203A" : indScoreCol(v) }}>{i === 3 ? <CountUp to={v} /> : v}</div>
+            <div style={{ fontSize: 10.5, color: i === 3 ? "var(--on-accent)" : C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>{l} <span style={{ opacity: .7 }}>{w}</span></div>
+            <div style={{ fontFamily: "monospace", fontSize: 26, fontWeight: 600, color: i === 3 ? "var(--on-accent)" : indScoreCol(v) }}>{i === 3 ? <CountUp to={v} /> : v}</div>
           </div>
         ))}
       </div>
@@ -1511,7 +1514,7 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {wonNew.map((t) => (
               <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, background: C.card, border: `1px solid ${C.gold}`, borderRadius: 20, padding: "6px 13px 6px 7px" }}>
-                <span style={{ width: 28, height: 28, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n={t.icon} size={15} color="#12203A" /></span>
+                <span style={{ width: 28, height: 28, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n={t.icon} size={15} color="var(--on-accent)" /></span>
                 <span style={{ color: C.gold, fontSize: 13, fontWeight: 600 }}>{t.label}</span>
               </div>
             ))}
@@ -1602,7 +1605,7 @@ function TrophiesView({ unlocked, onBack }) {
           return (
             <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 11, background: got ? C.gold + "18" : C.card, border: `1px solid ${got ? C.gold : C.line}`, borderRadius: 12, padding: 12, opacity: got ? 1 : 0.6 }}>
               <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, background: got ? C.gold : C.line, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Icon n={got ? t.icon : "lock"} size={21} color={got ? "#12203A" : C.dim} />
+                <Icon n={got ? t.icon : "lock"} size={21} color={got ? "var(--on-accent)" : C.dim} />
               </div>
               <div>
                 <div style={{ color: got ? C.gold : C.dim, fontSize: 13.5, fontWeight: 600 }}>{t.label}</div>
@@ -1652,6 +1655,9 @@ export default function App() {
   const [sc, setSc] = useState(null);
   const [board, setBoard] = useState([]);
   const [newTrophies, setNewTrophies] = useState([]);
+  const [theme, setTheme] = useState("dark");
+  useEffect(() => { (async () => { const t = await storage.get("quinq:theme"); if (t === "light" || t === "dark") setTheme(t); })(); }, []);
+  useEffect(() => { try { document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : ""); } catch {} storage.set("quinq:theme", theme); }, [theme]);
   const [unlockedTrophies, setUnlockedTrophies] = useState([]);
   const [hasSave, setHasSave] = useState(false);
   const [boardCode, setBoardCode] = useState("STMG");
@@ -1743,17 +1749,37 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "Inter,system-ui,sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
         @import url('https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.11.0/tabler-icons.min.css');
-        * { box-sizing: border-box; } button:hover { filter: brightness(1.08); }
+        :root {
+          --bg:#12203A; --card:#182B4C; --card2:#1B2E52; --line:#2C4372;
+          --gold:#F4C64A; --mint:#8FD1B0; --coral:#F19A9A;
+          --ink:#F6F1E4; --sub:#B7C4DC; --dim:#8CA0C4;
+          --inset:#0F1B32; --on-accent:#12203A; --track:#1E3157;
+          --coral-bg:#3A1E1E; --amber-bg:#3A2E1A;
+        }
+        :root[data-theme="light"] {
+          --bg:#EEF2F8; --card:#FFFFFF; --card2:#F7FAFE; --line:#D4DEEC;
+          --gold:#A9780C; --mint:#2E8F62; --coral:#C44A41;
+          --ink:#17233E; --sub:#3C4B66; --dim:#64748C;
+          --inset:#EDF1F8; --on-accent:#12203A; --track:#DCE4F0;
+          --coral-bg:#FBE6E4; --amber-bg:#FBF0DD;
+        }
+        * { box-sizing: border-box; }
+        body { background: var(--bg); }
+        button:hover { filter: brightness(1.08); }
         @keyframes qfall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
         @keyframes qpulse { 0% { box-shadow: 0 0 0 0 rgba(143,209,154,0.5); } 70% { box-shadow: 0 0 0 7px rgba(143,209,154,0); } 100% { box-shadow: 0 0 0 0 rgba(143,209,154,0); } }
         .qwin { animation: qpulse 1.2s ease-out 2; }
-        ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: #2C4372; border-radius: 4px; }`}</style>
+        ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }`}</style>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} title={theme === "light" ? "Passer en mode sombre" : "Passer en mode clair"}
+        style={{ position: "fixed", top: 12, right: 12, zIndex: 40, width: 38, height: 38, borderRadius: 10, cursor: "pointer", background: C.card, border: `1px solid ${C.line}`, color: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Icon n={theme === "light" ? "moon" : "sun"} size={19} />
+      </button>
       <div style={{ maxWidth: (screen === "home" || screen === "mission") ? 1040 : 760, margin: "0 auto", padding: (screen === "home" || screen === "mission") ? "40px 24px 48px" : "18px 16px 40px" }}>
         {game && screen !== "home" && (
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={17} color="#12203A" /></div>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={17} color="var(--on-accent)" /></div>
                 <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{doctrineOf(game)?.label} · {game.code}</div></div>
               </div>
               <div style={{ textAlign: "right" }}>
@@ -1761,7 +1787,7 @@ export default function App() {
                 <div style={{ color: C.gold, fontFamily: "monospace", fontSize: 16, fontWeight: 600, lineHeight: 1 }}>Année {Math.min(game.year, YEARS)}<span style={{ color: C.line, fontSize: 12 }}>/{YEARS}</span></div>
               </div>
             </div>
-            <div style={{ height: 6, borderRadius: 4, background: "#1E3157", overflow: "hidden" }}><div style={{ width: `${progress}%`, height: "100%", background: C.gold, transition: "width .4s" }} /></div>
+            <div style={{ height: 6, borderRadius: 4, background: C.track, overflow: "hidden" }}><div style={{ width: `${progress}%`, height: "100%", background: C.gold, transition: "width .4s" }} /></div>
             {["budget", "events"].includes(screen) && <div style={{ marginTop: 10 }}><HUD ind={game.ind} /><ObjBar ind={game.ind} /><MarketStrip taux={game.taux ?? TAUX0} dette={game.ind.dette} /></div>}
           </div>
         )}
