@@ -21,9 +21,12 @@ const IMPULSE_GAIN = 1.5;   // amplifie l'effet des décisions sur la croissance
 const LEVEL_MIN = -8, LEVEL_MAX = 10;   // bornes cumulées d'un levier
 // --- Coût de la dette : taux d'emprunt dynamique (réaction des marchés) ---
 const PRIMARY_BASE = -3.0;  // solde PRIMAIRE de départ (hors intérêts) ; + charge ≈ -5 % total
-const TAUX0 = 1.7;          // taux d'emprunt initial (%)
-const TAUX_BASE = 1.0, TAUX_KDETTE = 0.03, TAUX_KDEF = 0.5, TAUX_KCONF = 0.35; // sensibilité (forte)
-const TAUX_ADJ = 0.5, TAUX_MIN = 1.0, TAUX_MAX = 8.0; // vitesse d'ajustement et bornes
+// Deux taux distincts (réalité oct. 2026 : OAT 10 ans ≈ 4,7-4,9 %, mais dette ancienne empruntée moins cher) :
+const TAUX0 = 1.8;          // taux MOYEN de la dette (stock) au départ : c'est lui qui fixe la charge d'intérêts
+const MARCHE0 = 4.7;        // taux de MARCHÉ (nouveaux emprunts, OAT 10 ans) au départ
+const TAUX_BASE = 3.7, TAUX_KDETTE = 0.03, TAUX_KDEF = 0.5, TAUX_KCONF = 0.35; // réaction des marchés (forte)
+const TAUX_ADJ = 0.5, TAUX_MIN = 2.5, TAUX_MAX = 9.0;  // vitesse d'ajustement et bornes du taux de marché
+const REFI_BASE = 0.07, REFI_DEF = 0.5;                // part de la dette refinancée chaque année au taux de marché
 // Bornes de croissance annuelle : même en poussant tous les curseurs, pas de miracle (4 %),
 // et une récession plafonnée à -3,5 % (plus réaliste que ±6 %).
 const GROWTH_MIN = -3.5, GROWTH_MAX = 4.0;
@@ -514,16 +517,24 @@ function applyBudgetYear(indPrev, levels, prevLevels, year, doctrine) {
 // À l'entrée, n.solde est le solde PRIMAIRE (hors intérêts). tauxPrev = taux de l'an dernier.
 // Taux d'emprunt : les marchés réagissent à la dette et au déficit primaire.
 // Calculé dès la validation du budget, pour que la charge soit intégrée tout de suite.
-function computeTaux(tauxPrev, dette, soldePrimaire) {
-  const tauxCible = TAUX_BASE
+function computeMarche(marchePrev, dette, soldePrimaire) {
+  const cible = TAUX_BASE
     + TAUX_KDETTE * Math.max(0, dette - 100)
     + TAUX_KDEF * Math.max(0, -soldePrimaire - 2)
     - TAUX_KCONF * Math.max(0, soldePrimaire);
-  return +clamp(tauxPrev + (tauxCible - tauxPrev) * TAUX_ADJ, TAUX_MIN, TAUX_MAX).toFixed(2);
+  return +clamp(marchePrev + (cible - marchePrev) * TAUX_ADJ, TAUX_MIN, TAUX_MAX).toFixed(2);
+}
+// Taux MOYEN de la dette : chaque année, une partie des vieux emprunts arrive à échéance et doit être
+// réempruntée au taux de marché, de même que le déficit de l'année. Le taux moyen rattrape donc
+// progressivement le taux de marché : la charge d'intérêts monte même sans nouveau dérapage.
+function computeMoyen(moyenPrev, marche, dette, soldePrimaire) {
+  const deficit = Math.max(0, -(soldePrimaire - moyenPrev * dette / 100));
+  const part = clamp(REFI_BASE + REFI_DEF * deficit / Math.max(dette, 1), 0, 1);
+  return +(moyenPrev + (marche - moyenPrev) * part).toFixed(2);
 }
 // Clôture de l'année. À l'entrée, n.solde est DÉJÀ le solde TOTAL (charge de la dette comprise,
 // appliquée à la validation du budget). taux = taux d'emprunt de l'année (pour l'alerte marchés).
-function finalizeYear(ind0, taux = TAUX0) {
+function finalizeYear(ind0, taux = TAUX0, marche = MARCHE0) {
   let n = { ...ind0 };
   n.chomage = clamp(n.chomage - 0.35 * (n.croissance - 1.0), 3, 20);
 
@@ -537,7 +548,7 @@ function finalizeYear(ind0, taux = TAUX0) {
   if ((n.inegalites ?? 45) > 58) n.cohesion = clamp(n.cohesion - ((n.inegalites - 58) * 0.06), 0, 100); // les inégalités minent la cohésion
 
   const flags = [];
-  if (taux > 3.5) flags.push("taux");                    // les marchés s'affolent
+  if (marche > 5.5) flags.push("taux");                  // les marchés s'affolent
   if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, GROWTH_MIN, GROWTH_MAX); flags.push("defiance"); }
   if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
   if (n.popularite < 22) flags.push("censure");
@@ -607,7 +618,7 @@ function conseiller(before, after, flags, bigEvent) {
 // avec les notions du programme, et donne un conseil pour l'année suivante.
 const shortLabel = (l) => l.label.replace(/\s*\(.*\)\s*/g, "").trim();
 function conseillerDetaille(before, after, flags, ctx) {
-  const { year, levels = {}, prevLevels = {}, decisions = [], taux, tauxPrev, chargeMd } = ctx;
+  const { year, levels = {}, prevLevels = {}, decisions = [], taux, tauxPrev, marche, marchePrev, chargeMd } = ctx;
   const pedago = year === 1;
   const S = [];
 
@@ -644,9 +655,13 @@ function conseillerDetaille(before, after, flags, ctx) {
   else if (after.dette < before.dette - 0.3) cpt += `La dette recule de ${fmt(before.dette, 0)} % à ${fmt(after.dette, 0)} % du PIB : votre déficit est assez faible pour que la croissance « dilue » la dette. Bravo, c'est difficile !`;
   else cpt += `La dette reste stable autour de ${fmt(after.dette, 0)} % du PIB.`;
   if (pedago) cpt += ` Retenez bien : le déficit est un flux (ce qui manque cette année), la dette est un stock (l'accumulation de tous les déficits passés).`;
-  if (taux != null && tauxPrev != null) {
-    if (taux > tauxPrev + 0.1) cpt += ` Attention : les marchés financiers s'inquiètent et vous prêtent plus cher (taux d'emprunt ${fmt(tauxPrev, 1)} % → ${fmt(taux, 1)} %). Vos intérêts vont augmenter.`;
-    else if (taux < tauxPrev - 0.1) cpt += ` Bonne nouvelle : les marchés sont rassurés et vous prêtent moins cher (taux ${fmt(tauxPrev, 1)} % → ${fmt(taux, 1)} %).`;
+  if (marche != null && marchePrev != null) {
+    if (marche > marchePrev + 0.1) cpt += ` Attention : les marchés financiers s'inquiètent et vous prêtent plus cher (nouveaux emprunts : ${fmt(marchePrev, 1)} % → ${fmt(marche, 1)} %).`;
+    else if (marche < marchePrev - 0.1) cpt += ` Bonne nouvelle : les marchés sont rassurés et vous prêtent moins cher (nouveaux emprunts : ${fmt(marchePrev, 1)} % → ${fmt(marche, 1)} %).`;
+  }
+  if (taux != null && tauxPrev != null && taux > tauxPrev + 0.05) {
+    cpt += ` Le taux moyen de votre dette passe de ${fmt(tauxPrev, 2)} % à ${fmt(taux, 2)} % : chaque année, de vieux emprunts à taux bas arrivent à échéance et doivent être remplacés par de nouveaux, plus chers. C'est pour cela que la charge de la dette augmente, même sans nouvelle erreur de gestion.`;
+    if (pedago) cpt += ` Aujourd'hui, la France emprunte autour de 4,7 % sur 10 ans, alors qu'une partie de sa dette a été empruntée à 0-1 % il y a quelques années.`;
   }
   S.push({ icon: "wallet", color: C.coral, t: "Vos comptes publics", c: cpt });
 
@@ -688,7 +703,8 @@ function conseillerDetaille(before, after, flags, ctx) {
   if (after.chomage > before.chomage + 0.2) tips.push("Le chômage monte : évitez d'alourdir le coût du travail et pensez à l'investissement, qui crée des emplois.");
   if ((after.inegalites ?? 45) > 55) tips.push("Les inégalités sont fortes : les impôts progressifs (revenu, patrimoine) et les aides aux modestes permettent de les réduire.");
   if (after.cohesion < 40) tips.push("La société est tendue : des coupes trop brutales pourraient déclencher grèves ou émeutes.");
-  if (taux != null && taux > 2.5) tips.push("Surveillez votre taux d'emprunt : s'il continue de monter, les intérêts mangeront une part croissante de votre budget.");
+  if (marche != null && marche > 5.2) tips.push("Surveillez le taux de vos nouveaux emprunts : s'il continue de monter, les intérêts mangeront une part croissante de votre budget.");
+  else if (after.solde < -3) tips.push("Rappelez-vous : chaque année, votre dette se refinance plus cher. Plus le déficit est réduit tôt, moins la charge d'intérêts s'envolera.");
   if (!tips.length) tips.push("Votre situation est équilibrée : gardez le cap, et restez attentif aux imprévus.");
   S.push({ icon: "bulb", color: C.gold, t: "Mon conseil pour l'an prochain", c: tips.slice(0, 2).join(" ") });
 
@@ -1149,6 +1165,7 @@ function Mission({ team, doctrine, onGo }) {
               <div>PIB ≈ 3 000 Md€</div><div>Dette ≈ 116 % du PIB</div>
               <div>Recettes ≈ 1 450 Md€</div><div>Déficit ≈ 5 % du PIB</div>
               <div>Dépenses ≈ 1 600 Md€</div><div>Chômage ≈ 7,5 %</div>
+              <div>Nouveaux emprunts ≈ 4,7 % (OAT 10 ans, oct. 2026)</div><div>Taux moyen de la dette ≈ 1,8 %</div>
             </div>
             <div style={{ fontSize: 12.5, lineHeight: 1.7 }}>
               <div><b style={{ color: C.mint }}>Recettes</b> : TVA ~211 · impôt sur le revenu ~95 · CSG ~130 · impôt sur les sociétés ~58 · cotisations ~610 Md€</div>
@@ -1181,13 +1198,15 @@ function ObjBar({ ind }) {
   );
 }
 // Bandeau "marchés financiers" : taux d'emprunt + charge de la dette
-function MarketStrip({ taux, dette }) {
+function MarketStrip({ taux, marche = MARCHE0, dette }) {
   const chargeMd = Math.round(taux * dette / 100 * PIB / 100);
-  const tcol = taux > 3.5 ? C.coral : taux > 2.5 ? C.gold : C.mint;
+  const tcol = marche > 5.5 ? C.coral : marche > 4.3 ? C.gold : C.mint;
   return (
     <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: C.card, border: `1px solid ${tcol}44`, borderRadius: 10, padding: "7px 12px" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.dim, fontSize: 11.5, fontWeight: 500 }}><Icon n="building-bank" size={14} color={tcol} /> Marchés financiers</span>
-      <span style={{ fontSize: 12, color: C.sub }}>Taux d'emprunt <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(taux, 1)} %</b></span>
+      <span style={{ fontSize: 12, color: C.sub }} title="Taux auquel l'État emprunte aujourd'hui (OAT 10 ans)">Nouveaux emprunts <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(marche, 1)} %</b></span>
+      <span style={{ color: C.line }}>·</span>
+      <span style={{ fontSize: 12, color: C.sub }} title="Taux moyen payé sur toute la dette (vieux emprunts compris)">Taux moyen de la dette <b style={{ color: C.ink, fontFamily: "monospace" }}>{fmt(taux, 2)} %</b></span>
       <span style={{ color: C.line }}>·</span>
       <span style={{ fontSize: 12, color: C.sub }}>Charge de la dette <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(chargeMd)} Md€/an</b></span>
     </div>
@@ -1195,7 +1214,7 @@ function MarketStrip({ taux, dette }) {
 }
 
 /* ---------- Écran Budget (16 leviers, onglets Recettes/Dépenses) ---------- */
-function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, taux = TAUX0, onValidate, leverFilter = null, conseil = false }) {
+function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, taux = TAUX0, marche = MARCHE0, onValidate, leverFilter = null, conseil = false }) {
   const inFilter = (l) => !leverFilter || leverFilter.includes(l.id);
   const [tab, setTabState] = useState("rec");
   const [visited, setVisited] = useState({ rec: true, dep: false }); // "rec" affiché par défaut
@@ -1208,7 +1227,8 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const list = LEVERS.filter((l) => l.cat === tab && inFilter(l));
   const handleValider = () => { if (nonVus.length && !confirm) { setConfirm(true); } else { onValidate(); } };
   // Charge de la dette (intérêts) = taux × dette, et solde TOTAL = primaire − charge
-  const tauxPrev = computeTaux(taux, indPrev.dette, preview.ind.solde);
+  const marcheNext = computeMarche(marche, indPrev.dette, preview.ind.solde);
+  const tauxPrev = computeMoyen(taux, marcheNext, indPrev.dette, preview.ind.solde);
   const chargePct = tauxPrev * indPrev.dette / 100;
   const chargeMd = Math.round(chargePct * PIB / 100);
   const soldePrimaire = preview.ind.solde;
@@ -1276,7 +1296,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
           <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
         </div>
         <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, textAlign: "center", background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px" }}>
-          Solde primaire <b style={{ fontFamily: "monospace" }}>{fmt(soldePrimaire, 1)} %</b> − charge de la dette <b style={{ fontFamily: "monospace", color: C.coral }}>{fmt(chargePct, 1)} %</b> (≈ {fmt(chargeMd)} Md€, taux {fmt(taux, 1)} %) = solde total <b style={{ fontFamily: "monospace", color: soldeTotal < -3 ? C.coral : C.gold }}>{fmt(soldeTotal, 1)} %</b>
+          Solde primaire <b style={{ fontFamily: "monospace" }}>{fmt(soldePrimaire, 1)} %</b> − charge de la dette <b style={{ fontFamily: "monospace", color: C.coral }}>{fmt(chargePct, 1)} %</b> (≈ {fmt(chargeMd)} Md€ ; taux moyen {fmt(tauxPrev, 2)} %, nouveaux emprunts à {fmt(marcheNext, 1)} %) = solde total <b style={{ fontFamily: "monospace", color: soldeTotal < -3 ? C.coral : C.gold }}>{fmt(soldeTotal, 1)} %</b>
         </div>
         <div style={{ fontSize: 11, color: C.dim, marginTop: 6, textAlign: "center" }}>
           Dette {fmt(indPrev.dette, 0)} % → <b style={{ color: detteMonte ? C.coral : C.mint }}>{fmt(detteProjetee, 0)} %</b> en fin de mandat si vous gardez ce cap.
@@ -1602,7 +1622,7 @@ function EvolutionCharts({ history }) {
     const P = h.pib ?? pib;
     const rec = h.recettes ?? (RECETTES0 * (P / PIB));
     const dep = h.depenses ?? (rec - h.ind.solde * P / 100);
-    return { x: "'" + String(2026 + h.year).slice(2), dette: h.ind.dette, chomage: h.ind.chomage, pib: P, rec, dep, taux: h.taux };
+    return { x: "'" + String(2026 + h.year).slice(2), dette: h.ind.dette, chomage: h.ind.chomage, pib: P, rec, dep, taux: h.taux, marche: h.marche };
   });
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -1619,10 +1639,16 @@ function EvolutionCharts({ history }) {
       <ChartFrame title="Chômage (%)">
         <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.chomage.toFixed(1) }))} color={C.gold} refValue={7.5} refLabel="départ 7,5" decimals={1} />
       </ChartFrame>
+      {rows.some((r) => r.marche != null) && (
+        <ChartFrame title="Taux des nouveaux emprunts (%)">
+          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.marche ?? MARCHE0).toFixed(1) }))} color="#B57BA6" refValue={MARCHE0} refLabel="départ 4,7" decimals={1} />
+          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>Prix auquel l'État emprunte aujourd'hui (OAT 10 ans). Il monte si les marchés s'inquiètent, baisse s'ils sont rassurés.</div>
+        </ChartFrame>
+      )}
       {rows.some((r) => r.taux != null) && (
-        <ChartFrame title="Taux d'emprunt (%)">
-          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.taux ?? TAUX0).toFixed(1) }))} color="#B57BA6" refValue={TAUX0} refLabel="départ 1,7" decimals={1} />
-          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>Le taux monte si les marchés s'inquiètent (déficit, dette), baisse s'ils sont rassurés.</div>
+        <ChartFrame title="Taux moyen de la dette (%)">
+          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.taux ?? TAUX0).toFixed(2) }))} color={C.coral} refValue={TAUX0} refLabel="départ 1,8" decimals={2} />
+          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>Taux payé sur toute la dette. Il rattrape peu à peu le taux des nouveaux emprunts, à mesure que les vieux emprunts bon marché sont remplacés.</div>
         </ChartFrame>
       )}
     </div>
@@ -1934,30 +1960,31 @@ export default function App() {
   }, []);
 
   function start(code, team, doctrineId) {
-    const g = { code, team, doctrineId, year: 1, ind: { ...START }, levels: {}, taux: TAUX0, history: [], usedIds: [], pendingFlags: [] };
+    const g = { code, team, doctrineId, year: 1, ind: { ...START }, levels: {}, taux: TAUX0, tauxMarche: MARCHE0, history: [], usedIds: [], pendingFlags: [] };
     setGame(g); setWorkLevels({}); setScreen("mission"); persist(g);
   }
   // --- Année conseil (guidée, ne compte pas) ---
   function startConseil(code, team, doctrineId) {
     setSetup({ code, team, doctrineId });
-    setConseil({ ind: { ...START }, taux: TAUX0 });
+    setConseil({ ind: { ...START }, taux: TAUX0, marche: MARCHE0 });
     setConseilWork({}); setConseilEvts([]); setConseilEvtIdx(0);
     setScreen("conseil_intro");
   }
   function validateConseil() {
     const res = applyBudgetYear(conseil.ind, conseilWork, {}, 1, null);
     const sp = res.ind.solde;
-    const t = computeTaux(TAUX0, conseil.ind.dette, sp);
+    const m = computeMarche(MARCHE0, conseil.ind.dette, sp);
+    const t = computeMoyen(TAUX0, m, conseil.ind.dette, sp);
     const cp = t * conseil.ind.dette / 100;
     const indTotal = { ...res.ind, solde: clamp(sp - cp, -18, 8) };
-    setConseil({ ind: indTotal, taux: t });
+    setConseil({ ind: indTotal, taux: t, marche: m });
     setConseilEvts(drawEvents(1, [], [], null, 2)); setConseilEvtIdx(0);
     setScreen("conseil_events");
   }
   function chooseConseilEvent(choice) {
     const newInd = applyFx(conseil.ind, choice.fx);
     if (conseilEvtIdx + 1 < conseilEvts.length) { setConseil({ ...conseil, ind: newInd }); setConseilEvtIdx(conseilEvtIdx + 1); }
-    else { const fr = finalizeYear(newInd, conseil.taux); setConseil({ ...conseil, ind: fr.ind }); setScreen("conseil_bilan"); }
+    else { const fr = finalizeYear(newInd, conseil.taux, conseil.marche); setConseil({ ...conseil, ind: fr.ind }); setScreen("conseil_bilan"); }
   }
   async function resume() {
     const ptr = await storage.get(saveKey("STMG", "__any__")); if (!ptr) return;
@@ -1971,13 +1998,14 @@ export default function App() {
     // Le taux réagit au budget voté ; la charge de la dette est appliquée TOUT DE SUITE,
     // pour que le "Solde" affiché soit le solde TOTAL de façon cohérente (et non le primaire).
     const soldePrimaire = res.ind.solde;
-    const taux = computeTaux(game.taux ?? TAUX0, game.ind.dette, soldePrimaire);
+    const tauxMarche = computeMarche(game.tauxMarche ?? MARCHE0, game.ind.dette, soldePrimaire);
+    const taux = computeMoyen(game.taux ?? TAUX0, tauxMarche, game.ind.dette, soldePrimaire);
     const chargePct = taux * game.ind.dette / 100;
     const indTotal = { ...res.ind, solde: clamp(soldePrimaire - chargePct, -18, 8) };
     setIndBefore(game.ind);                         // état avant l'année (pour le conseiller)
     const drawn = drawEvents(game.year, game.usedIds, game.pendingFlags, game.code);
     setEvts(drawn); setEvtIdx(0);
-    setGame({ ...game, ind: indTotal, levels: { ...workLevels }, _prevLevels: { ...(game.levels || {}) }, _tauxPrev: game.taux ?? TAUX0, taux, _soldePrim: +soldePrimaire.toFixed(1), _chargeMd: Math.round(chargePct * PIB / 100) });
+    setGame({ ...game, ind: indTotal, levels: { ...workLevels }, _prevLevels: { ...(game.levels || {}) }, _tauxPrev: game.taux ?? TAUX0, _marchePrev: game.tauxMarche ?? MARCHE0, tauxMarche, taux, _soldePrim: +soldePrimaire.toFixed(1), _chargeMd: Math.round(chargePct * PIB / 100) });
     setScreen("events");
   }
 
@@ -1988,11 +2016,11 @@ export default function App() {
     const decisions = [...(game.decisions || []), { year: game.year, event: ev.title, type: ev.type, choice: choice.label, solde: choice.fx.solde || 0 }];
     if (evtIdx + 1 < evts.length) { setGame({ ...game, ind: newInd, usedIds, decisions }); setEvtIdx(evtIdx + 1); }
     else {
-      const fr = finalizeYear(newInd, game.taux ?? TAUX0);
+      const fr = finalizeYear(newInd, game.taux ?? TAUX0, game.tauxMarche ?? MARCHE0);
       const finalInd = fr.ind, fl = fr.flags;
       const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB;
       const flows = computeFlows(finalInd, game.levels, pibPrev);
-      const history = [...game.history, { year: game.year, ind: finalInd, taux: game.taux, charge: game._chargeMd, soldePrimaire: game._soldePrim, ...flows }];
+      const history = [...game.history, { year: game.year, ind: finalInd, taux: game.taux, marche: game.tauxMarche, charge: game._chargeMd, soldePrimaire: game._soldePrim, ...flows }];
       const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl };
       setFlags(fl); setGame(g2); persist(g2); setScreen("summary");
     }
@@ -2077,21 +2105,21 @@ export default function App() {
               </div>
             </div>
             <div style={{ height: 6, borderRadius: 4, background: C.track, overflow: "hidden" }}><div style={{ width: `${progress}%`, height: "100%", background: C.gold, transition: "width .4s" }} /></div>
-            {["budget", "events"].includes(screen) && <div style={{ marginTop: 10 }}><HUD ind={game.ind} /><ObjBar ind={game.ind} /><MarketStrip taux={game.taux ?? TAUX0} dette={game.ind.dette} /></div>}
+            {["budget", "events"].includes(screen) && <div style={{ marginTop: 10 }}><HUD ind={game.ind} /><ObjBar ind={game.ind} /><MarketStrip taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} dette={game.ind.dette} /></div>}
           </div>
         )}
 
         {screen === "home" && <Home hasSave={hasSave} onStart={startConseil} onSkipConseil={start} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
         {screen === "conseil_intro" && setup && <ConseilIntro team={setup.team} onGo={() => setScreen("conseil_budget")} />}
-        {screen === "conseil_budget" && conseil && <BudgetScreen year={1} indPrev={conseil.ind} baseLevels={{}} levels={conseilWork} setLevels={setConseilWork} doctrine={null} taux={TAUX0} onValidate={validateConseil} leverFilter={ESSENTIAL} conseil={true} />}
+        {screen === "conseil_budget" && conseil && <BudgetScreen year={1} indPrev={conseil.ind} baseLevels={{}} levels={conseilWork} setLevels={setConseilWork} doctrine={null} taux={TAUX0} marche={MARCHE0} onValidate={validateConseil} leverFilter={ESSENTIAL} conseil={true} />}
         {screen === "conseil_events" && conseil && conseilEvts[conseilEvtIdx] && <EventScreen event={conseilEvts[conseilEvtIdx]} index={conseilEvtIdx} total={conseilEvts.length} onChoose={chooseConseilEvent} />}
         {screen === "conseil_bilan" && conseil && <ConseilBilan indBefore={START} ind={conseil.ind} onElection={() => setScreen("election_intro")} />}
         {screen === "election_intro" && setup && <ElectionIntro team={setup.team} onElected={() => start(setup.code, setup.team, setup.doctrineId)} />}
         {screen === "trophies" && <TrophiesView unlocked={unlockedTrophies} onBack={() => setScreen("home")} />}
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} onGo={() => setScreen("budget")} />}
-        {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} onValidate={validateBudget} />}
+        {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
-        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, chargeMd: game._chargeMd }} />}
+        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, marche: game.tauxMarche, marchePrev: game._marchePrev, chargeMd: game._chargeMd }} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "election" && game && <Election onReveal={reveal} />}
         {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} newTrophies={newTrophies} onReplay={() => start(game.code, game.team, game.doctrineId)} onHome={() => { setGame(null); setScreen("home"); }} />}
