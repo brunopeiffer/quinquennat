@@ -159,6 +159,8 @@ const levEur = (lev, level) => (lev.concave && (level || 0) > 0) ? lev.eur0 + le
 const levRate = (lev, level) => (lev.rate0 == null ? null : lev.rate0 + (level || 0) * lev.rateStep);
 
 /* ---- Doctrines de départ (inspirées de vrais modèles) ---- */
+// Leviers de l'année conseil : 5 recettes + 5 dépenses (mise en bouche)
+const ESSENTIAL = ["tva", "ir", "csg", "is", "patrimoine", "retraites", "sante", "education", "aides", "invest"];
 const DOCTRINES = [
   { id: "rigueur", label: "Rigueur budgétaire", ref: "façon Argentine de Milei", icon: "scissors", color: "#F19A9A",
     desc: "Réduire la dépense et la dette avant tout. Les marchés vous font confiance, la société est plus fragile.",
@@ -543,17 +545,29 @@ function finalizeYear(ind0, taux = TAUX0) {
   return { ind: clampInd(n), flags };
 }
 
-// tirage des 3 événements de l'année
-function drawEvents(year, usedIds, flags) {
+// Générateur pseudo-aléatoire déterministe : même graine => même séquence.
+function seededRandom(seedStr) {
+  let h = 2166136261;
+  for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+// Tirage des événements de l'année. Avec un code de classe (seed), l'ordre est le MÊME
+// pour toutes les équipes de la classe : équité pour la notation. Sans seed : aléatoire.
+function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   const forced = [];
   if (flags?.includes("scandale")) forced.push("ethique_scandale");
   if (flags?.includes("emeutes")) forced.push("banlieues");
-  const pool = EVENTS.filter((e) => !usedIds.includes(e.id) && !forced.includes(e.id));
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const rnd = seed ? seededRandom(seed + ":evts") : Math.random;
+  // Ordre global de la classe, calculé une fois, identique pour tous
+  const order = [...EVENTS];
+  for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
   const picks = [];
-  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e) picks.push(e); }
-  while (picks.length < 3 && shuffled.length) picks.push(shuffled.pop());
-  return picks.slice(0, 3);
+  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && !usedIds.includes(id)) picks.push(e); }
+  for (const e of order) {
+    if (picks.length >= n) break;
+    if (!usedIds.includes(e.id) && !forced.includes(e.id)) picks.push(e);
+  }
+  return picks.slice(0, n);
 }
 
 /* ============================================================
@@ -854,7 +868,7 @@ function Note({ text }) {
 }
 
 /* ---------- Écran d'accueil ---------- */
-function Home({ onStart, onResume, onLeaderboard, onTrophies, hasSave }) {
+function Home({ onStart, onSkipConseil, onResume, onLeaderboard, onTrophies, hasSave }) {
   const [code, setCode] = useState("CLASSE");
   const [team, setTeam] = useState("");
   const [doc, setDoc] = useState(null);
@@ -909,13 +923,14 @@ function Home({ onStart, onResume, onLeaderboard, onTrophies, hasSave }) {
       {/* Champ classe : optionnel, pré-rempli, sans impression de "code secret" */}
       <label style={{ fontSize: 12, color: C.dim, display: "block", marginBottom: 18 }}>Classe <span style={{ color: C.dim, fontWeight: 400 }}>(facultatif)</span>
         <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="CLASSE" style={{ ...inp, maxWidth: 240 }} />
-        <span style={{ fontSize: 10.5, color: C.dim }}>Sert seulement à regrouper les scores dans le classement. Déjà rempli — à modifier uniquement si votre professeur vous donne un nom précis.</span>
+        <span style={{ fontSize: 10.5, color: C.dim }}>Regroupe les scores dans le classement. Toutes les équipes avec le même nom de classe affrontent les mêmes événements (équité). Déjà rempli — à modifier uniquement si votre professeur vous donne un nom précis.</span>
       </label>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <Btn kind="primary" disabled={!canStart} onClick={() => onStart(codeOk.toUpperCase(), team.trim(), doc)}>
-          <Icon n="player-play" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Commencer le mandat
+          <Icon n="player-play" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Commencer (avec année conseil)
         </Btn>
+        {canStart && <Btn onClick={() => onSkipConseil(codeOk.toUpperCase(), team.trim(), doc)}><Icon n="player-skip-forward" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Passer l'année conseil</Btn>}
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre</Btn>}
         <Btn onClick={() => onLeaderboard(codeOk.toUpperCase())}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
         <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Trophées</Btn>
@@ -932,6 +947,68 @@ function Home({ onStart, onResume, onLeaderboard, onTrophies, hasSave }) {
 const inp = { display: "block", width: "100%", marginTop: 4, boxSizing: "border-box", background: C.inset, border: "1px solid #2C4372", borderRadius: 8, color: C.ink, padding: "9px 11px", fontSize: 14 };
 
 /* ---------- Écran Mission (objectif clair avant de jouer) ---------- */
+/* ---------- Année conseil : intro (le président sortant demande conseil) ---------- */
+function ConseilIntro({ team, onGo }) {
+  return (
+    <div>
+      <ScreenTitle icon="user-star" title="Avant de gouverner… un conseil" sub="Une mise en bouche qui ne compte pas" />
+      <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 16, padding: 22, marginBottom: 18 }}>
+        <div style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", flexShrink: 0, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-star" size={24} color={C.onAccent} /></div>
+          <div>
+            <div style={{ color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 8 }}>Le président sortant vous écrit :</div>
+            <p style={{ color: C.sub, fontSize: 14.5, lineHeight: 1.65, margin: 0 }}>
+              « {team}, votre réputation est arrivée jusqu'à l'Élysée. Je termine mon <b style={{ color: C.ink }}>second mandat</b> — et la Constitution m'interdit de me représenter une troisième fois. Avant de quitter l'Élysée, je dois voter un <b style={{ color: C.ink }}>dernier budget</b>… et surtout, je cherche qui pourrait <b style={{ color: C.gold }}>me succéder</b>. Proposez-moi un budget à partir de quelques leviers clés : je verrai de quel bois vous êtes fait·e. Rien ne vous engage — voyez cela comme un entraînement avant votre propre campagne. »
+            </p>
+          </div>
+        </div>
+      </div>
+      <div style={{ color: C.dim, fontSize: 13, marginBottom: 16, lineHeight: 1.55 }}>
+        Vous allez découvrir le fonctionnement du budget avec <b style={{ color: C.sub }}>5 leviers simples</b>, puis affronter <b style={{ color: C.sub }}>2 imprévus</b>. Ensuite, vous vous présenterez à l'élection pour votre vrai mandat de 5 ans.
+      </div>
+      <Btn kind="primary" onClick={onGo} style={{ fontSize: 15, padding: "12px 20px" }}><Icon n="arrow-right" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Découvrir le budget</Btn>
+    </div>
+  );
+}
+
+/* ---------- Année conseil : bilan + présentation à l'élection ---------- */
+function ConseilBilan({ indBefore, ind, onElection }) {
+  let verdict, tone;
+  if (ind.solde > indBefore.solde + 0.3) { verdict = "Vous avez le sens de l'équilibre : le déficit s'est réduit. Je suis impressionné — vous feriez un·e digne successeur·e !"; tone = C.mint; }
+  else if (ind.solde < indBefore.solde - 0.5) { verdict = "Le déficit s'est creusé… Gouverner n'est pas si simple, n'est-ce pas ? Mais on apprend vite, et cette fois ça ne comptait pas."; tone = C.coral; }
+  else { verdict = "Un budget prudent, sans grand bouleversement. Vous avez saisi le principe : chaque choix a un coût."; tone = C.gold; }
+  return (
+    <div>
+      <ScreenTitle icon="clipboard-check" title="Bilan de votre conseil" sub="Ce que votre budget aurait donné" />
+      <HUD ind={ind} prev={indBefore} />
+      <div style={{ marginTop: 14, background: C.card2, border: `1px solid ${tone}55`, borderRadius: 14, padding: 16, display: "flex", gap: 11, alignItems: "flex-start" }}>
+        <div style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-star" size={19} color={C.onAccent} /></div>
+        <div style={{ fontSize: 13.5, color: C.sub, lineHeight: 1.6 }}><b style={{ color: C.ink }}>Le président sortant :</b> « {verdict} Vous êtes prêt·e. Lancez-vous ! »</div>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <Btn kind="primary" onClick={onElection} style={{ fontSize: 15, padding: "12px 20px" }}><Icon n="flag" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Me présenter à l'élection</Btn>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Transition : l'élection (vous êtes élu·e) ---------- */
+function ElectionIntro({ team, onElected }) {
+  const [phase, setPhase] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setPhase(1), 1600); return () => clearTimeout(t); }, []);
+  return (
+    <div style={{ textAlign: "center", padding: "36px 12px" }}>
+      {phase === 1 && <Confetti />}
+      <Icon n="ballpen" size={46} color={C.gold} />
+      <h2 style={{ color: C.ink, fontFamily: "Fraunces,serif", fontSize: 28, margin: "14px 0 8px" }}>{phase === 0 ? "Jour de l'élection…" : "Élu·e !"}</h2>
+      <p style={{ color: C.dim, fontSize: 15, maxWidth: 440, margin: "0 auto", lineHeight: 1.6 }}>
+        {phase === 0 ? "Les Français votent pour choisir leur nouveau président…" : `Félicitations, ${team} ! Le pays vous confie les clés pour 5 ans. À vous de gouverner.`}
+      </p>
+      {phase === 1 && <div style={{ marginTop: 22 }}><Btn kind="primary" onClick={onElected} style={{ fontSize: 15, padding: "12px 22px" }}>Commencer mon mandat <Icon n="arrow-right" size={16} style={{ verticalAlign: -3 }} /></Btn></div>}
+    </div>
+  );
+}
+
 function Mission({ team, doctrine, onGo }) {
   const [infoChiffres, setInfoChiffres] = useState(false);
   return (
@@ -1026,7 +1103,8 @@ function MarketStrip({ taux, dette }) {
 }
 
 /* ---------- Écran Budget (16 leviers, onglets Recettes/Dépenses) ---------- */
-function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, taux = TAUX0, onValidate }) {
+function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, taux = TAUX0, onValidate, leverFilter = null, conseil = false }) {
+  const inFilter = (l) => !leverFilter || leverFilter.includes(l.id);
   const [tab, setTabState] = useState("rec");
   const [visited, setVisited] = useState({ rec: true, dep: false }); // "rec" affiché par défaut
   const [confirm, setConfirm] = useState(false);
@@ -1035,7 +1113,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const preview = useMemo(() => applyBudgetYear(indPrev, levels, baseLevels, year, doctrine), [indPrev, levels, baseLevels, year, doctrine]);
   const balance = preview.balanceMd;
   const setLevel = (id, v) => { const lv = LEVERS.find((l) => l.id === id); setLevels({ ...levels, [id]: clamp(v, lv?.lmin ?? LEVEL_MIN, LEVEL_MAX) }); };
-  const list = LEVERS.filter((l) => l.cat === tab);
+  const list = LEVERS.filter((l) => l.cat === tab && inFilter(l));
   const handleValider = () => { if (nonVus.length && !confirm) { setConfirm(true); } else { onValidate(); } };
   // Charge de la dette (intérêts) = taux × dette, et solde TOTAL = primaire − charge
   const tauxPrev = computeTaux(taux, indPrev.dette, preview.ind.solde);
@@ -1054,18 +1132,32 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const alerteDette = detteProjetee > 140;
   return (
     <div>
-      <ScreenTitle icon="wallet" title={`Budget ${2026 + year}`} sub={`Année ${year}/${YEARS} — ajustez par crans. Les taux se conservent d'une année sur l'autre.`} />
+      <ScreenTitle icon="wallet" title={conseil ? "Le dernier budget du président" : `Budget ${2026 + year}`} sub={conseil ? "Année conseil (ne compte pas) — aidez le président sortant avec quelques leviers clés." : `Année ${year}/${YEARS} — ajustez par crans. Les taux se conservent d'une année sur l'autre.`} />
+      {conseil && (
+        <div style={{ background: C.card2, border: `1px solid ${C.gold}55`, borderRadius: 12, padding: 14, marginBottom: 12, display: "flex", gap: 11, alignItems: "flex-start" }}>
+          <div style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-star" size={19} color={C.onAccent} /></div>
+          <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.55 }}>
+            <b style={{ color: C.ink }}>Le président sortant :</b> « Mon budget part avec <b style={{ color: C.coral }}>5 % de déficit</b>. Essayez de le réduire. Deux pistes : <b style={{ color: C.mint }}>augmenter une recette</b> (onglet Recettes), ou <b style={{ color: C.coral }}>baisser une dépense</b> (onglet Dépenses). Mais attention : tout choix a un coût social… à vous de voir ! »
+          </div>
+        </div>
+      )}
+      {!conseil && year === 1 && (
+        <div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: C.gold + "1F", border: `1px solid ${C.gold}88`, borderRadius: 10, padding: "10px 13px", marginBottom: 12, fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
+          <Icon n="bulb" size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} />
+          <span><b style={{ color: C.ink }}>Première année de mandat :</b> tous les leviers sont désormais disponibles. Pour vous aider, un <b style={{ color: C.gold }}>cadre jaune</b> explique l'effet de chaque décision. À partir de la 2ᵉ année, à vous de jouer sans filet !</span>
+        </div>
+      )}
       <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
         {[["rec", "Recettes", C.mint], ["dep", "Dépenses", C.coral]].map(([id, lab, col]) => (
           <button key={id} onClick={() => setTab(id)} style={{ position: "relative", flex: 1, padding: "9px 0", borderRadius: 9, cursor: "pointer", fontSize: 13.5, fontWeight: 500, border: `1px solid ${tab === id ? col : !visited[id] ? "#E0A96D" : C.line}`, background: tab === id ? col + "22" : "transparent", color: tab === id ? col : C.dim }}>
-            {lab} <span style={{ opacity: .7, fontSize: 11 }}>({LEVERS.filter((l) => l.cat === id).length})</span>
+            {lab} <span style={{ opacity: .7, fontSize: 11 }}>({LEVERS.filter((l) => l.cat === id && inFilter(l)).length})</span>
             {!visited[id] && <span style={{ marginLeft: 6, fontSize: 10.5, color: "#E0A96D", fontWeight: 600 }}>● à voir</span>}
           </button>
         ))}
       </div>
       <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "2px 12px" }}>
         {list.map((l) => (
-          <LeverRow key={l.id} lever={l} level={levels[l.id] || 0} baseLevel={baseLevels[l.id] || 0} onChange={(v) => setLevel(l.id, v)} />
+          <LeverRow key={l.id} lever={l} level={levels[l.id] || 0} baseLevel={baseLevels[l.id] || 0} onChange={(v) => setLevel(l.id, v)} verbose={conseil || year === 1} />
         ))}
       </div>
       <div style={{ marginTop: 12, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 12, padding: "12px 16px" }}>
@@ -1075,7 +1167,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
             <div style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 600, color: balance >= 0 ? C.mint : C.coral }}>{balance >= 0 ? "+" : ""}{fmt(balance)} Md€</div>
             {balance !== 0 && <div style={{ fontSize: 10.5, color: C.dim }}>soit {eqHab(balance)} et par an</div>}
           </div>
-          <Btn kind="primary" onClick={handleValider}>{confirm && nonVus.length ? "Valider quand même" : "Valider le budget"} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+          <Btn kind="primary" onClick={handleValider}>{confirm && nonVus.length ? "Valider quand même" : conseil ? "Proposer ce budget" : "Valider le budget"} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
         </div>
         {confirm && nonVus.length > 0 && (
           <div style={{ marginTop: 10, background: C.amberBg, border: "1px solid #E0A96D66", borderRadius: 9, padding: "9px 12px", color: "#E0A96D", fontSize: 12.5, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -1140,7 +1232,67 @@ function leverConseq(lever, d) {
   }
   return parts.slice(0, 3).join(", ");
 }
-function LeverRow({ lever, level, baseLevel, onChange }) {
+// Explications concrètes, pensées pour des élèves de 16-17 ans : qui est touché, pourquoi.
+const EXPLAIN = {
+  tva: { up: "Tout ce que les Français achètent coûte un peu plus cher. Les ménages modestes, qui dépensent presque tout leur revenu, le ressentent le plus.", down: "Les prix baissent un peu en magasin : tout le monde gagne en pouvoir d'achat, surtout les ménages modestes." },
+  ir: { up: "Les ménages qui gagnent le plus paient davantage : l'impôt sur le revenu est progressif (plus on gagne, plus le taux est élevé).", down: "Les contribuables, surtout les plus aisés, gardent plus d'argent ; l'État redistribue moins." },
+  csg: { up: "Un prélèvement au même taux sur presque tous les revenus (salaires, retraites…) : le revenu net de chacun baisse un peu.", down: "Les salaires et les retraites nets augmentent un peu pour tout le monde." },
+  is: { up: "Les entreprises paient plus d'impôt sur leurs bénéfices : il leur reste moins d'argent pour investir et embaucher, et certaines peuvent partir à l'étranger.", down: "Les entreprises gardent plus de bénéfices : cela peut les encourager à investir et à s'installer en France." },
+  cotpat: { up: "Embaucher un salarié coûte plus cher aux entreprises : elles hésitent davantage à recruter.", down: "Un salarié coûte moins cher à l'entreprise : cela favorise l'embauche, mais la Sécurité sociale reçoit moins d'argent." },
+  cotsal: { up: "Le salaire net (ce que le salarié touche vraiment sur son compte) baisse : moins de pouvoir d'achat.", down: "Le salaire net augmente : les salariés ont plus de pouvoir d'achat." },
+  patrimoine: { up: "Les plus fortunés (gros patrimoines, gros héritages) paient davantage : cela réduit les inégalités, mais certains peuvent quitter la France.", down: "Les grandes fortunes et les gros héritages sont moins taxés : l'écart entre riches et modestes se creuse." },
+  ecolo: { up: "L'essence, le gaz et l'énergie polluante coûtent plus cher : cela pousse à moins polluer, mais ceux qui dépendent de leur voiture le vivent mal (comme lors du mouvement des « gilets jaunes » en 2018).", down: "Le carburant et l'énergie coûtent moins cher : soulagement pour les automobilistes, mais moins d'incitation à polluer moins." },
+  retraites: { up: "Les pensions des retraités augmentent : des millions de personnes en profitent, mais c'est déjà le premier poste de dépense publique.", down: "Les pensions augmentent moins vite (ou l'âge de départ recule) : retraités et futurs retraités sont mécontents." },
+  sante: { up: "Plus de moyens pour les hôpitaux et les soins : moins d'attente aux urgences, des soignants plus nombreux.", down: "Moins de moyens pour la santé : hôpitaux sous tension, attente plus longue, déserts médicaux." },
+  education: { up: "Plus de professeurs et de meilleures conditions d'étude : c'est un investissement pour l'avenir, qui rapporte sur le long terme.", down: "Moins de moyens pour l'école : classes plus chargées. L'économie est immédiate, mais l'avenir des jeunes en pâtit." },
+  aides: { up: "Le RSA, les APL, la prime d'activité augmentent : les ménages modestes dépensent presque tout cet argent, ce qui fait aussi travailler les commerces.", down: "Les aides aux plus modestes baissent : l'État économise, mais la pauvreté et les inégalités augmentent." },
+  invest: { up: "L'État finance des transports, la transition écologique, la recherche : cela crée des emplois aujourd'hui et de la croissance demain.", down: "Moins d'investissement public : économie immédiate, mais moins de croissance et d'emplois à l'avenir." },
+  defense: { up: "Plus de moyens pour l'armée : le pays est mieux protégé et l'industrie de défense embauche.", down: "Moins de moyens pour l'armée : l'État économise, mais la France est moins bien équipée face aux menaces." },
+  securite: { up: "Plus de policiers, de juges et de moyens pour la justice : les Français se sentent plus en sécurité.", down: "Moins de moyens pour la police et la justice : procédures plus lentes, sentiment d'insécurité." },
+  fonction: { up: "L'État recrute ou augmente ses fonctionnaires : plus d'emplois publics et des services publics plus présents.", down: "On ne remplace pas tous les fonctionnaires qui partent à la retraite : grosse économie, mais des services publics moins présents (guichets, écoles, hôpitaux…)." },
+  agences: { up: "Plus de moyens pour les agences de l'État (santé, environnement…).", down: "On fusionne ou supprime des agences de l'État : moins de doublons, mais certaines missions sont désorganisées." },
+  subventions: { up: "Plus d'aides aux entreprises et aux associations : soutien à l'activité et à la vie locale (clubs, culture…).", down: "Moins d'aides aux entreprises et associations : économie rapide, mais certaines activités ralentissent ou ferment." },
+  collectivites: { up: "Plus d'argent pour les communes et les régions : plus de services de proximité (écoles, transports, équipements sportifs…).", down: "Moins d'argent pour les communes et les régions : elles réduisent leurs services ou augmentent les impôts locaux." },
+};
+// Message d'impact structuré : budget / concrètement / bonne nouvelle / mais attention.
+function leverImpactSentence(lever, d) {
+  if (!d) return null;
+  const rec = lever.cat === "rec", up = d > 0, s = Math.sign(d);
+  const eur = Math.abs(d * lever.eurStep);
+  const hab = fmt(parHabitant(eur), 0);
+  let budget;
+  if (rec) budget = up ? `L'État encaisse environ ${fmt(eur, 0)} milliards d'euros de plus par an (≈ ${hab} € par habitant) : le déficit diminue.` : `L'État perd environ ${fmt(eur, 0)} milliards d'euros par an (≈ ${hab} € par habitant) : le déficit augmente.`;
+  else budget = up ? `Cela coûte environ ${fmt(eur, 0)} milliards d'euros de plus par an (≈ ${hab} € par habitant) : le déficit augmente.` : `L'État économise environ ${fmt(eur, 0)} milliards d'euros par an (≈ ${hab} € par habitant) : le déficit diminue.`;
+  const plus = [], moins = [];
+  // isGood(v) : l'effet "v" (dans le sens du réglage) est-il bon pour le pays ?
+  const sort = (v, goodIfUp, txtUp, txtDown) => {
+    if (!v) return; const effUp = v * s > 0;
+    (effUp === goodIfUp ? plus : moins).push(effUp ? txtUp : txtDown);
+  };
+  sort(lever.cro, true, "la croissance accélère", "la croissance ralentit");
+  sort(lever.cho, false, "le chômage augmente", "le chômage recule");
+  if (lever.fx) {
+    sort(lever.fx.popularite, true, "votre popularité monte", "votre popularité baisse");
+    sort(lever.fx.cohesion, true, "la société est plus unie", "le mécontentement grandit");
+    sort(lever.fx.environnement, true, "l'environnement progresse", "l'environnement recule");
+  }
+  sort(INEG[lever.id], false, "les inégalités augmentent", "les inégalités diminuent");
+  const ex = EXPLAIN[lever.id];
+  return { budget, concret: ex ? (up ? ex.up : ex.down) : "", plus: plus.slice(0, 3), moins: moins.slice(0, 3) };
+}
+function ImpactBox({ info }) {
+  if (!info) return null;
+  const line = { margin: "0 0 4px" };
+  return (
+    <div style={{ flex: 1 }}>
+      <p style={line}><b>💶 Budget :</b> {info.budget}</p>
+      {info.concret && <p style={line}><b>👀 Concrètement :</b> {info.concret}</p>}
+      {info.plus.length > 0 && <p style={line}><b>👍 Bonne nouvelle :</b> {info.plus.join(", ")}.</p>}
+      {info.moins.length > 0 && <p style={{ margin: 0 }}><b>⚠️ Mais attention :</b> {info.moins.join(", ")}.</p>}
+    </div>
+  );
+}
+function LeverRow({ lever, level, baseLevel, onChange, verbose = false }) {
   const [info, setInfo] = useState(false);
   const rec = lever.cat === "rec";
   const curEur = levEur(lever, baseLevel), newEur = levEur(lever, level);
@@ -1179,11 +1331,18 @@ function LeverRow({ lever, level, baseLevel, onChange }) {
         </div>
       )}
       {!changed && <div style={{ fontSize: 10.5, color: C.dim, paddingLeft: 25, marginTop: 2 }}>{lever.hint}</div>}
+      {/* Mode conseil : message d'impact dans un cadre jaune TRÈS visible */}
+      {verbose && changed && (
+        <div style={{ display: "flex", gap: 9, alignItems: "flex-start", fontSize: 12.5, color: "#3A2E0A", lineHeight: 1.55, background: C.gold, border: `2px solid ${C.gold}`, boxShadow: `0 0 0 3px ${C.gold}33`, borderRadius: 10, padding: "11px 13px", marginTop: 9, marginLeft: 25, fontWeight: 500 }}>
+          <Icon n="bulb" size={18} color="#3A2E0A" style={{ flexShrink: 0, marginTop: 1 }} />
+          <ImpactBox info={leverImpactSentence(lever, level - baseLevel)} />
+        </div>
+      )}
       {info && <div style={{ fontSize: 11.5, color: C.sub, lineHeight: 1.5, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px", marginTop: 6, marginLeft: 25 }}><Icon n="bulb" size={12} color={C.gold} /> {lever.hint}</div>}
     </div>
   );
 }
-const stepBtn = { width: 24, height: 24, borderRadius: 6, border: "1px solid #2C4372", background: C.inset, color: C.ink, fontSize: 16, cursor: "pointer", lineHeight: 1 };
+const stepBtn = { width: 24, height: 24, borderRadius: 6, border: `1px solid ${C.line}`, background: C.inset, color: C.ink, fontSize: 16, cursor: "pointer", lineHeight: 1 };
 
 /* ---------- Écran Événements ---------- */
 function EventScreen({ event, index, total, onChoose }) {
@@ -1655,6 +1814,11 @@ export default function App() {
   const [sc, setSc] = useState(null);
   const [board, setBoard] = useState([]);
   const [newTrophies, setNewTrophies] = useState([]);
+  const [setup, setSetup] = useState(null);                 // code/team/doctrine retenus pour la vraie partie
+  const [conseil, setConseil] = useState(null);             // état de l'année conseil (ne compte pas)
+  const [conseilWork, setConseilWork] = useState({});
+  const [conseilEvts, setConseilEvts] = useState([]);
+  const [conseilEvtIdx, setConseilEvtIdx] = useState(0);
   const [theme, setTheme] = useState("dark");
   useEffect(() => { (async () => { const t = await storage.get("quinq:theme"); if (t === "light" || t === "dark") setTheme(t); })(); }, []);
   useEffect(() => { try { document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : ""); } catch {} storage.set("quinq:theme", theme); }, [theme]);
@@ -1676,6 +1840,28 @@ export default function App() {
     const g = { code, team, doctrineId, year: 1, ind: { ...START }, levels: {}, taux: TAUX0, history: [], usedIds: [], pendingFlags: [] };
     setGame(g); setWorkLevels({}); setScreen("mission"); persist(g);
   }
+  // --- Année conseil (guidée, ne compte pas) ---
+  function startConseil(code, team, doctrineId) {
+    setSetup({ code, team, doctrineId });
+    setConseil({ ind: { ...START }, taux: TAUX0 });
+    setConseilWork({}); setConseilEvts([]); setConseilEvtIdx(0);
+    setScreen("conseil_intro");
+  }
+  function validateConseil() {
+    const res = applyBudgetYear(conseil.ind, conseilWork, {}, 1, null);
+    const sp = res.ind.solde;
+    const t = computeTaux(TAUX0, conseil.ind.dette, sp);
+    const cp = t * conseil.ind.dette / 100;
+    const indTotal = { ...res.ind, solde: clamp(sp - cp, -18, 8) };
+    setConseil({ ind: indTotal, taux: t });
+    setConseilEvts(drawEvents(1, [], [], null, 2)); setConseilEvtIdx(0);
+    setScreen("conseil_events");
+  }
+  function chooseConseilEvent(choice) {
+    const newInd = applyFx(conseil.ind, choice.fx);
+    if (conseilEvtIdx + 1 < conseilEvts.length) { setConseil({ ...conseil, ind: newInd }); setConseilEvtIdx(conseilEvtIdx + 1); }
+    else { const fr = finalizeYear(newInd, conseil.taux); setConseil({ ...conseil, ind: fr.ind }); setScreen("conseil_bilan"); }
+  }
   async function resume() {
     const ptr = await storage.get(saveKey("STMG", "__any__")); if (!ptr) return;
     const g = await storage.get(saveKey(ptr.code, ptr.team));
@@ -1692,7 +1878,7 @@ export default function App() {
     const chargePct = taux * game.ind.dette / 100;
     const indTotal = { ...res.ind, solde: clamp(soldePrimaire - chargePct, -18, 8) };
     setIndBefore(game.ind);                         // état avant l'année (pour le conseiller)
-    const drawn = drawEvents(game.year, game.usedIds, game.pendingFlags);
+    const drawn = drawEvents(game.year, game.usedIds, game.pendingFlags, game.code);
     setEvts(drawn); setEvtIdx(0);
     setGame({ ...game, ind: indTotal, levels: { ...workLevels }, taux, _soldePrim: +soldePrimaire.toFixed(1), _chargeMd: Math.round(chargePct * PIB / 100) });
     setScreen("events");
@@ -1775,6 +1961,12 @@ export default function App() {
         <Icon n={theme === "light" ? "moon" : "sun"} size={19} />
       </button>
       <div style={{ maxWidth: (screen === "home" || screen === "mission") ? 1040 : 760, margin: "0 auto", padding: (screen === "home" || screen === "mission") ? "40px 24px 48px" : "18px 16px 40px" }}>
+        {conseil && ["conseil_budget", "conseil_events"].includes(screen) && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.gold + "22", color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 8 }}><Icon n="user-star" size={13} /> Année conseil — ne compte pas</div>
+            <HUD ind={conseil.ind} />
+          </div>
+        )}
         {game && screen !== "home" && (
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -1792,7 +1984,12 @@ export default function App() {
           </div>
         )}
 
-        {screen === "home" && <Home hasSave={hasSave} onStart={start} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
+        {screen === "home" && <Home hasSave={hasSave} onStart={startConseil} onSkipConseil={start} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
+        {screen === "conseil_intro" && setup && <ConseilIntro team={setup.team} onGo={() => setScreen("conseil_budget")} />}
+        {screen === "conseil_budget" && conseil && <BudgetScreen year={1} indPrev={conseil.ind} baseLevels={{}} levels={conseilWork} setLevels={setConseilWork} doctrine={null} taux={TAUX0} onValidate={validateConseil} leverFilter={ESSENTIAL} conseil={true} />}
+        {screen === "conseil_events" && conseil && conseilEvts[conseilEvtIdx] && <EventScreen event={conseilEvts[conseilEvtIdx]} index={conseilEvtIdx} total={conseilEvts.length} onChoose={chooseConseilEvent} />}
+        {screen === "conseil_bilan" && conseil && <ConseilBilan indBefore={START} ind={conseil.ind} onElection={() => setScreen("election_intro")} />}
+        {screen === "election_intro" && setup && <ElectionIntro team={setup.team} onElected={() => start(setup.code, setup.team, setup.doctrineId)} />}
         {screen === "trophies" && <TrophiesView unlocked={unlockedTrophies} onBack={() => setScreen("home")} />}
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} onValidate={validateBudget} />}
