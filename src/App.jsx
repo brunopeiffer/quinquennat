@@ -603,6 +603,98 @@ function conseiller(before, after, flags, bigEvent) {
   return { eco, social, alerte };
 }
 
+// Conseiller détaillé : relie les décisions de l'élève à leurs effets, explique le "pourquoi"
+// avec les notions du programme, et donne un conseil pour l'année suivante.
+const shortLabel = (l) => l.label.replace(/\s*\(.*\)\s*/g, "").trim();
+function conseillerDetaille(before, after, flags, ctx) {
+  const { year, levels = {}, prevLevels = {}, decisions = [], taux, tauxPrev, chargeMd } = ctx;
+  const pedago = year === 1;
+  const S = [];
+
+  // 1. Vos décisions
+  const changes = LEVERS.map((l) => ({ l, d: (levels[l.id] || 0) - (prevLevels[l.id] || 0) }))
+    .filter((c) => c.d).map((c) => ({ ...c, eur: c.d * c.l.eurStep }))
+    .sort((a, b) => Math.abs(b.eur) - Math.abs(a.eur));
+  let dec;
+  if (!changes.length) dec = "Vous n'avez modifié aucun levier : le budget a été reconduit à l'identique.";
+  else {
+    const parts = changes.slice(0, 3).map((c) => c.l.cat === "rec"
+      ? `${c.d > 0 ? "augmenté" : "baissé"} l'impôt « ${shortLabel(c.l)} » (${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur), 0)} milliards d'euros de recettes)`
+      : `${c.d > 0 ? "augmenté" : "réduit"} le budget « ${shortLabel(c.l)} » (${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur), 0)} milliards d'euros de dépenses)`);
+    dec = `Cette année, vous avez ${parts.join(", ")}${changes.length > 3 ? `, et ${changes.length - 3} autre(s) changement(s)` : ""}.`;
+  }
+  if (decisions.length) dec += ` Face aux imprévus, vous avez choisi : ${decisions.map((x) => `« ${x.choice} » (${x.event.toLowerCase()})`).join(" ; ")}.`;
+  S.push({ icon: "list-check", color: C.gold, t: "Ce que vous avez décidé", c: dec });
+
+  // 2. Vos comptes publics
+  const dBudget = (balanceFromLevels(levels) - balanceFromLevels(prevLevels)) / SOLDE_DIV;
+  const dEvents = decisions.reduce((a, x) => a + (x.solde || 0), 0);
+  let cpt = `Votre déficit passe de ${fmt(before.solde, 1)} % à ${fmt(after.solde, 1)} % du PIB. `;
+  if (pedago) cpt += `Rappel : le déficit, c'est ce que l'État dépense en plus de ce qu'il gagne dans l'année ; il doit l'emprunter. `;
+  const why = [];
+  if (Math.abs(dBudget) >= 0.1) why.push(`vos décisions budgétaires l'ont ${dBudget > 0 ? "amélioré" : "dégradé"} d'environ ${fmt(Math.abs(dBudget), 1)} point${Math.abs(dBudget) >= 2 ? "s" : ""}`);
+  else if (changes.length) why.push(`vos décisions budgétaires se compensent presque : vos hausses de recettes financent vos nouvelles dépenses (ou l'inverse)`);
+  if (Math.abs(dEvents) >= 0.1) why.push(`les imprévus l'ont ${dEvents > 0 ? "amélioré" : "dégradé"} d'environ ${fmt(Math.abs(dEvents), 1)} point${Math.abs(dEvents) >= 2 ? "s" : ""}`);
+  if (chargeMd) why.push(`les intérêts de la dette vous ont coûté environ ${fmt(chargeMd, 0)} milliards d'euros`);
+  if (why.length) {
+    const txt = why.length > 1 ? why.slice(0, -1).join(" ; ") + " ; et " + why[why.length - 1] : why[0];
+    cpt += `Pourquoi ? ${txt.charAt(0).toUpperCase() + txt.slice(1)}. `;
+  }
+  if (after.dette > before.dette + 0.3) cpt += `La dette monte de ${fmt(before.dette, 0)} % à ${fmt(after.dette, 0)} % du PIB : tant que l'État est en déficit, il emprunte, et ces emprunts s'ajoutent à la dette.`;
+  else if (after.dette < before.dette - 0.3) cpt += `La dette recule de ${fmt(before.dette, 0)} % à ${fmt(after.dette, 0)} % du PIB : votre déficit est assez faible pour que la croissance « dilue » la dette. Bravo, c'est difficile !`;
+  else cpt += `La dette reste stable autour de ${fmt(after.dette, 0)} % du PIB.`;
+  if (pedago) cpt += ` Retenez bien : le déficit est un flux (ce qui manque cette année), la dette est un stock (l'accumulation de tous les déficits passés).`;
+  if (taux != null && tauxPrev != null) {
+    if (taux > tauxPrev + 0.1) cpt += ` Attention : les marchés financiers s'inquiètent et vous prêtent plus cher (taux d'emprunt ${fmt(tauxPrev, 1)} % → ${fmt(taux, 1)} %). Vos intérêts vont augmenter.`;
+    else if (taux < tauxPrev - 0.1) cpt += ` Bonne nouvelle : les marchés sont rassurés et vous prêtent moins cher (taux ${fmt(tauxPrev, 1)} % → ${fmt(taux, 1)} %).`;
+  }
+  S.push({ icon: "wallet", color: C.coral, t: "Vos comptes publics", c: cpt });
+
+  // 3. Croissance et emploi
+  let impulse = 0;
+  for (const c of changes) impulse += (c.l.cat === "dep" ? 1 : -1) * c.eur * c.l.mult;
+  let emp = `La croissance atteint ${fmt(after.croissance, 1)} % et le chômage passe de ${fmt(before.chomage, 1)} % à ${fmt(after.chomage, 1)} %. `;
+  if (impulse > 3) emp += `Globalement, votre budget a soutenu l'activité : plus de dépenses ou moins d'impôts, c'est une politique de relance. Elle crée de l'activité, mais elle creuse le déficit. `;
+  else if (impulse < -3) emp += `Globalement, votre budget a freiné l'activité : moins de dépenses ou plus d'impôts, c'est une politique de rigueur. C'est souvent le prix à payer, à court terme, pour réduire le déficit. `;
+  if (changes.some((c) => ["invest", "education"].includes(c.l.id) && c.d > 0)) emp += `Vos investissements (éducation, recherche, infrastructures) préparent l'avenir : leur effet sur la croissance grandira les années suivantes. `;
+  if (changes.some((c) => c.l.id === "cotpat" && c.d > 0)) emp += `La hausse des cotisations patronales rend l'embauche plus chère : les entreprises recrutent moins. `;
+  if (pedago) emp += `À retenir : quand l'activité accélère, les entreprises embauchent et le chômage baisse ; quand elle ralentit, il monte (c'est la loi d'Okun).`;
+  S.push({ icon: "trending-up", color: C.mint, t: "Croissance et emploi", c: emp.trim() });
+
+  // 4. Société et opinion
+  let soc = "";
+  const dI = (after.inegalites ?? 45) - (before.inegalites ?? 45);
+  const nomme = (c) => `${c.d > 0 ? "la hausse" : "la baisse"} de « ${shortLabel(c.l)} »`;
+  const reduc = changes.filter((c) => (INEG[c.l.id] || 0) * c.d < 0), aggr = changes.filter((c) => (INEG[c.l.id] || 0) * c.d > 0);
+  const iTxt = `(${fmt(before.inegalites ?? 45, 0)} → ${fmt(after.inegalites ?? 45, 0)})`;
+  if (dI <= -1) soc += reduc.length
+    ? `Les inégalités reculent ${iTxt} grâce à ${reduc.slice(0, 2).map(nomme).join(" et ")}${aggr.length ? `, qui compense${reduc.slice(0, 2).length > 1 ? "nt" : ""} l'effet de ${aggr.slice(0, 2).map(nomme).join(" et ")} (qui pèse surtout sur les ménages modestes)` : ""}. Redistribuer, c'est prendre davantage aux plus aisés ou donner davantage aux plus modestes. `
+    : `Les inégalités reculent ${iTxt}. `;
+  else if (dI >= 1) soc += aggr.length
+    ? `Les inégalités augmentent ${iTxt} à cause de ${aggr.slice(0, 2).map(nomme).join(" et ")} : ces choix pèsent proportionnellement plus sur les ménages modestes. `
+    : `Les inégalités augmentent ${iTxt}. `;
+  const dC = after.cohesion - before.cohesion;
+  if (dC <= -2) soc += `La société se tend (cohésion ${fmt(before.cohesion, 0)} → ${fmt(after.cohesion, 0)}) : les Français sentent les efforts demandés. `;
+  else if (dC >= 2) soc += `La société est plus unie (cohésion ${fmt(before.cohesion, 0)} → ${fmt(after.cohesion, 0)}). `;
+  const dP = after.popularite - before.popularite;
+  soc += dP <= -1 ? `Votre popularité baisse (${fmt(before.popularite, 0)} → ${fmt(after.popularite, 0)}) : les hausses d'impôts et les économies sont impopulaires, même quand elles sont nécessaires.` : dP >= 1 ? `Votre popularité progresse (${fmt(before.popularite, 0)} → ${fmt(after.popularite, 0)}).` : `Votre popularité est stable (${fmt(after.popularite, 0)}).`;
+  if (pedago) soc += ` Sachez aussi que le pouvoir « s'use » : la popularité baisse un peu chaque année, quoi qu'on fasse.`;
+  S.push({ icon: "users-group", color: "#7FB0C9", t: "Société et opinion", c: soc });
+
+  // 5. Conseil pour l'an prochain
+  const tips = [];
+  if (after.solde < -4) tips.push("Le déficit reste élevé. Pour le réduire, deux voies : augmenter des recettes ou baisser des dépenses. Cherchez celles qui pèsent le moins sur les ménages modestes et sur la croissance.");
+  else if (after.solde >= -1) tips.push("Vos comptes sont sains : vous avez de la marge pour investir dans l'avenir (éducation, recherche, transition écologique).");
+  if (after.chomage > before.chomage + 0.2) tips.push("Le chômage monte : évitez d'alourdir le coût du travail et pensez à l'investissement, qui crée des emplois.");
+  if ((after.inegalites ?? 45) > 55) tips.push("Les inégalités sont fortes : les impôts progressifs (revenu, patrimoine) et les aides aux modestes permettent de les réduire.");
+  if (after.cohesion < 40) tips.push("La société est tendue : des coupes trop brutales pourraient déclencher grèves ou émeutes.");
+  if (taux != null && taux > 2.5) tips.push("Surveillez votre taux d'emprunt : s'il continue de monter, les intérêts mangeront une part croissante de votre budget.");
+  if (!tips.length) tips.push("Votre situation est équilibrée : gardez le cap, et restez attentif aux imprévus.");
+  S.push({ icon: "bulb", color: C.gold, t: "Mon conseil pour l'an prochain", c: tips.slice(0, 2).join(" ") });
+
+  return S;
+}
+
 /* ============================================================
    SCORING — éco 55 % / social 30 % / politique 15 %
    ============================================================ */
@@ -1538,8 +1630,9 @@ function EvolutionCharts({ history }) {
 }
 
 /* ---------- Bilan d'année + Conseiller ---------- */
-function YearSummary({ year, indBefore, ind, flags, onNext, onTable, history }) {
+function YearSummary({ year, indBefore, ind, flags, onNext, onTable, history, ctx = {} }) {
   const bilan = useMemo(() => conseiller(indBefore, ind, flags), [indBefore, ind, flags]);
+  const sections = useMemo(() => conseillerDetaille(indBefore, ind, flags, { ...ctx, year }), [indBefore, ind, flags, ctx, year]);
   const wins = useMemo(() => victoires(indBefore, ind), [indBefore, ind]);
   return (
     <div>
@@ -1563,9 +1656,13 @@ function YearSummary({ year, indBefore, ind, flags, onNext, onTable, history }) 
           <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-check" size={18} color="var(--on-accent)" /></div>
           <div><div style={{ color: C.ink, fontSize: 13.5, fontWeight: 500 }}>Le mot de votre conseiller</div><div style={{ color: C.dim, fontSize: 11 }}>Bilan de l'année {2026 + year}</div></div>
         </div>
-        <div style={{ display: "grid", gap: 8 }}>
-          <BilanLine icon="chart-line" color={C.mint} label="Économie" text={bilan.eco} />
-          <BilanLine icon="users-group" color="#7FB0C9" label="Société" text={bilan.social} />
+        <div style={{ display: "grid", gap: 12 }}>
+          {sections.map((sec, i) => (
+            <div key={i} style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: sec.color, fontSize: 13, fontWeight: 600, marginBottom: 4 }}><Icon n={sec.icon} size={15} /> {sec.t}</div>
+              <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.6 }}>{sec.c}</div>
+            </div>
+          ))}
           {bilan.alerte.map((a, i) => <BilanLine key={i} icon="alert-triangle" color={C.coral} label="Alerte" text={a} />)}
         </div>
       </div>
@@ -1880,7 +1977,7 @@ export default function App() {
     setIndBefore(game.ind);                         // état avant l'année (pour le conseiller)
     const drawn = drawEvents(game.year, game.usedIds, game.pendingFlags, game.code);
     setEvts(drawn); setEvtIdx(0);
-    setGame({ ...game, ind: indTotal, levels: { ...workLevels }, taux, _soldePrim: +soldePrimaire.toFixed(1), _chargeMd: Math.round(chargePct * PIB / 100) });
+    setGame({ ...game, ind: indTotal, levels: { ...workLevels }, _prevLevels: { ...(game.levels || {}) }, _tauxPrev: game.taux ?? TAUX0, taux, _soldePrim: +soldePrimaire.toFixed(1), _chargeMd: Math.round(chargePct * PIB / 100) });
     setScreen("events");
   }
 
@@ -1888,7 +1985,7 @@ export default function App() {
     const ev = evts[evtIdx];
     const newInd = applyFx(game.ind, choice.fx);
     const usedIds = [...game.usedIds, ev.id];
-    const decisions = [...(game.decisions || []), { year: game.year, event: ev.title, type: ev.type, choice: choice.label }];
+    const decisions = [...(game.decisions || []), { year: game.year, event: ev.title, type: ev.type, choice: choice.label, solde: choice.fx.solde || 0 }];
     if (evtIdx + 1 < evts.length) { setGame({ ...game, ind: newInd, usedIds, decisions }); setEvtIdx(evtIdx + 1); }
     else {
       const fr = finalizeYear(newInd, game.taux ?? TAUX0);
@@ -1994,7 +2091,7 @@ export default function App() {
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
-        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} history={game.history} />}
+        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, chargeMd: game._chargeMd }} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "election" && game && <Election onReveal={reveal} />}
         {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} newTrophies={newTrophies} onReplay={() => start(game.code, game.team, game.doctrineId)} onHome={() => { setGame(null); setScreen("home"); }} />}
