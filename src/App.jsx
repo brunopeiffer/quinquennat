@@ -8,7 +8,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 
 let START = {
   solde: -5.0, dette: 116, chomage: 7.5, croissance: 1.0, inflation: 1.3,
-  popularite: 52, cohesion: 55, integrite: 70, environnement: 50, inegalites: 45,
+  popularite: 52, cohesion: 40, integrite: 70, environnement: 50, inegalites: 45,
 };
 const PIB = 3000;           // Md€ (1 % PIB ≈ 30 Md€)
 let YEARS = 5;
@@ -42,53 +42,61 @@ const GROWTH_MIN = -3.5, GROWTH_MAX = 4.0;
    pib = PIB de l'année en milliards d'euros courants (montants affichés convertis en euros).
    ============================================================ */
 const ERAS = [
-  { id: "giscard", president: "V. Giscard d'Estaing", debut: 1974, duree: 7, tagline: "Le choc pétrolier frappe", pib: 175, pop: 52.6,
+  { id: "giscard", cohesion: 60, inegalites: 52, environnement: 26, president: "V. Giscard d'Estaing", debut: 1974, duree: 7, tagline: "Le choc pétrolier frappe", pib: 175, pop: 52.6,
     dette: 14.5, solde: -0.3, chomage: 3.0, inflation: 13.7, inflTrend: 10.5, croissance: 4.5, potentiel: 3.0, marche: 10.4, moyen: 7.0, marcheFin: 13.0, inflFin: 13.4,
     rates: { tva: 17.6, ir: 60, is: 50 }, disabled: ["csg", "patrimoine"], couleurs: ["#8a6a3e", "#2a1e12"] },
-  { id: "mitterrand1", president: "F. Mitterrand", debut: 1981, duree: 7, tagline: "Inflation à 13 %, taux à 15 %", pib: 511, pop: 54.0,
+  { id: "mitterrand1", zeroBase: ["patrimoine"], cohesion: 50, inegalites: 40, environnement: 31, president: "F. Mitterrand", debut: 1981, duree: 7, tagline: "Inflation à 13 %, taux à 15 %", pib: 511, pop: 54.0,
     dette: 22.0, solde: -2.4, chomage: 6.6, inflation: 13.4, inflTrend: 7.0, croissance: 1.2, potentiel: 2.2, marche: 15.8, moyen: 7.5, marcheFin: 9.0, inflFin: 2.7,
     rates: { tva: 17.6, ir: 60, is: 50 }, disabled: ["csg"], couleurs: ["#7a5a3a", "#24180f"] },
-  { id: "mitterrand2", president: "F. Mitterrand", debut: 1988, duree: 7, tagline: "Croissance retrouvée, puis récession", pib: 926, pop: 55.9,
+  { id: "mitterrand2", zeroBase: ["patrimoine"], cohesion: 55, inegalites: 36, environnement: 39, president: "F. Mitterrand", debut: 1988, duree: 7, tagline: "Croissance retrouvée, puis récession", pib: 926, pop: 55.9,
     dette: 33.6, solde: -2.6, chomage: 8.9, inflation: 2.7, inflTrend: 2.5, croissance: 4.6, potentiel: 2.5, marche: 9.0, moyen: 8.0, marcheFin: 7.5, inflFin: 1.8,
     rates: { tva: 18.6, ir: 56.8, is: 42 }, disabled: ["csg"], couleurs: ["#6a5a7a", "#1f1a28"] },
-  { id: "chirac1", president: "J. Chirac", debut: 1995, duree: 7, tagline: "Objectif : qualifier la France pour l'euro", pib: 1218, pop: 57.8,
+  { id: "chirac1", cohesion: 43, inegalites: 35, environnement: 40, president: "J. Chirac", debut: 1995, duree: 7, tagline: "Objectif : qualifier la France pour l'euro", pib: 1218, pop: 57.8,
     dette: 56.1, solde: -5.1, chomage: 10.0, inflation: 1.8, inflTrend: 1.4, croissance: 2.1, potentiel: 2.2, marche: 7.5, moyen: 7.0, marcheFin: 5.0, inflFin: 1.9,
     rates: { tva: 18.6, ir: 56.8, is: 33.3, csg: 2.4 }, disabled: [], couleurs: ["#4f6a6a", "#182424"] },
-  { id: "chirac2", president: "J. Chirac", debut: 2002, duree: 5, tagline: "L'euro entre dans les poches", pib: 1587, pop: 59.9,
+  { id: "chirac2", cohesion: 48, inegalites: 37, environnement: 37, president: "J. Chirac", debut: 2002, duree: 5, tagline: "L'euro entre dans les poches", pib: 1587, pop: 59.9,
     dette: 60.3, solde: -3.2, chomage: 7.9, inflation: 1.9, inflTrend: 1.9, croissance: 1.1, potentiel: 2.0, marche: 4.9, moyen: 5.5, marcheFin: 4.3, inflFin: 1.5,
     rates: { tva: 19.6, ir: 49.6, is: 33.3, csg: 7.5 }, disabled: [], couleurs: ["#4a5f78", "#161d26"] },
-  { id: "sarkozy", president: "N. Sarkozy", debut: 2007, duree: 5, tagline: "La crise financière arrive", pib: 1942, pop: 63.6,
+  { id: "sarkozy", cohesion: 52, inegalites: 39, environnement: 39, president: "N. Sarkozy", debut: 2007, duree: 5, tagline: "La crise financière arrive", pib: 1942, pop: 63.6,
     dette: 64.5, solde: -2.6, chomage: 8.0, inflation: 1.5, inflTrend: 1.7, croissance: 2.4, potentiel: 1.8, marche: 4.3, moyen: 4.3, marcheFin: 3.0, inflFin: 2.0,
     rates: { tva: 19.6, ir: 40, is: 33.3, csg: 7.5 }, disabled: [], couleurs: ["#3d5a4f", "#101816"] },
-  { id: "hollande", president: "F. Hollande", debut: 2012, duree: 5, tagline: "La zone euro dans la tourmente", pib: 2089, pop: 65.2,
+  { id: "hollande", cohesion: 48, inegalites: 44, environnement: 43, president: "F. Hollande", debut: 2012, duree: 5, tagline: "La zone euro dans la tourmente", pib: 2089, pop: 65.2,
     dette: 90.6, solde: -5.0, chomage: 9.8, inflation: 2.0, inflTrend: 0.8, croissance: 0.3, potentiel: 1.2, marche: 2.5, moyen: 3.0, marcheFin: 0.8, inflFin: 1.0,
     rates: { tva: 19.6, ir: 41, is: 33.3, csg: 7.5 }, disabled: [], couleurs: ["#5a6b80", "#161c24"] },
-  { id: "macron1", president: "E. Macron", debut: 2017, duree: 5, tagline: "Gilets jaunes, puis pandémie", pib: 2295, pop: 66.8,
+  { id: "macron1", cohesion: 48, inegalites: 40, environnement: 45, president: "E. Macron", debut: 2017, duree: 5, tagline: "Gilets jaunes, puis pandémie", pib: 2295, pop: 66.8,
     dette: 98.4, solde: -2.8, chomage: 9.4, inflation: 1.0, inflTrend: 1.4, croissance: 2.2, potentiel: 1.3, marche: 0.8, moyen: 2.0, marcheFin: 1.0, inflFin: 1.6,
     rates: { tva: 20, ir: 45, is: 33.3, csg: 7.5 }, disabled: [], couleurs: ["#4a5a7a", "#141a2a"] },
-  { id: "macron2", president: "E. Macron", debut: 2022, duree: 5, tagline: "Inflation et remontée des taux", pib: 2640, pop: 67.9,
+  { id: "macron2", cohesion: 45, inegalites: 41, environnement: 47, president: "E. Macron", debut: 2022, duree: 5, tagline: "Inflation et remontée des taux", pib: 2640, pop: 67.9,
     dette: 111.0, solde: -4.8, chomage: 7.3, inflation: 5.2, inflTrend: 2.5, croissance: 2.6, potentiel: 1.0, marche: 1.7, moyen: 1.4, marcheFin: 3.3, inflFin: 1.0, inflLink: 0,
     rates: { tva: 20, ir: 45, is: 25, csg: 9.2 }, disabled: [], couleurs: ["#3a4a72", "#10162a"] },
-  { id: "today", president: "Vous", debut: 2027, duree: 5, tagline: "Dette record, taux à 4,7 %", pib: 3000, pop: 68.5,
+  { id: "today", cohesion: 40, inegalites: 45, environnement: 50, president: "Vous", debut: 2027, duree: 5, tagline: "Dette record, taux à 4,7 %", pib: 3000, pop: 68.5,
     dette: 116, solde: -5.0, chomage: 7.5, inflation: 1.3, inflTrend: 1.3, croissance: 1.0, potentiel: 1.0, marche: 4.7, moyen: 1.8,
     rates: {}, disabled: [], couleurs: ["#1c2b55", "#070b18"] },
 ];
+/* Indicateurs de société au départ de chaque époque (indices de jeu, 0-100) :
+   - inegalites : calé sur le coefficient de Gini du niveau de vie (INSEE) ; 45 ≈ Gini 0,30 (2024), 5 points ≈ 0,01 de Gini.
+       Sourcé : 1975 ≈ 0,31 ; 1979 ≈ 0,29 ; 1984 ≈ 0,288 ; 1990 ≈ 0,280 ; 1996 ≈ 0,282 ; 2021-22 = 0,294 ; 2024 = 0,302.
+       Interpolé ou approché : 1974, 1981, 1988, 2002, 2007, 2012, 2017 (séries à périmètre différent avant 1996).
+   - environnement : calé sur les émissions de CO2 par habitant ; 50 ≈ 4,1 t/hab (2024) ; 5 points ≈ 1 t/hab.
+       Sourcé : 2002 = 6,6 t ; 2007 = 6,3 t ; 2022 = 4,8 t ; 2024 = 4,1 t. Ordre de grandeur pour les autres dates.
+   - cohesion : ESTIMATION QUALITATIVE (aucune statistique officielle) d'après le climat social de l'époque
+       (chômage, thème de campagne, tensions récentes). « Aujourd'hui » = 40 : climat tendu (gilets jaunes, retraites 2023, instabilité politique). */
 const START_TODAY = { ...START };
 // Contexte d'époque (modifié par applyEra au lancement d'une partie)
 let CURRENT_ERA = ERAS[ERAS.length - 1];
 let BASE_YEAR = 2026, ECH = 1, DETTE0 = 116, CHOM0 = 7.5, INFL0 = 1.3, INFL_TREND = 1.3, GROWTH_POT = 1.0;
-let ERA_RATES = {}, DISABLED = [], INFL_LINK = 0.7, MARCHE_DRIFT = 0, CUR_Y = 1;
+let ERA_RATES = {}, DISABLED = [], ERA_ZERO = [], INFL_LINK = 0.7, MARCHE_DRIFT = 0, CUR_Y = 1;
 const eraById = (id) => ERAS.find((e) => e.id === id) || ERAS[ERAS.length - 1];
 const eraLabel = (e) => e.id === "today" ? `Aujourd'hui · ${e.debut}-${e.debut + e.duree}` : `Mandat de ${e.president} · ${e.debut}-${e.debut + e.duree}`;
 function applyEra(id) {
   const e = eraById(id);
   CURRENT_ERA = e; YEARS = e.duree; BASE_YEAR = e.debut - 1; ECH = e.pib / 3000; POP_FR = e.pop;
   DETTE0 = e.dette; CHOM0 = e.chomage; INFL0 = e.inflation; INFL_TREND = e.inflTrend; GROWTH_POT = e.potentiel;
-  TAUX0 = e.moyen; MARCHE0 = e.marche; MARCHE_DRIFT = e.marcheFin != null ? e.marcheFin - e.marche : 0; INFL_LINK = e.marcheFin != null ? 0 : (e.inflLink ?? 0.7); CUR_Y = 1; ERA_RATES = e.rates || {}; DISABLED = e.disabled || [];
+  TAUX0 = e.moyen; MARCHE0 = e.marche; MARCHE_DRIFT = e.marcheFin != null ? e.marcheFin - e.marche : 0; INFL_LINK = e.marcheFin != null ? 0 : (e.inflLink ?? 0.7); CUR_Y = 1; ERA_RATES = e.rates || {}; DISABLED = e.disabled || []; ERA_ZERO = e.zeroBase || [];
   PRIMARY_BASE = +(e.solde + e.moyen * e.dette / 100).toFixed(2);
   TAUX_BASE = e.marche - TAUX_KDETTE * Math.max(0, e.dette - 100) - TAUX_KDEF * Math.max(0, -PRIMARY_BASE - 2);
   TAUX_MIN = Math.max(0, Math.min(2.5, e.marche - 1)); TAUX_MAX = Math.max(9, e.marche + 6);
-  START = { ...START_TODAY, solde: e.solde, dette: e.dette, chomage: e.chomage, croissance: e.croissance, inflation: e.inflation };
+  START = { ...START_TODAY, solde: e.solde, dette: e.dette, chomage: e.chomage, croissance: e.croissance, inflation: e.inflation, cohesion: e.cohesion ?? 55, inegalites: e.inegalites ?? 45, environnement: e.environnement ?? 50 };
   return e;
 }
 
@@ -713,7 +721,7 @@ const LEVERS = [
     eur0: 150, eurStep: 5, rate0: null, unit: "", mult: 0.8,
     fx: { popularite: 1, cohesion: 1 }, cho: -0.06,
     hint: "Traitements des fonctionnaires. Ne pas remplacer les départs en retraite économise gros, mais réduit l'emploi public et le service rendu (idée Retailleau/Lisnard)." },
-  { id: "agences", cat: "dep", label: "Agences & opérateurs de l'État", icon: "building-cog",
+  { id: "agences", cat: "dep", label: "Agences & opérateurs de l'État", icon: "building-community",
     eur0: 30, eurStep: 3, rate0: null, unit: "", mult: 0.7,
     fx: { popularite: -1, cohesion: 0.5, environnement: 1 }, cho: -0.03,
     hint: "L'État finance des centaines d'agences et d'organismes publics (emploi, santé, environnement…). Baisser ce budget, c'est fusionner celles qui font le même travail ou en supprimer certaines : on économise, mais certaines missions peuvent être moins bien assurées." },
@@ -736,7 +744,7 @@ const INEG = {
   retraites: -1.0, sante: -1.2, education: -1.5, aides: -2.5, invest: -0.3, fonction: -0.4,
   subventions: 0.4, collectivites: -0.6,
 };
-const levEur = (lev, level) => ECH * ((lev.concave && (level || 0) > 0) ? lev.eur0 + lev.eurStep * Math.pow(level, 0.6) : Math.max(0, lev.eur0 + (level || 0) * lev.eurStep));
+const levEur = (lev, level) => { const b0 = ERA_ZERO.includes(lev.id) ? 0 : lev.eur0; return ECH * ((lev.concave && (level || 0) > 0) ? b0 + lev.eurStep * Math.pow(level, 0.6) : Math.max(0, b0 + (level || 0) * lev.eurStep)); };
 const levRate = (lev, level) => { const r0 = ERA_RATES[lev.id] ?? lev.rate0; return r0 == null ? null : r0 + (level || 0) * lev.rateStep; };
 
 /* ---- Doctrines de départ (inspirées de vrais modèles) ---- */
@@ -1479,9 +1487,38 @@ const C = {
   inset: "var(--inset)", onAccent: "var(--on-accent)", track: "var(--track)",
   coralBg: "var(--coral-bg)", amberBg: "var(--amber-bg)",
 };
-const Icon = ({ n, size = 18, color, style }) => (
-  <i className={"ti ti-" + n} style={{ fontSize: size, color, lineHeight: 1, ...style }} aria-hidden="true" />
-);
+/* Police d'icônes (Tabler) : si elle ne se charge pas (réseau bloqué, aperçu intégré d'une application…),
+   on affiche un caractère de secours pour les icônes essentielles, et rien pour les autres, plutôt que des
+   carrés ou des signes étrangers. */
+let ICON_FONT = "pending", ICON_STARTED = false;
+const iconListeners = new Set();
+function setIconFont(v) { ICON_FONT = v; iconListeners.forEach((fn) => fn(v)); }
+function startIconCheck() {
+  if (ICON_STARTED) return; ICON_STARTED = true;
+  if (typeof document === "undefined" || !document.fonts || !document.fonts.load) { setIconFont("ok"); return; }
+  let tries = 0;
+  const attempt = () => {
+    document.fonts.load('16px "tabler-icons"').then((f) => {
+      if (f && f.length) setIconFont("ok");
+      else retry();
+    }).catch(retry);
+  };
+  const retry = () => { tries++; if (tries === 8) setIconFont("fail"); if (tries < 28) setTimeout(attempt, tries < 8 ? 600 : 3000); };
+  attempt();
+}
+const ICON_FALLBACK = { "help-circle": "?", "chevron-down": "▾", "chevron-up": "▴", "arrow-right": "→", "arrow-left": "←", "circle-check": "✓", "circle-x": "✕", "info-circle": "i", "player-play": "▶", "refresh": "↻", "alert-triangle": "!" };
+function useIconFont() {
+  const [st, setSt] = useState(ICON_FONT);
+  useEffect(() => { startIconCheck(); iconListeners.add(setSt); setSt(ICON_FONT); return () => { iconListeners.delete(setSt); }; }, []);
+  return st;
+}
+const Icon = ({ n, size = 18, color, style }) => {
+  const st = useIconFont();
+  if (st === "ok") return <i className={"ti ti-" + n} style={{ fontSize: size, color, lineHeight: 1, ...style }} aria-hidden="true" />;
+  const fb = ICON_FALLBACK[n];
+  if (st === "fail" && fb) return <span aria-hidden="true" style={{ fontSize: Math.max(11, Math.round(size * 0.85)), color, lineHeight: 1, fontWeight: 700, display: "inline-block", minWidth: Math.round(size * 0.6), textAlign: "center", ...style }}>{fb}</span>;
+  return null;
+};
 
 // Métadonnées d'affichage des indicateurs
 const IND_META = [
@@ -1636,7 +1673,7 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
         </svg>
         <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 120px #000" }} />
         <div style={{ position: "absolute", top: 30, width: "100%", textAlign: "center", textShadow: "0 2px 14px rgba(0,0,0,.6)" }}>
-          <div style={{ fontSize: 38, letterSpacing: ".38em", paddingLeft: ".38em", color: "#fff", fontWeight: 300 }}>QUINQUENNAT</div>
+          <div style={{ fontSize: "clamp(20px, 7.4vw, 38px)", letterSpacing: ".3em", paddingLeft: ".3em", whiteSpace: "nowrap", color: "#fff", fontWeight: 300 }}>QUINQUENNAT</div>
           <div style={{ width: 54, height: 1, background: "#f4c64a", margin: "12px auto" }} />
           <div style={{ fontSize: 15, color: "#cfd6e6" }}>Une lumière reste allumée. C'est la vôtre.</div>
           <div style={{ fontSize: 14, color: "#f4c64a", marginTop: 8, fontFamily: "Fraunces,serif", fontStyle: "italic" }}>Auriez-vous fait mieux qu'eux ?</div>
@@ -1717,8 +1754,9 @@ function EraSetup({ eraId, onStart, onSkipConseil, onBack }) {
       <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>Une simple orientation : vous restez libre de tous vos choix ensuite.</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
         {DOCTRINES.map((d) => (
-          <div key={d.id} onClick={() => setDoc(d.id)} style={{ cursor: "pointer", background: C.card, border: `2px solid ${doc === d.id ? d.color : C.line}`, borderRadius: 12, padding: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+          <div key={d.id} role="radio" aria-checked={doc === d.id} tabIndex={0} onClick={() => setDoc(d.id)} onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setDoc(d.id); } }} style={{ position: "relative", cursor: "pointer", background: doc === d.id ? d.color + "1F" : C.card, border: `2px solid ${doc === d.id ? d.color : C.line}`, borderRadius: 12, padding: 12, touchAction: "manipulation" }}>
+            <span aria-hidden="true" style={{ position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: "50%", border: `2px solid ${doc === d.id ? d.color : C.line}`, background: doc === d.id ? d.color : "transparent", color: "var(--on-accent)", fontSize: 16, fontWeight: 800, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>{doc === d.id ? "✓" : ""}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, paddingRight: 32 }}>
               <Icon n={d.icon.replace("ti-", "")} size={20} color={d.color} />
               <span style={{ color: C.ink, fontWeight: 500, fontSize: 14 }}>{d.label}</span>
             </div>
@@ -2883,7 +2921,6 @@ export default function App() {
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "Inter,system-ui,sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.11.0/tabler-icons.min.css');
         :root {
           --bg:#12203A; --card:#182B4C; --card2:#1B2E52; --line:#2C4372;
           --gold:#F4C64A; --mint:#8FD1B0; --coral:#F19A9A;
@@ -2910,7 +2947,7 @@ export default function App() {
         ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }`}</style>
       <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} title={theme === "light" ? "Passer en mode sombre" : "Passer en mode clair"}
         style={{ position: "fixed", top: 12, right: 12, zIndex: 40, width: 38, height: 38, borderRadius: 10, cursor: "pointer", background: C.card, border: `1px solid ${C.line}`, color: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Icon n={theme === "light" ? "moon" : "sun"} size={19} />
+        <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1 }}>{theme === "light" ? "☾" : "☀"}</span>
       </button>
       <div style={{ maxWidth: ["home", "mission", "era"].includes(screen) ? 1040 : 760, margin: "0 auto", padding: ["home", "mission", "era"].includes(screen) ? "40px 24px 48px" : "18px 16px 40px" }}>
         {conseil && ["conseil_budget", "conseil_events"].includes(screen) && (
