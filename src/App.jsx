@@ -2046,15 +2046,9 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   return (
     <div>
       <ScreenTitle icon="wallet" title={conseil ? "Le dernier budget du président" : `Budget ${BASE_YEAR + year}`} sub={conseil ? "Année conseil (ne compte pas) — aidez le président sortant avec quelques leviers clés." : `Année ${year}/${YEARS} — ajustez par crans. Les taux se conservent d'une année sur l'autre.`} />
-      {conseil && (
-        <div style={{ background: C.card2, border: `1px solid ${C.gold}55`, borderRadius: 12, padding: 14, marginBottom: 12, display: "flex", gap: 11, alignItems: "flex-start" }}>
-          <div style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-star" size={19} color={C.onAccent} /></div>
-          <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.55 }}>
-            <b style={{ color: C.ink }}>Votre mission :</b> le budget part avec <b style={{ color: C.coral }}>{fmt(-START.solde, 1)} % de déficit</b>. Essayez de le réduire. Deux pistes : <b style={{ color: C.mint }}>augmenter une recette</b> (onglet Recettes), ou <b style={{ color: C.coral }}>baisser une dépense</b> (onglet Dépenses). Mais attention : tout choix a un coût social.
-          </div>
-        </div>
-      )}
-      {guided && <BudgetGuide steps={guideSteps} tab={tab} setTab={setTab} note={conseil ? null : "Tous les leviers sont disponibles, et un cadre jaune explique l'effet de chaque décision. Dès la 2ᵉ année, vous jouez sans filet !"} />}
+      {guided && <BudgetGuide steps={guideSteps} tab={tab} setTab={setTab} note={conseil
+        ? <>Le budget part avec <b style={{ color: C.coral }}>{fmt(-START.solde, 1)} % de déficit</b>. Essayez de le réduire — mais attention, tout choix a un coût social.</>
+        : "Tous les leviers sont disponibles, et un cadre jaune explique l'effet de chaque décision. Dès la 2ᵉ année, vous jouez sans filet !"} />}
       {/* Barre de résultat en direct : reste visible pendant le défilement */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, marginBottom: 10, padding: "8px 10px", background: C.card2, border: `1px solid ${C.line}`, borderRadius: 10, boxShadow: "0 6px 16px rgba(0,0,0,.28)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
