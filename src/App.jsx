@@ -1620,14 +1620,14 @@ function Confetti() {
     </div>
   );
 }
-function Btn({ onClick, children, kind = "ghost", disabled, style }) {
+function Btn({ onClick, children, kind = "ghost", disabled, style, className }) {
   const base = { border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 16px", fontSize: 14, cursor: disabled ? "default" : "pointer", fontWeight: 500, transition: "all .15s", opacity: disabled ? 0.5 : 1 };
   const kinds = {
     primary: { background: C.gold, color: C.onAccent, border: "1px solid " + C.gold },
     mint: { background: C.mint, color: C.onAccent, border: "1px solid " + C.mint },
     ghost: { background: "transparent", color: C.ink },
   };
-  return <button onClick={disabled ? undefined : onClick} style={{ ...base, ...kinds[kind], ...style }}>{children}</button>;
+  return <button onClick={disabled ? undefined : onClick} className={className} style={{ ...base, ...kinds[kind], ...style }}>{children}</button>;
 }
 
 function HistContext({ text }) {
@@ -1955,6 +1955,45 @@ function MarketStrip({ taux, marche = MARCHE0, dette }) {
 }
 
 /* ---------- Écran Budget (16 leviers, onglets Recettes/Dépenses) ---------- */
+/* ---------- Guidage pas à pas (année conseil et 1re année de mandat) ---------- */
+function BudgetGuide({ steps, tab, setTab, note }) {
+  const [open, setOpen] = useState(true);
+  const done = steps.filter((s) => s.done).length;
+  const cur = steps.findIndex((s) => !s.done);
+  return (
+    <div style={{ background: C.card2, border: `1px solid ${C.gold}66`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+      <button onClick={() => setOpen(!open)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: 0, minHeight: 32, touchAction: "manipulation" }}>
+        <span style={{ color: C.gold, fontSize: 15, fontWeight: 600, fontFamily: "Fraunces,serif" }}>🧭 Votre mission, pas à pas</span>
+        <span style={{ color: C.dim, fontSize: 12 }}>{done}/{steps.length} {open ? "▴" : "▾"}</span>
+      </button>
+      {open && (
+        <>
+          {note && <div style={{ color: C.dim, fontSize: 12, lineHeight: 1.5, marginTop: 6 }}>{note}</div>}
+          <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
+            {steps.map((s, i) => {
+              const now = i === cur;
+              return (
+                <div key={s.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "9px 10px", borderRadius: 10, background: now ? C.gold + "1A" : "transparent", border: `1px solid ${now ? C.gold : "transparent"}` }}>
+                  <span aria-hidden="true" style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, background: s.done ? C.mint : "transparent", color: s.done ? "var(--on-accent)" : now ? C.gold : C.dim, border: `2px solid ${s.done ? C.mint : now ? C.gold : C.line}` }}>{s.done ? "✓" : i + 1}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: s.done ? C.mint : C.ink, fontSize: 13.5, fontWeight: 600 }}>
+                      {s.title}{now && <span style={{ marginLeft: 8, fontSize: 10.5, color: C.gold, fontWeight: 700, whiteSpace: "nowrap" }}>▶ MAINTENANT</span>}
+                    </div>
+                    <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{s.sub}</div>
+                    {s.go && !s.done && s.go.tab !== tab && (
+                      <button onClick={() => setTab(s.go.tab)} style={{ marginTop: 7, background: C.gold, color: "var(--on-accent)", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer", minHeight: 38, touchAction: "manipulation" }}>{s.go.label} →</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, taux = TAUX0, marche = MARCHE0, onValidate, leverFilter = null, conseil = false }) {
   const inFilter = (l) => (!leverFilter || leverFilter.includes(l.id)) && !DISABLED.includes(l.id);
   const [tab, setTabState] = useState("rec");
@@ -1972,6 +2011,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const collapse = isMobile && !conseil && list.length > 4 && !expanded;
   const visibleList = collapse ? list.slice(0, 4) : list;
   const handleValider = () => { if (nonVus.length && !confirm) { setConfirm(true); } else { onValidate(); } };
+  const readyToValidate = guided && anyRec && anyDep;
   // Charge de la dette (intérêts) = taux × dette, et solde TOTAL = primaire − charge
   const marcheNext = computeMarche(marche, indPrev.dette, preview.ind.solde, indPrev.inflation);
   const tauxPrev = computeMoyen(taux, marcheNext, indPrev.dette, preview.ind.solde);
@@ -1979,6 +2019,21 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const chargeMd = Math.round(chargePct * PIB * ECH / 100);
   const soldePrimaire = preview.ind.solde;
   const soldeTotal = soldePrimaire - chargePct;
+  // Solde que l'on obtiendrait SANS rien changer : sert de repère dans la barre « Solde prévu »
+  const base0 = useMemo(() => applyBudgetYear(indPrev, baseLevels, baseLevels, year, doctrine), [indPrev, baseLevels, year, doctrine]);
+  const marche0 = computeMarche(marche, indPrev.dette, base0.ind.solde, indPrev.inflation);
+  const taux0 = computeMoyen(taux, marche0, indPrev.dette, base0.ind.solde);
+  const solde0 = base0.ind.solde - taux0 * indPrev.dette / 100;
+  const dSolde = soldeTotal - solde0;
+  // Guidage : étapes cochées au fur et à mesure des actions du joueur
+  const guided = conseil || year === 1;
+  const changedIn = (cat) => LEVERS.some((l) => l.cat === cat && inFilter(l) && (levels[l.id] || 0) !== (baseLevels[l.id] || 0));
+  const anyRec = changedIn("rec"), anyDep = changedIn("dep");
+  const guideSteps = [
+    { id: "rec", title: "Augmentez une recette", sub: "Onglet Recettes : touchez + sur un impôt (par exemple la TVA). Une recette qui augmente réduit le déficit.", done: anyRec, go: { tab: "rec", label: "Aller aux recettes" } },
+    { id: "dep", title: "Ajustez une dépense", sub: "Onglet Dépenses : touchez − pour économiser, ou + pour dépenser davantage. Chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
+    { id: "go", title: "Validez votre budget", sub: `Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
+  ];
   // Projection : si on garde ce solde total jusqu'en 2031, où finit la dette ?
   const detteProjetee = useMemo(() => {
     let d = indPrev.dette; const g = (preview.ind.croissance + (indPrev.inflation ?? INFL_TREND)) / 100;
@@ -1999,19 +2054,40 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
           </div>
         </div>
       )}
-      {!conseil && year === 1 && (
-        <div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: C.gold + "1F", border: `1px solid ${C.gold}88`, borderRadius: 10, padding: "10px 13px", marginBottom: 12, fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
-          <Icon n="bulb" size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} />
-          <span><b style={{ color: C.ink }}>Première année de mandat :</b> tous les leviers sont désormais disponibles. Pour vous aider, un <b style={{ color: C.gold }}>cadre jaune</b> explique l'effet de chaque décision. À partir de la 2ᵉ année, à vous de jouer sans filet !</span>
+      {guided && <BudgetGuide steps={guideSteps} tab={tab} setTab={setTab} note={conseil ? null : "Tous les leviers sont disponibles, et un cadre jaune explique l'effet de chaque décision. Dès la 2ᵉ année, vous jouez sans filet !"} />}
+      {/* Barre de résultat en direct : reste visible pendant le défilement */}
+      <div style={{ position: "sticky", top: 0, zIndex: 20, marginBottom: 10, padding: "8px 10px", background: C.card2, border: `1px solid ${C.line}`, borderRadius: 10, boxShadow: "0 6px 16px rgba(0,0,0,.28)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ flex: "1 1 160px", minWidth: 0 }}>
+            <div style={{ fontSize: 10, color: C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>Solde prévu cette année</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontFamily: "monospace", fontSize: 17, fontWeight: 700, color: dSolde > 0.05 ? C.mint : dSolde < -0.05 ? C.coral : C.ink }}>{fmt(soldeTotal, 1)} %</span>
+              <span style={{ fontSize: 11, color: C.dim }}>{Math.abs(dSolde) < 0.05 ? `sans changement : ${fmt(solde0, 1)} %` : <><b style={{ color: dSolde > 0 ? C.mint : C.coral }}>{dSolde > 0 ? "+" : ""}{fmt(dSolde, 1)} pt</b> par rapport à « sans changement » ({fmt(solde0, 1)} %)</>}</span>
+            </div>
+          </div>
+          <Btn kind="primary" onClick={handleValider} className={readyToValidate ? "qhint" : ""} style={{ padding: "8px 14px", fontSize: 13, minHeight: 40 }}>{confirm && nonVus.length ? "Valider quand même" : conseil ? "Proposer" : "Valider"} <span aria-hidden="true">→</span></Btn>
         </div>
-      )}
+        {confirm && nonVus.length > 0 && (
+          <div style={{ marginTop: 8, background: C.amberBg, border: "1px solid #E0A96D66", borderRadius: 8, padding: "7px 10px", color: "#E0A96D", fontSize: 12, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ flex: 1, minWidth: 150 }}>Vous n'avez pas ouvert l'onglet <b>« {nonVus[0][1]} »</b>.</span>
+            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "#E0A96D", color: C.onAccent, border: "none", borderRadius: 7, padding: "7px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer", minHeight: 36 }}>Voir</button>
+          </div>
+        )}
+      </div>
       <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-        {[["rec", "Recettes", C.mint], ["dep", "Dépenses", C.coral]].map(([id, lab, col]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ position: "relative", flex: 1, padding: "9px 0", borderRadius: 9, cursor: "pointer", fontSize: 13.5, fontWeight: 500, border: `1px solid ${tab === id ? col : !visited[id] ? "#E0A96D" : C.line}`, background: tab === id ? col + "22" : "transparent", color: tab === id ? col : C.dim }}>
-            {lab} <span style={{ opacity: .7, fontSize: 11 }}>({LEVERS.filter((l) => l.cat === id && inFilter(l)).length})</span>
+        {[["rec", "Recettes", C.mint, 1, anyRec], ["dep", "Dépenses", C.coral, 2, anyDep]].map(([id, lab, col, num, stepDone]) => {
+          const active = tab === id;
+          // Le pas en cours du guide (recettes d'abord, puis dépenses) pulse sur l'onglet concerné
+          const isCurrentStep = guided && !stepDone && (id === "rec" || anyRec);
+          return (
+          <button key={id} onClick={() => setTab(id)} className={isCurrentStep ? "qhint" : ""} style={{ position: "relative", flex: 1, padding: active ? "11px 0" : "9px 0", borderRadius: 9, cursor: "pointer", fontSize: active ? 15 : 13.5, fontWeight: active ? 700 : 500, border: `2px solid ${active ? col : isCurrentStep ? C.gold : !visited[id] ? "#E0A96D" : C.line}`, background: active ? col + "33" : "transparent", color: active ? col : isCurrentStep ? C.gold : C.dim, boxShadow: active ? `0 2px 10px ${col}33` : "none", transition: "all .15s" }}>
+            {guided && (
+              <span aria-hidden="true" style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)", width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, background: stepDone ? C.mint : C.gold, color: "var(--on-accent)", border: `2px solid ${C.bg}` }}>{stepDone ? "✓" : num}</span>
+            )}
+            {active && <span style={{ marginRight: 5 }}>▾</span>}{lab} <span style={{ opacity: .7, fontSize: 11 }}>({LEVERS.filter((l) => l.cat === id && inFilter(l)).length})</span>
             {!visited[id] && <span style={{ marginLeft: 6, fontSize: 10.5, color: "#E0A96D", fontWeight: 600 }}>● à voir</span>}
           </button>
-        ))}
+          ); })}
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", fontSize: 11.5, color: C.dim, margin: "0 0 8px" }}>
         <span>Code couleur des effets :</span>
@@ -2020,8 +2096,8 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         <span>(la flèche indique si l'indicateur monte ↑ ou baisse ↓)</span>
       </div>
       <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "2px 12px" }}>
-        {visibleList.map((l) => (
-          <LeverRow key={l.id} lever={l} level={levels[l.id] || 0} baseLevel={baseLevels[l.id] || 0} onChange={(v) => setLevel(l.id, v)} verbose={conseil || year === 1} />
+        {visibleList.map((l, idx) => (
+          <LeverRow key={l.id} lever={l} level={levels[l.id] || 0} baseLevel={baseLevels[l.id] || 0} onChange={(v) => setLevel(l.id, v)} verbose={conseil || year === 1} pulse={guided && !anyRec && !anyDep && idx === 0} />
         ))}
         {collapse && (
           <button onClick={() => setExpanded(true)} style={{ width: "100%", background: C.card, border: `1px dashed ${C.gold}88`, borderRadius: 10, padding: "12px 14px", color: C.gold, fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, minHeight: 44, touchAction: "manipulation" }}>
@@ -2036,7 +2112,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
             <div style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 600, color: balance >= 0 ? C.mint : C.coral }}>{balance >= 0 ? "+" : ""}{fmt(balance * ECH)} Md€</div>
             {balance !== 0 && <div style={{ fontSize: 10.5, color: C.dim }}>soit {eqHab(balance * ECH)} et par an</div>}
           </div>
-          <Btn kind="primary" onClick={handleValider}>{confirm && nonVus.length ? "Valider quand même" : conseil ? "Proposer ce budget" : "Valider le budget"} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+          <Btn kind="primary" onClick={handleValider} className={readyToValidate ? "qhint" : ""}>{confirm && nonVus.length ? "Valider quand même" : conseil ? "Proposer ce budget" : "Valider le budget"} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
         </div>
         {confirm && nonVus.length > 0 && (
           <div style={{ marginTop: 10, background: C.amberBg, border: "1px solid #E0A96D66", borderRadius: 9, padding: "9px 12px", color: "#E0A96D", fontSize: 12.5, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -2171,7 +2247,7 @@ function ImpactBox({ info }) {
     </div>
   );
 }
-function LeverRow({ lever, level, baseLevel, onChange, verbose = false }) {
+function LeverRow({ lever, level, baseLevel, onChange, verbose = false, pulse = false }) {
   const isMobile = useIsMobile();
   const [impactOpen, setImpactOpen] = useState(false);
   const [info, setInfo] = useState(false);
@@ -2192,7 +2268,7 @@ function LeverRow({ lever, level, baseLevel, onChange, verbose = false }) {
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <button onClick={() => onChange(level - 1)} style={stepBtn}>−</button>
           <span style={{ fontFamily: "monospace", fontSize: 14, width: 30, textAlign: "center", color: chgCol }}>{level > 0 ? "+" : ""}{level}</span>
-          <button onClick={() => onChange(level + 1)} style={stepBtn}>+</button>
+          <button onClick={() => onChange(level + 1)} style={stepBtn} className={pulse ? "qhint" : ""} aria-label="Augmenter">+</button>
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 4, paddingLeft: 25, gap: 8 }}>
@@ -2943,6 +3019,9 @@ export default function App() {
         .qwin { animation: qpulse 1.2s ease-out 2; }
         @keyframes qglow { 0%,100% { opacity: .75 } 50% { opacity: 1 } }
         .qwinglow { animation: qglow 3.5s ease-in-out infinite; }
+        @keyframes qhint { 0% { box-shadow: 0 0 0 0 rgba(244,198,74,.75); } 70% { box-shadow: 0 0 0 11px rgba(244,198,74,0); } 100% { box-shadow: 0 0 0 0 rgba(244,198,74,0); } }
+        .qhint { animation: qhint 1.3s ease-out infinite; border-color: var(--gold) !important; }
+        @media (max-width: 480px) { .qmandat { padding-right: 48px; } }
         .qposter { transition: transform .15s ease, box-shadow .15s ease; } .qposter:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,.35); }
         ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }`}</style>
       <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} title={theme === "light" ? "Passer en mode sombre" : "Passer en mode clair"}
@@ -2963,7 +3042,7 @@ export default function App() {
                 <div style={{ width: 30, height: 30, borderRadius: 8, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={17} color="var(--on-accent)" /></div>
                 <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{eraLabel(eraById(game.eraId))} · {doctrineOf(game)?.label} · {game.code}</div></div>
               </div>
-              <div style={{ textAlign: "right" }}>
+              <div style={{ textAlign: "right" }} className="qmandat">
                 <div style={{ color: C.dim, fontSize: 10, textTransform: "uppercase" }}>Mandat</div>
                 <div style={{ color: C.gold, fontFamily: "monospace", fontSize: 16, fontWeight: 600, lineHeight: 1 }}>Année {Math.min(game.year, YEARS)}<span style={{ color: C.line, fontSize: 12 }}>/{YEARS}</span></div>
               </div>
