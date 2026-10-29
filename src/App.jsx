@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
 /* ============================================================
    QUINQUENNAT — À VOUS DE GOUVERNER
@@ -1528,25 +1528,25 @@ const Icon = ({ n, size = 18, color, style }) => {
 
 // Métadonnées d'affichage des indicateurs
 const IND_META = [
-  { id: "solde", label: "Solde", icon: "ti-wallet", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > -3, bad: (v) => v < -6, grp: "Économie",
+  { id: "solde", label: "Solde", icon: "ti-wallet", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > -3, bad: (v) => v < -6, grp: "Économie", cap: "du PIB",
     info: "Différence entre ce que l'État encaisse (recettes) et ce qu'il dépense, en % du PIB. Négatif = déficit : il dépense plus qu'il ne gagne. Objectif : se rapprocher de 0, voire d'un excédent." },
-  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie", inv: true,
+  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie", inv: true, cap: "du PIB",
     info: "Total de tous les déficits passés, exprimé en % du PIB. Plus elle est élevée, plus les intérêts à rembourser sont lourds (effet boule de neige). La règle européenne vise 60 %." },
-  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie", inv: true,
+  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie", inv: true, cap: "des actifs",
     info: "Part de la population active sans emploi. Il baisse quand l'économie crée des emplois (croissance) et monte quand elle ralentit : c'est la loi d'Okun." },
-  { id: "croissance", label: "Croissance", icon: "ti-trending-up", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > 1.3, bad: (v) => v < 0.3, grp: "Économie",
+  { id: "croissance", label: "Croissance", icon: "ti-trending-up", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > 1.3, bad: (v) => v < 0.3, grp: "Économie", cap: "par an",
     info: "Évolution du PIB, la richesse produite dans le pays. Forte, elle crée des emplois et des recettes ; faible ou négative, c'est la récession." },
-  { id: "inflation", label: "Inflation", icon: "ti-flame", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 3, bad: (v) => v > 6, grp: "Économie", inv: true,
+  { id: "inflation", label: "Inflation", icon: "ti-flame", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 3, bad: (v) => v > 6, grp: "Économie", inv: true, cap: "par an",
     info: "Hausse générale des prix sur un an. Trop forte, elle grignote le pouvoir d'achat et fait monter les taux d'intérêt ; c'était le grand problème des années 1970-80. Elle accélère quand l'économie surchauffe." },
-  { id: "cohesion", label: "Cohésion", icon: "ti-users-group", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
+  { id: "cohesion", label: "Cohésion", icon: "ti-users-group", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société", gauge: true,
     info: "Mesure l'unité et la paix sociale du pays. Renforcée par les services publics et la redistribution ; fragilisée par les coupes budgétaires et les inégalités. Trop basse, elle mène aux émeutes." },
-  { id: "inegalites", label: "Égalité", icon: "ti-stairs", unit: "", view: (v) => 100 - v, fmt: (v) => fmt(100 - v, 0), good: (v) => v < 38, bad: (v) => v > 55, grp: "Société",
+  { id: "inegalites", label: "Égalité", icon: "ti-stairs", unit: "", view: (v) => 100 - v, fmt: (v) => fmt(100 - v, 0), good: (v) => v < 38, bad: (v) => v > 55, grp: "Société", gauge: true,
     info: "Mesure l'égalité entre les plus riches et les plus modestes : plus l'indice est haut, plus la société est égalitaire. L'impôt progressif (sur le revenu, le patrimoine) et les aides l'augmentent ; les impôts qui pèsent sur tous de la même façon (TVA) et les coupes sociales le font baisser." },
-  { id: "environnement", label: "Environnement", icon: "ti-leaf", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
+  { id: "environnement", label: "Environnement", icon: "ti-leaf", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société", gauge: true,
     info: "État de la transition écologique. Progresse avec l'investissement vert et la fiscalité carbone ; se dégrade peu à peu si on l'ignore." },
-  { id: "popularite", label: "Popularité", icon: "ti-mood-smile", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 55, bad: (v) => v < 35, grp: "Politique",
+  { id: "popularite", label: "Popularité", icon: "ti-mood-smile", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 55, bad: (v) => v < 35, grp: "Politique", gauge: true,
     info: "Soutien de l'opinion publique. Décisive le jour de l'élection. Elle s'use naturellement avec le temps (« usure du pouvoir »)." },
-  { id: "integrite", label: "Intégrité", icon: "ti-scale", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 70, bad: (v) => v < 40, grp: "Politique",
+  { id: "integrite", label: "Intégrité", icon: "ti-scale", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 70, bad: (v) => v < 40, grp: "Politique", gauge: true,
     info: "Probité de votre gouvernement. Entamée par les compromissions (accepter un lobby, étouffer une affaire). Une intégrité trop basse finit par déclencher des scandales." },
 ];
 const indColor = (m, v) => (m.bad(v) ? C.coral : m.good(v) ? C.mint : C.gold);
@@ -1556,49 +1556,83 @@ const IND_GROUPS = [
   { key: "Société", label: "Société & environnement", icon: "heart-handshake", color: C.mint },
   { key: "Politique", label: "Vie politique", icon: "speakerphone", color: "#B57BA6" },
 ];
-function IndicatorChip({ m, ind, prev, open, onToggle }) {
+// Indicateur : tuile compacte (liseré de statut, valeur, variation ; jauge pour les indices 0-100, légende pour l'économie)
+function IndicatorChip({ m, ind, prev, open, onToggle, mobile }) {
   const v = ind[m.id]; const col = indColor(m, v);
   const vw = m.view || ((x) => x); // valeur telle qu'affichée (ex. égalité = 100 − inégalités)
   const d = prev ? vw(v) - vw(prev[m.id]) : 0;
   const dShow = prev && Math.abs(d) >= 0.05;
   const improved = prev && (m.inv ? -d : d) >= 1;
+  const pct = clamp(vw(v), 0, 100);
   return (
     <button onClick={onToggle} title="En savoir plus" className={improved ? "qwin" : ""}
-      style={{ textAlign: "left", cursor: "pointer", flex: "1 1 92px", minWidth: 84, maxWidth: 180, background: C.card, borderRadius: 10, padding: "8px 9px", border: `1px solid ${open ? C.gold : improved ? C.mint : C.line}` }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 4, color: C.dim, fontSize: 10.5, marginBottom: 3 }}>
-        <Icon n={m.icon.replace("ti-", "")} size={13} /> {m.label}
-        <Icon n="help-circle" size={11} color={open ? C.gold : C.dim} style={{ marginLeft: "auto" }} />
-      </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-        <span style={{ color: col, fontFamily: "monospace", fontSize: 17, fontWeight: 600 }}>{m.fmt(v)}<span style={{ fontSize: 10, color: C.dim }}>{m.unit}</span></span>
+      style={{ position: "relative", textAlign: "left", cursor: "pointer", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4, background: C.inset, borderRadius: 10, padding: "8px 8px 8px 12px", overflow: "hidden", border: `1px solid ${open ? C.gold : improved ? C.mint : C.line}`, touchAction: "manipulation" }}>
+      <span aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: col }} />
+      <span style={{ display: "flex", alignItems: "center", gap: 4, color: C.dim, fontSize: 10.5, lineHeight: 1.15, minWidth: 0 }}>
+        <Icon n={m.icon.replace("ti-", "")} size={12} />
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{m.label}</span>
+        <Icon n="help-circle" size={11} color={open ? C.gold : C.dim} />
+      </span>
+      <span style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
+        <span style={{ color: col, fontFamily: "monospace", fontSize: 19, fontWeight: 700, lineHeight: 1.1 }}>{m.fmt(v)}<span style={{ fontSize: 11, color: C.dim, fontWeight: 500 }}>{m.unit}</span></span>
         {dShow && <span style={{ fontSize: 10, fontFamily: "monospace", color: (m.inv ? -d : d) > 0 ? C.mint : C.coral }}>{d > 0 ? "▲" : "▼"}{fmt(Math.abs(d), 1)}</span>}
-      </div>
+      </span>
+      {m.gauge
+        ? <span data-gauge="1" aria-hidden="true" style={{ display: "block", height: 4, borderRadius: 2, background: C.track, overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${pct}%`, background: col, borderRadius: 2, transition: "width .6s ease" }} /></span>
+        : (!mobile && m.cap ? <span style={{ fontSize: 10, color: C.dim, lineHeight: 1.1 }}>{m.cap}</span> : null)}
     </button>
+  );
+}
+function GroupHeader({ g, span }) {
+  return (
+    <div style={{ gridColumn: `span ${span}`, display: "flex", alignItems: "center", gap: 7, color: g.color, fontSize: 10.5, textTransform: "uppercase", letterSpacing: ".07em", fontWeight: 700, minWidth: 0 }}>
+      <Icon n={g.icon} size={13} /> <span style={{ whiteSpace: "nowrap" }}>{g.label}</span>
+      <span aria-hidden="true" style={{ flex: 1, height: 1, background: g.color + "40" }} />
+    </div>
   );
 }
 function HUD({ ind, prev }) {
   const [openInd, setOpenInd] = useState(null);
+  const mobile = useIsMobile();
   const openMeta = IND_META.find((m) => m.id === openInd);
-  return (
-    <div style={{ display: "grid", gap: 10 }}>
-      {IND_GROUPS.map((g) => (
-        <div key={g.key}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: g.color, fontWeight: 600, marginBottom: 5 }}>
-            <Icon n={g.icon} size={12} /> {g.label}
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {IND_META.filter((m) => m.grp === g.key).map((m) => (
-              <IndicatorChip key={m.id} m={m} ind={ind} prev={prev} open={openInd === m.id} onToggle={() => setOpenInd(openInd === m.id ? null : m.id)} />
-            ))}
-          </div>
-          {openMeta && openMeta.grp === g.key && (
-            <div style={{ marginTop: 6, background: C.inset, border: `1px solid ${C.gold}55`, borderRadius: 9, padding: "9px 12px", fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.gold, fontWeight: 600, marginBottom: 3 }}><Icon n="bulb" size={13} /> {openMeta.label}</span>
-              {openMeta.info}
-            </div>
-          )}
+  const byGrp = (k) => IND_META.filter((m) => m.grp === k);
+  const grp = (k) => IND_GROUPS.find((g) => g.key === k);
+  const chip = (m) => <IndicatorChip key={m.id} m={m} ind={ind} prev={prev} mobile={mobile} open={openInd === m.id} onToggle={() => setOpenInd(openInd === m.id ? null : m.id)} />;
+  const info = (keys, span) => (
+    <div style={{ gridColumn: `span ${span}` }}>
+      <Collapse open={!!(openMeta && keys.includes(openMeta.grp))}>
+        <div style={{ marginTop: 2, background: C.card2, border: `1px solid ${C.gold}55`, borderRadius: 9, padding: "9px 12px", fontSize: 12.5, color: C.sub, lineHeight: 1.55 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.gold, fontWeight: 600, marginBottom: 3 }}><Icon n="bulb" size={13} /> {openMeta?.label}</span>
+          {openMeta?.info}
         </div>
-      ))}
+      </Collapse>
+    </div>
+  );
+  if (mobile) {
+    // Téléphone : un bloc par groupe, tuiles toutes de même largeur (3 par rangée)
+    return (
+      <div data-layout="mobile" style={{ display: "grid", gap: 8 }}>
+        {IND_GROUPS.map((g) => (
+          <div key={g.key} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
+            <GroupHeader g={g} span={3} />
+            {byGrp(g.key).map(chip)}
+            {info([g.key], 3)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  // Ordinateur / tablette : deux rangées de 5 tuiles identiques (Économie ; puis Société 3 + Vie politique 2)
+  return (
+    <div data-layout="desktop" style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 8 }}>
+      <GroupHeader g={grp("Économie")} span={5} />
+      {byGrp("Économie").map(chip)}
+      {info(["Économie"], 5)}
+      <GroupHeader g={grp("Société")} span={3} />
+      <GroupHeader g={grp("Politique")} span={2} />
+      {byGrp("Société").map(chip)}
+      {byGrp("Politique").map(chip)}
+      {info(["Société", "Politique"], 5)}
     </div>
   );
 }
@@ -2227,6 +2261,58 @@ function leverImpactSentence(lever, d) {
   return { budget, concret: ex ? (up ? ex.up : ex.down) : "", plus: plus.slice(0, 3), moins: moins.slice(0, 3) };
 }
 // Détecte un écran étroit (mobile) et se met à jour si l'utilisateur tourne l'écran ou redimensionne.
+// Devient « vu » dès que l'élément entre à l'écran (sert à lancer les animations quand le joueur les voit vraiment).
+function useInView(threshold = 0.3) {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(typeof IntersectionObserver === "undefined");
+  useEffect(() => {
+    if (seen) return undefined;
+    const el = ref.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { setSeen(true); io.disconnect(); } }, { threshold, rootMargin: "0px 0px -8% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [seen, threshold]);
+  return [ref, seen];
+}
+
+// Cadre « Votre tableau de bord » : les indicateurs, avec un titre clair et la façon de les lire.
+function Dashboard({ ind, prev, badge, sub, how, children }) {
+  return (
+    <div style={{ marginBottom: 18, background: C.card, border: `1px solid ${C.gold}55`, borderRadius: 16, padding: "16px 16px 14px" }}>
+      {badge}
+      <ScreenTitle icon="dashboard" title="Votre tableau de bord" sub={sub || "Les chiffres clés de la France : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure."} />
+      <HUD ind={ind} prev={prev} />
+      {children}
+      <div style={{ marginTop: 10, fontSize: 11.5, color: C.dim, lineHeight: 1.5 }}>
+        <b style={{ color: C.sub }}>Comment lire :</b>{" "}
+        {how || <>pour la société et la vie politique, <b style={{ color: C.sub }}>plus la valeur est haute, mieux c'est</b>. Pour l'économie, une flèche <span style={{ color: C.mint, fontWeight: 600 }}>verte</span> signale une amélioration (dette, chômage et inflation sont meilleurs quand ils baissent).</>}
+      </div>
+    </div>
+  );
+}
+
+// Cadre « L'évolution depuis le début de votre mandat » : les courbes, qui se tracent quand elles apparaissent à l'écran.
+function EvolutionFrame({ history }) {
+  const [replay, setReplay] = useState(0);
+  return (
+    <div style={{ marginTop: 14, marginBottom: 6, background: C.card, border: `1px solid ${C.gold}55`, borderRadius: 16, padding: "16px 16px 14px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+          <ScreenTitle icon="chart-dots" title="L'évolution depuis le début de votre mandat" sub="Chaque point est la fin d'une année : regardez dans quelle direction part le pays." />
+        </div>
+        {history && history.length > 0 && (
+          <button onClick={() => setReplay(replay + 1)} style={{ background: "transparent", color: C.gold, border: `1px solid ${C.gold}88`, borderRadius: 9, padding: "8px 12px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", minHeight: 38, touchAction: "manipulation" }}>↻ Revoir le tracé</button>
+        )}
+      </div>
+      <EvolutionCharts key={replay} history={history} />
+      <div style={{ marginTop: 10, fontSize: 11.5, color: C.dim, lineHeight: 1.5 }}>
+        <b style={{ color: C.sub }}>Comment lire :</b> la ligne pointillée dorée rappelle la valeur de <b style={{ color: C.sub }}>départ</b> de votre mandat. Pour la dette, le chômage, l'inflation et les taux, passer <b style={{ color: C.sub }}>sous</b> cette ligne est une bonne nouvelle ; pour le PIB, c'est l'inverse.
+      </div>
+    </div>
+  );
+}
+
 // Ouverture/fermeture fluide et réutilisable pour tous les panneaux dépliables du jeu
 // (évite les apparitions/disparitions instantanées qui perdent le joueur).
 function Collapse({ open, children }) {
@@ -2436,6 +2522,7 @@ function niceBounds(lo, hi) {
   return [lo - pad, hi + pad];
 }
 function LineChartSVG({ data, color, refValue, refLabel, decimals = 0 }) {
+  const [ref, seen] = useInView();
   const W = 300, H = 136, L = 34, R = 10, T = 12, B = 20;
   if (!data.length) return null;
   const ys = data.map((d) => d.y);
@@ -2448,7 +2535,7 @@ function LineChartSVG({ data, color, refValue, refLabel, decimals = 0 }) {
   const area = data.length > 1 ? `${line} L${x(data.length - 1).toFixed(1)},${y(lo).toFixed(1)} L${x(0).toFixed(1)},${y(lo).toFixed(1)} Z` : "";
   const gid = "grad" + Math.random().toString(36).slice(2, 8);
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+    <svg ref={ref} data-inview={seen ? "1" : "0"} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
       <defs><linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
         <stop offset="0" stopColor={color} stopOpacity="0.25" /><stop offset="1" stopColor={color} stopOpacity="0" />
       </linearGradient></defs>
@@ -2459,14 +2546,15 @@ function LineChartSVG({ data, color, refValue, refLabel, decimals = 0 }) {
         <line x1={L} x2={W - R} y1={y(refValue)} y2={y(refValue)} stroke={C.gold} strokeDasharray="3 3" strokeWidth="0.8" opacity="0.7" />
         {refLabel && <text x={W - R} y={y(refValue) - 3} textAnchor="end" fill={C.gold} style={{ font: "8px monospace" }} opacity="0.85">{refLabel}</text>}
       </g>}
-      {area && <path d={area} fill={`url(#${gid})`} style={{ opacity: 0, animation: "qfadein .7s ease-out .6s forwards" }} />}
-      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" style={{ strokeDasharray: 800, strokeDashoffset: 800, animation: "qdraw 1s ease-out forwards" }} />
-      {data.map((d, i) => <circle key={i} cx={x(i)} cy={y(d.y)} r="2.4" fill={color} style={{ opacity: 0, animation: `qfadein .4s ease-out ${(0.15 + i * 0.75 / Math.max(1, data.length - 1)).toFixed(2)}s forwards` }} />)}
-      {data.map((d, i) => <text key={i} x={x(i)} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace", opacity: 0, animation: "qfadein .5s ease-out .9s forwards" }}>{d.x}</text>)}
+      {area && <path d={area} fill={`url(#${gid})`} style={{ opacity: 0, animation: seen ? "qfadein .7s ease-out .6s forwards" : "none" }} />}
+      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" style={{ strokeDasharray: 800, strokeDashoffset: 800, animation: seen ? "qdraw 1s ease-out forwards" : "none" }} />
+      {data.map((d, i) => <circle key={i} cx={x(i)} cy={y(d.y)} r="2.4" fill={color} style={{ opacity: 0, animation: seen ? `qfadein .4s ease-out ${(0.15 + i * 0.75 / Math.max(1, data.length - 1)).toFixed(2)}s forwards` : "none" }} />)}
+      {data.map((d, i) => <text key={i} x={x(i)} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace", opacity: 0, animation: seen ? "qfadein .5s ease-out .9s forwards" : "none" }}>{d.x}</text>)}
     </svg>
   );
 }
 function GroupedBarsSVG({ data, colorA, colorB }) {
+  const [ref, seen] = useInView();
   const W = 300, H = 136, L = 34, R = 10, T = 12, B = 20;
   if (!data.length) return null;
   const vals = data.flatMap((d) => [d.a, d.b]);
@@ -2474,14 +2562,14 @@ function GroupedBarsSVG({ data, colorA, colorB }) {
   const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
   const n = data.length, gw = (W - L - R) / n, bw = Math.min(13, gw * 0.3);
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+    <svg ref={ref} data-inview={seen ? "1" : "0"} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
       {[0, 0.5, 1].map((t, i) => { const vy = T + t * (H - T - B); const val = hi - t * (hi - lo); return (
         <g key={i}><line x1={L} x2={W - R} y1={vy} y2={vy} stroke={C.line} strokeWidth="0.5" />
           <text x={L - 4} y={vy + 3} textAnchor="end" fill={C.dim} style={{ font: "8px monospace" }}>{fmt(val, 0)}</text></g>); })}
       {data.map((d, i) => { const cx = L + gw * i + gw / 2; return (
         <g key={i}>
-          <rect x={cx - bw - 1} y={y(d.a)} width={bw} height={Math.max(0, y(lo) - y(d.a))} fill={colorA} rx="1.5" style={{ transformBox: "fill-box", transformOrigin: "bottom", transform: "scaleY(0)", animation: `qgrow .55s ease-out ${(i * 0.1).toFixed(2)}s forwards` }} />
-          <rect x={cx + 1} y={y(d.b)} width={bw} height={Math.max(0, y(lo) - y(d.b))} fill={colorB} rx="1.5" style={{ transformBox: "fill-box", transformOrigin: "bottom", transform: "scaleY(0)", animation: `qgrow .55s ease-out ${(i * 0.1 + 0.08).toFixed(2)}s forwards` }} />
+          <rect x={cx - bw - 1} y={y(d.a)} width={bw} height={Math.max(0, y(lo) - y(d.a))} fill={colorA} rx="1.5" style={{ transformBox: "fill-box", transformOrigin: "bottom", transform: "scaleY(0)", animation: seen ? `qgrow .55s ease-out ${(i * 0.1).toFixed(2)}s forwards` : "none" }} />
+          <rect x={cx + 1} y={y(d.b)} width={bw} height={Math.max(0, y(lo) - y(d.b))} fill={colorB} rx="1.5" style={{ transformBox: "fill-box", transformOrigin: "bottom", transform: "scaleY(0)", animation: seen ? `qgrow .55s ease-out ${(i * 0.1 + 0.08).toFixed(2)}s forwards` : "none" }} />
           <text x={cx} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace" }}>{d.x}</text>
         </g>); })}
     </svg>
@@ -2542,8 +2630,9 @@ function YearSummary({ year, indBefore, ind, flags, onNext, onTable, history, ct
   const wins = useMemo(() => victoires(indBefore, ind), [indBefore, ind]);
   return (
     <div>
-      <ScreenTitle icon="clipboard-check" title={`Bilan ${BASE_YEAR + year}`} sub="Voici l'état du pays après vos décisions" />
-      <HUD ind={ind} prev={indBefore} />
+      <ScreenTitle icon="clipboard-check" title={`Bilan ${BASE_YEAR + year}`} sub="Ce que vos décisions ont changé cette année" />
+      <Dashboard ind={ind} prev={indBefore} sub="L'état de la France à la fin de l'année. Les flèches montrent ce qui a changé depuis le début de l'année."
+        how={<>une flèche ▲ ou ▼ indique la variation depuis le début de l'année ; elle est <span style={{ color: C.mint, fontWeight: 600 }}>verte</span> quand c'est une amélioration, <span style={{ color: C.coral, fontWeight: 600 }}>rouge</span> quand c'est une dégradation (dette, chômage et inflation sont meilleurs quand ils baissent). Pour la société et la vie politique, <b style={{ color: C.sub }}>plus la valeur est haute, mieux c'est</b>.</>} />
 
       {/* Victoires intermédiaires (renforcement positif) */}
       {wins.length > 0 && (
@@ -2582,14 +2671,11 @@ function YearSummary({ year, indBefore, ind, flags, onNext, onTable, history, ct
         </div>
       </div>
 
-      {/* Graphiques d'évolution */}
-      <div style={{ marginTop: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.ink, fontSize: 13.5, fontWeight: 500, marginBottom: 8 }}><Icon n="chart-dots" size={16} color={C.gold} /> Évolution depuis le début du mandat</div>
-        <EvolutionCharts history={history} />
-      </div>
+      {/* Graphiques d'évolution : cadre dédié, tracé déclenché à l'apparition à l'écran */}
+      <EvolutionFrame history={history} />
 
       <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-        <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Tableau de bord</Btn>
+        <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Chiffres année par année</Btn>
         <Btn kind="primary" onClick={onNext}>{year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
       </div>
     </div>
@@ -2605,32 +2691,62 @@ function BilanLine({ icon, color, label, text }) {
 }
 
 /* ---------- Tableau récapitulatif (années VALIDÉES uniquement) ---------- */
+// « Chiffres année par année » : tableau TRANSPOSÉ (indicateurs en lignes, années en colonnes) — tient à l'écran sans défilement horizontal
 function ResultsTable({ history, onClose }) {
+  const isMobile = useIsMobile();
+  const n = history.length;
+  const last = n ? history[n - 1] : null;
+  const fs = isMobile ? (n >= 6 ? 10.5 : 11.5) : 13;
+  const cell = { padding: isMobile ? "6px 1px" : "8px 8px", textAlign: "right", fontFamily: "monospace", fontSize: fs, whiteSpace: "nowrap" };
+  const cols = 1 + (isMobile ? 0 : 1) + n + (isMobile ? 0 : 1);
+  const yr = (r) => (isMobile ? "'" + String(BASE_YEAR + r.year).slice(2) : String(BASE_YEAR + r.year));
   return (
     <div>
-      <ScreenTitle icon="table" title="Tableau de bord du mandat" sub="L'évolution année par année (années terminées)" />
-      {history.length === 0
+      <ScreenTitle icon="table" title="Les chiffres année par année" sub="Toutes les valeurs à la fin de chaque année terminée. Les courbes sont dans le bilan de l'année." />
+      {n === 0
         ? <div style={{ color: C.dim, fontSize: 13, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16 }}>Aucune année terminée pour l'instant. Le tableau se remplira à la fin de chaque année.</div>
         : (
-          <>
-          <div style={{ marginBottom: 14 }}><EvolutionCharts history={history} /></div>
           <div style={{ overflowX: "auto", background: C.card, border: `1px solid ${C.line}`, borderRadius: 12 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: "monospace" }}>
-              <thead><tr style={{ color: C.dim }}>
-                <th style={{ ...thc, position: "sticky", left: 0, background: C.card, zIndex: 1 }}>Année</th>
-                {IND_META.map((m) => <th key={m.id} style={{ ...thc, textAlign: "right" }}>{m.label}</th>)}
-              </tr></thead>
+            <table data-layout={isMobile ? "mobile" : "desktop"} data-cols={cols} style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse" }}>
+              <colgroup>
+                <col style={{ width: isMobile ? "27%" : 170 }} />
+                {!isMobile && <col style={{ width: 78 }} />}
+                {history.map((r) => <col key={r.year} />)}
+                {!isMobile && <col style={{ width: 92 }} />}
+              </colgroup>
+              <thead>
+                <tr style={{ color: C.dim, fontSize: isMobile ? 10.5 : 12 }}>
+                  <th style={{ padding: isMobile ? "8px 6px" : "9px 12px", textAlign: "left", fontWeight: 500 }}>Indicateur</th>
+                  {!isMobile && <th style={{ ...cell, fontFamily: "inherit", fontSize: 12, fontWeight: 500 }}>Départ</th>}
+                  {history.map((r, i) => <th key={r.year} style={{ ...cell, fontFamily: "monospace", fontSize: isMobile ? 10.5 : 12, fontWeight: i === n - 1 ? 700 : 500, color: i === n - 1 ? C.gold : C.dim }}>{yr(r)}</th>)}
+                  {!isMobile && <th style={{ ...cell, fontFamily: "inherit", fontSize: 12, fontWeight: 500 }}>Évolution</th>}
+                </tr>
+              </thead>
               <tbody>
-                {history.map((r) => (
-                  <tr key={r.year} style={{ borderTop: `1px solid ${C.line}` }}>
-                    <td style={{ ...tdc, color: C.ink, position: "sticky", left: 0, background: C.card, zIndex: 1 }}>{BASE_YEAR + r.year}</td>
-                    {IND_META.map((m) => <td key={m.id} style={{ ...tdc, textAlign: "right", color: indColor(m, r.ind[m.id]) }}>{m.fmt(r.ind[m.id])}{m.unit}</td>)}
-                  </tr>
+                {IND_GROUPS.map((g) => (
+                  <React.Fragment key={g.key}>
+                    <tr><td colSpan={cols} style={{ padding: isMobile ? "7px 6px 3px" : "10px 12px 4px", color: g.color, fontSize: 10.5, textTransform: "uppercase", letterSpacing: ".07em", fontWeight: 700, borderTop: `1px solid ${C.line}` }}>{g.label}</td></tr>
+                    {IND_META.filter((m) => m.grp === g.key).map((m) => {
+                      const vw = m.view || ((x) => x);
+                      const dv = last ? vw(last.ind[m.id]) - vw(START[m.id]) : 0;
+                      const good = (m.inv ? -dv : dv) > 0;
+                      return (
+                        <tr key={m.id} style={{ borderTop: `1px solid ${C.line}55` }}>
+                          <td style={{ padding: isMobile ? "6px 6px" : "8px 12px", color: C.ink, fontSize: isMobile ? 11 : 13, lineHeight: 1.2, overflowWrap: "anywhere" }}>
+                            {m.label}
+                            {isMobile && <div style={{ color: C.dim, fontSize: 9.5, fontFamily: "monospace", marginTop: 1 }}>départ {m.fmt(START[m.id])}{m.unit}</div>}
+                          </td>
+                          {!isMobile && <td style={{ ...cell, color: C.dim }}>{m.fmt(START[m.id])}{m.unit}</td>}
+                          {history.map((r, i) => <td key={r.year} style={{ ...cell, color: indColor(m, r.ind[m.id]), fontWeight: i === n - 1 ? 700 : 400, background: i === n - 1 ? C.gold + "10" : "transparent" }}>{m.fmt(r.ind[m.id])}</td>)}
+                          {!isMobile && <td style={{ ...cell, fontSize: 12 }}>{Math.abs(dv) < 0.05 ? <span style={{ color: C.dim }}>=</span> : <span style={{ color: good ? C.mint : C.coral, fontWeight: 600 }}>{dv > 0 ? "▲" : "▼"} {fmt(Math.abs(dv), 1)}</span>}</td>}
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
           </div>
-          </>
         )}
       <div style={{ marginTop: 14 }}><Btn kind="primary" onClick={onClose}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Revenir au jeu</Btn></div>
     </div>
@@ -3052,12 +3168,8 @@ export default function App() {
       </button>
       <div style={{ maxWidth: ["home", "mission", "era"].includes(screen) ? 1040 : 760, margin: "0 auto", padding: ["home", "mission", "era"].includes(screen) ? "40px 24px 48px" : "18px 16px 40px" }}>
         {conseil && ["conseil_budget", "conseil_events"].includes(screen) && (
-          <div style={{ marginBottom: 18, background: C.card, border: `1px solid ${C.gold}55`, borderRadius: 16, padding: "16px 16px 14px" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.gold + "22", color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="user-star" size={13} /> Année conseil — ne compte pas</div>
-            <ScreenTitle icon="dashboard" title="Votre tableau de bord" sub="Les chiffres clés de la France au début de l'année : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure." />
-            <HUD ind={conseil.ind} />
-            <div style={{ marginTop: 10, fontSize: 11.5, color: C.dim, lineHeight: 1.5 }}><b style={{ color: C.sub }}>Comment lire :</b> pour la société et la vie politique, <b style={{ color: C.sub }}>plus la valeur est haute, mieux c'est</b>. Pour l'économie, une flèche <span style={{ color: C.mint, fontWeight: 600 }}>verte</span> signale une amélioration (dette, chômage et inflation sont meilleurs quand ils baissent).</div>
-          </div>
+          <Dashboard ind={conseil.ind} sub="Les chiffres clés de la France au début de l'année : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure."
+            badge={<div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.gold + "22", color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="user-star" size={13} /> Année conseil — ne compte pas</div>} />
         )}
         {game && screen !== "home" && (
           <div style={{ marginBottom: 14 }}>
@@ -3072,8 +3184,13 @@ export default function App() {
               </div>
             </div>
             <div style={{ height: 6, borderRadius: 4, background: C.track, overflow: "hidden" }}><div style={{ width: `${progress}%`, height: "100%", background: C.gold, transition: "width .4s" }} /></div>
-            {["budget", "events"].includes(screen) && <div style={{ marginTop: 10 }}><HUD ind={game.ind} /><ObjBar ind={game.ind} /><MarketStrip taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} dette={game.ind.dette} /></div>}
           </div>
+        )}
+        {game && ["budget", "events"].includes(screen) && (
+          <Dashboard ind={game.ind}>
+            <ObjBar ind={game.ind} />
+            <MarketStrip taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} dette={game.ind.dette} />
+          </Dashboard>
         )}
 
         {screen === "home" && <Home hasSave={hasSave} onPickEra={(id) => { setPickedEra(id); setScreen("era"); }} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
