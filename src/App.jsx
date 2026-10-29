@@ -1637,7 +1637,7 @@ function HistContext({ text }) {
       <button onClick={() => setOpen(!open)} style={{ width: "100%", background: C.inset, border: `1px solid ${C.gold}55`, borderRadius: 10, padding: "9px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 12.5, fontWeight: 600 }}>
         <Icon n="history" size={15} /> Le contexte historique {open ? "▲" : "▼"}
       </button>
-      {open && <div style={{ marginTop: 6, fontSize: 13, color: C.sub, lineHeight: 1.6, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px" }}>{text}</div>}
+      <Collapse open={open}><div style={{ marginTop: 6, fontSize: 13, color: C.sub, lineHeight: 1.6, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px" }}>{text}</div></Collapse>
     </div>
   );
 }
@@ -1648,7 +1648,7 @@ function Note({ text }) {
       <button onClick={() => setOpen(!open)} style={{ background: "transparent", border: "none", color: C.gold, fontSize: 11.5, cursor: "pointer", padding: "10px 0", margin: "-10px 0", minHeight: 40, touchAction: "manipulation", display: "flex", alignItems: "center", gap: 4 }}>
         <Icon n="bulb" size={13} /> Le saviez-vous ? {open ? "▲" : "▼"}
       </button>
-      {open && <div style={{ marginTop: 5, fontSize: 12, color: C.sub, lineHeight: 1.55, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px" }}>{text}</div>}
+      <Collapse open={open}><div style={{ marginTop: 5, fontSize: 12, color: C.sub, lineHeight: 1.55, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px" }}>{text}</div></Collapse>
     </div>
   );
 }
@@ -1966,7 +1966,7 @@ function BudgetGuide({ steps, tab, setTab, note }) {
         <span style={{ color: C.gold, fontSize: 15, fontWeight: 600, fontFamily: "Fraunces,serif" }}>🧭 Votre mission, pas à pas</span>
         <span style={{ color: C.dim, fontSize: 12 }}>{done}/{steps.length} {open ? "▴" : "▾"}</span>
       </button>
-      {open && (
+      <Collapse open={open}>
         <>
           {note && <div style={{ color: C.dim, fontSize: 12, lineHeight: 1.5, marginTop: 6 }}>{note}</div>}
           <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
@@ -1989,7 +1989,7 @@ function BudgetGuide({ steps, tab, setTab, note }) {
             })}
           </div>
         </>
-      )}
+      </Collapse>
     </div>
   );
 }
@@ -2011,7 +2011,6 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const collapse = isMobile && !conseil && list.length > 4 && !expanded;
   const visibleList = collapse ? list.slice(0, 4) : list;
   const handleValider = () => { if (nonVus.length && !confirm) { setConfirm(true); } else { onValidate(); } };
-  const readyToValidate = guided && anyRec && anyDep;
   // Charge de la dette (intérêts) = taux × dette, et solde TOTAL = primaire − charge
   const marcheNext = computeMarche(marche, indPrev.dette, preview.ind.solde, indPrev.inflation);
   const tauxPrev = computeMoyen(taux, marcheNext, indPrev.dette, preview.ind.solde);
@@ -2029,6 +2028,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const guided = conseil || year === 1;
   const changedIn = (cat) => LEVERS.some((l) => l.cat === cat && inFilter(l) && (levels[l.id] || 0) !== (baseLevels[l.id] || 0));
   const anyRec = changedIn("rec"), anyDep = changedIn("dep");
+  const readyToValidate = guided && anyRec && anyDep; // les deux étapes sont faites : le bouton Valider pulse
   const guideSteps = [
     { id: "rec", title: "Augmentez une recette", sub: "Onglet Recettes : touchez + sur un impôt (par exemple la TVA). Une recette qui augmente réduit le déficit.", done: anyRec, go: { tab: "rec", label: "Aller aux recettes" } },
     { id: "dep", title: "Ajustez une dépense", sub: "Onglet Dépenses : touchez − pour économiser, ou + pour dépenser davantage. Chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
@@ -2219,6 +2219,16 @@ function leverImpactSentence(lever, d) {
   return { budget, concret: ex ? (up ? ex.up : ex.down) : "", plus: plus.slice(0, 3), moins: moins.slice(0, 3) };
 }
 // Détecte un écran étroit (mobile) et se met à jour si l'utilisateur tourne l'écran ou redimensionne.
+// Ouverture/fermeture fluide et réutilisable pour tous les panneaux dépliables du jeu
+// (évite les apparitions/disparitions instantanées qui perdent le joueur).
+function Collapse({ open, children }) {
+  return (
+    <div style={{ display: "grid", gridTemplateRows: open ? "1fr" : "0fr", transition: "grid-template-rows .32s ease" }}>
+      <div style={{ overflow: "hidden" }}>{children}</div>
+    </div>
+  );
+}
+
 function useIsMobile() {
   const [m, setM] = useState(false);
   useEffect(() => {
@@ -2440,10 +2450,10 @@ function LineChartSVG({ data, color, refValue, refLabel, decimals = 0 }) {
         <line x1={L} x2={W - R} y1={y(refValue)} y2={y(refValue)} stroke={C.gold} strokeDasharray="3 3" strokeWidth="0.8" opacity="0.7" />
         {refLabel && <text x={W - R} y={y(refValue) - 3} textAnchor="end" fill={C.gold} style={{ font: "8px monospace" }} opacity="0.85">{refLabel}</text>}
       </g>}
-      {area && <path d={area} fill={`url(#${gid})`} />}
-      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
-      {data.map((d, i) => <circle key={i} cx={x(i)} cy={y(d.y)} r="2.4" fill={color} />)}
-      {data.map((d, i) => <text key={i} x={x(i)} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace" }}>{d.x}</text>)}
+      {area && <path d={area} fill={`url(#${gid})`} style={{ opacity: 0, animation: "qfadein .7s ease-out .6s forwards" }} />}
+      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" style={{ strokeDasharray: 800, strokeDashoffset: 800, animation: "qdraw 1s ease-out forwards" }} />
+      {data.map((d, i) => <circle key={i} cx={x(i)} cy={y(d.y)} r="2.4" fill={color} style={{ opacity: 0, animation: `qfadein .4s ease-out ${(0.15 + i * 0.75 / Math.max(1, data.length - 1)).toFixed(2)}s forwards` }} />)}
+      {data.map((d, i) => <text key={i} x={x(i)} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace", opacity: 0, animation: "qfadein .5s ease-out .9s forwards" }}>{d.x}</text>)}
     </svg>
   );
 }
@@ -2461,8 +2471,8 @@ function GroupedBarsSVG({ data, colorA, colorB }) {
           <text x={L - 4} y={vy + 3} textAnchor="end" fill={C.dim} style={{ font: "8px monospace" }}>{fmt(val, 0)}</text></g>); })}
       {data.map((d, i) => { const cx = L + gw * i + gw / 2; return (
         <g key={i}>
-          <rect x={cx - bw - 1} y={y(d.a)} width={bw} height={Math.max(0, y(lo) - y(d.a))} fill={colorA} rx="1.5" />
-          <rect x={cx + 1} y={y(d.b)} width={bw} height={Math.max(0, y(lo) - y(d.b))} fill={colorB} rx="1.5" />
+          <rect x={cx - bw - 1} y={y(d.a)} width={bw} height={Math.max(0, y(lo) - y(d.a))} fill={colorA} rx="1.5" style={{ transformBox: "fill-box", transformOrigin: "bottom", transform: "scaleY(0)", animation: `qgrow .55s ease-out ${(i * 0.1).toFixed(2)}s forwards` }} />
+          <rect x={cx + 1} y={y(d.b)} width={bw} height={Math.max(0, y(lo) - y(d.b))} fill={colorB} rx="1.5" style={{ transformBox: "fill-box", transformOrigin: "bottom", transform: "scaleY(0)", animation: `qgrow .55s ease-out ${(i * 0.1 + 0.08).toFixed(2)}s forwards` }} />
           <text x={cx} y={H - 5} textAnchor="middle" fill={C.dim} style={{ font: "8px monospace" }}>{d.x}</text>
         </g>); })}
     </svg>
@@ -3015,6 +3025,9 @@ export default function App() {
         .qwinglow { animation: qglow 3.5s ease-in-out infinite; }
         @keyframes qhint { 0% { box-shadow: 0 0 0 0 rgba(244,198,74,.75); } 70% { box-shadow: 0 0 0 11px rgba(244,198,74,0); } 100% { box-shadow: 0 0 0 0 rgba(244,198,74,0); } }
         .qhint { animation: qhint 1.3s ease-out infinite; border-color: var(--gold) !important; }
+        @keyframes qdraw { to { stroke-dashoffset: 0; } }
+        @keyframes qfadein { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes qgrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
         @media (max-width: 480px) { .qmandat { padding-right: 48px; } }
         .qposter { transition: transform .15s ease, box-shadow .15s ease; } .qposter:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,.35); }
         ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }`}</style>
