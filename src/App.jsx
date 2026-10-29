@@ -1130,7 +1130,7 @@ function computeMoyen(moyenPrev, marche, dette, soldePrimaire) {
 }
 // Clôture de l'année. À l'entrée, n.solde est DÉJÀ le solde TOTAL (charge de la dette comprise,
 // appliquée à la validation du budget). taux = taux d'emprunt de l'année (pour l'alerte marchés).
-function finalizeYear(ind0, taux = TAUX0, marche = MARCHE0) {
+function finalizeYear(ind0, taux = TAUX0, marche = MARCHE0, marchePrev = null) {
   let n = { ...ind0 };
   // Stabilisateurs automatiques : quand la croissance s'écarte du potentiel, recettes et dépenses réagissent
   const devG = n.croissance - GROWTH_POT;
@@ -1153,7 +1153,13 @@ function finalizeYear(ind0, taux = TAUX0, marche = MARCHE0) {
   if ((n.inegalites ?? 45) > 58) n.cohesion = clamp(n.cohesion - ((n.inegalites - 58) * 0.06), 0, 100); // les inégalités minent la cohésion
 
   const flags = [];
-  if (marche > 5.5) flags.push("taux");                  // les marchés s'affolent
+  // Les marchés s'inquiètent si votre taux dépasse nettement celui que l'ÉPOQUE aurait connu (trajectoire historique)
+  // ET que cet écart se creuse cette année. Un seuil absolu n'a pas de sens : 5,5 % est une alerte aujourd'hui,
+  // mais un taux de faveur en 1981 ; et en 1981-88 les taux baissent partout, quoi que fasse le joueur.
+  const pg = (y) => (YEARS > 1 ? Math.max(0, y - 1) / (YEARS - 1) : 0);
+  const exces = marche - (MARCHE0 + MARCHE_DRIFT * pg(CUR_Y));
+  const excesPrev = (marchePrev ?? MARCHE0) - (MARCHE0 + MARCHE_DRIFT * pg(CUR_Y - 1));
+  if (exces > 0.8 && exces > excesPrev + 0.1) flags.push("taux");
   if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, GROWTH_MIN, GROWTH_MAX); flags.push("defiance"); }
   if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
   if (n.popularite < 22) flags.push("censure");
@@ -1228,7 +1234,7 @@ function conseiller(before, after, flags, bigEvent) {
   else if (up("environnement", 1)) social += `. Les indicateurs écologiques progressent.`;
   else social += `.`;
   // Alerte
-  const alertMap = { taux: "Les marchés s'affolent : votre taux d'emprunt grimpe, la charge de la dette explose — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
+  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
   const alerte = flags.map((f) => alertMap[f]).filter(Boolean);
   return { eco, social, alerte };
 }
@@ -1317,7 +1323,7 @@ function conseillerDetaille(before, after, flags, ctx) {
   const dI = (after.inegalites ?? 45) - (before.inegalites ?? 45);
   const nomme = (c) => `${c.d > 0 ? "la hausse" : "la baisse"} de « ${shortLabel(c.l)} »`;
   const reduc = changes.filter((c) => (INEG[c.l.id] || 0) * c.d < 0), aggr = changes.filter((c) => (INEG[c.l.id] || 0) * c.d > 0);
-  const iTxt = `(${fmt(before.inegalites ?? 45, 0)} → ${fmt(after.inegalites ?? 45, 0)})`;
+  const iTxt = `(indice d'égalité ${fmt(100 - (before.inegalites ?? 45), 0)} → ${fmt(100 - (after.inegalites ?? 45), 0)})`;
   if (dI <= -1) soc += reduc.length
     ? `Les inégalités reculent ${iTxt} grâce à ${reduc.slice(0, 2).map(nomme).join(" et ")}${aggr.length ? `, qui compense${reduc.slice(0, 2).length > 1 ? "nt" : ""} l'effet de ${aggr.slice(0, 2).map(nomme).join(" et ")} (qui pèse surtout sur les ménages modestes)` : ""}. Redistribuer, c'est prendre davantage aux plus aisés ou donner davantage aux plus modestes. `
     : `Les inégalités reculent ${iTxt}. `;
@@ -1468,7 +1474,7 @@ const TROPHIES = [
   { id: "mainspropres", label: "Mains propres", icon: "shield-check", desc: "Garder une intégrité d'au moins 90.", check: (g) => g.ind.integrite >= 90 },
   { id: "vert", label: "Président·e vert·e", icon: "leaf", desc: "Atteindre 70 en environnement.", check: (g) => g.ind.environnement >= 70 },
   { id: "rassembleur", label: "Rassembleur·se", icon: "users-group", desc: "Maintenir une cohésion d'au moins 75.", check: (g) => g.ind.cohesion >= 75 },
-  { id: "justice", label: "Justice sociale", icon: "stairs", desc: "Réduire les inégalités sous 35.", check: (g) => (g.ind.inegalites ?? 45) < 35 },
+  { id: "justice", label: "Justice sociale", icon: "stairs", desc: "Atteindre un indice d'égalité d'au moins 65.", check: (g) => (g.ind.inegalites ?? 45) < 35 },
   { id: "croissance", label: "Moteur de croissance", icon: "rocket", desc: "Finir avec une croissance supérieure à 2 %.", check: (g) => g.ind.croissance > 2 },
   { id: "triomphe", label: "Plébiscité·e", icon: "crown", desc: "Être réélu·e triomphalement.", check: (g, sc, end) => end && end.key === "triomphe" },
   { id: "sansfaute", label: "Sans-faute", icon: "star", desc: "Obtenir un score d'au moins 75.", check: (g, sc) => sc && sc.total >= 75 },
@@ -1524,9 +1530,9 @@ const Icon = ({ n, size = 18, color, style }) => {
 const IND_META = [
   { id: "solde", label: "Solde", icon: "ti-wallet", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > -3, bad: (v) => v < -6, grp: "Économie",
     info: "Différence entre ce que l'État encaisse (recettes) et ce qu'il dépense, en % du PIB. Négatif = déficit : il dépense plus qu'il ne gagne. Objectif : se rapprocher de 0, voire d'un excédent." },
-  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie",
+  { id: "dette", label: "Dette", icon: "ti-chart-line", unit: "%", fmt: (v) => fmt(v, 0), good: (v) => v < 110, bad: (v) => v > 130, grp: "Économie", inv: true,
     info: "Total de tous les déficits passés, exprimé en % du PIB. Plus elle est élevée, plus les intérêts à rembourser sont lourds (effet boule de neige). La règle européenne vise 60 %." },
-  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie",
+  { id: "chomage", label: "Chômage", icon: "ti-briefcase", unit: "%", fmt: (v) => fmt(v, 1), good: (v) => v < 7, bad: (v) => v > 9, grp: "Économie", inv: true,
     info: "Part de la population active sans emploi. Il baisse quand l'économie crée des emplois (croissance) et monte quand elle ralentit : c'est la loi d'Okun." },
   { id: "croissance", label: "Croissance", icon: "ti-trending-up", unit: "%", fmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1), good: (v) => v > 1.3, bad: (v) => v < 0.3, grp: "Économie",
     info: "Évolution du PIB, la richesse produite dans le pays. Forte, elle crée des emplois et des recettes ; faible ou négative, c'est la récession." },
@@ -1534,8 +1540,8 @@ const IND_META = [
     info: "Hausse générale des prix sur un an. Trop forte, elle grignote le pouvoir d'achat et fait monter les taux d'intérêt ; c'était le grand problème des années 1970-80. Elle accélère quand l'économie surchauffe." },
   { id: "cohesion", label: "Cohésion", icon: "ti-users-group", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
     info: "Mesure l'unité et la paix sociale du pays. Renforcée par les services publics et la redistribution ; fragilisée par les coupes budgétaires et les inégalités. Trop basse, elle mène aux émeutes." },
-  { id: "inegalites", label: "Inégalités", icon: "ti-stairs", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v < 38, bad: (v) => v > 55, grp: "Société", inv: true,
-    info: "Écart entre les plus riches et les plus modestes. Réduites par l'impôt progressif (sur le revenu, le patrimoine) et les aides ; aggravées par les impôts régressifs (TVA) et les coupes sociales. Plus c'est bas, mieux c'est." },
+  { id: "inegalites", label: "Égalité", icon: "ti-stairs", unit: "", view: (v) => 100 - v, fmt: (v) => fmt(100 - v, 0), good: (v) => v < 38, bad: (v) => v > 55, grp: "Société",
+    info: "Mesure l'égalité entre les plus riches et les plus modestes : plus l'indice est haut, plus la société est égalitaire. L'impôt progressif (sur le revenu, le patrimoine) et les aides l'augmentent ; les impôts qui pèsent sur tous de la même façon (TVA) et les coupes sociales le font baisser." },
   { id: "environnement", label: "Environnement", icon: "ti-leaf", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 60, bad: (v) => v < 35, grp: "Société",
     info: "État de la transition écologique. Progresse avec l'investissement vert et la fiscalité carbone ; se dégrade peu à peu si on l'ignore." },
   { id: "popularite", label: "Popularité", icon: "ti-mood-smile", unit: "", fmt: (v) => fmt(v, 0), good: (v) => v > 55, bad: (v) => v < 35, grp: "Politique",
@@ -1552,7 +1558,8 @@ const IND_GROUPS = [
 ];
 function IndicatorChip({ m, ind, prev, open, onToggle }) {
   const v = ind[m.id]; const col = indColor(m, v);
-  const d = prev ? v - prev[m.id] : 0;
+  const vw = m.view || ((x) => x); // valeur telle qu'affichée (ex. égalité = 100 − inégalités)
+  const d = prev ? vw(v) - vw(prev[m.id]) : 0;
   const dShow = prev && Math.abs(d) >= 0.05;
   const improved = prev && (m.inv ? -d : d) >= 1;
   return (
@@ -1713,9 +1720,10 @@ function EraSetup({ eraId, onStart, onSkipConseil, onBack }) {
   const e = eraById(eraId), info = ERA_INFO[e.id] || {};
   const codeOk = (code.trim() || "CLASSE");
   const canStart = team.trim() && doc;
+  const curStep = !team.trim() ? 1 : !doc ? 2 : 3; // étape à faire maintenant : son numéro vibre
   const step = (n, label, done) => (
     <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "24px 0 10px" }}>
-      <span style={{ width: 24, height: 24, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, background: done ? C.gold : "transparent", color: done ? C.onAccent : C.gold, border: `1.5px solid ${C.gold}` }}>{done ? "✓" : n}</span>
+      <span className={!done && n === curStep ? "qvibe" : ""} style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, background: done ? C.gold : !done && n === curStep ? C.gold + "33" : "transparent", color: done ? C.onAccent : C.gold, border: `2px solid ${C.gold}` }}>{done ? "✓" : n}</span>
       <span style={{ color: C.ink, fontSize: 16, fontWeight: 600, fontFamily: "Fraunces,serif" }}>{label}</span>
     </div>
   );
@@ -1772,7 +1780,7 @@ function EraSetup({ eraId, onStart, onSkipConseil, onBack }) {
       </label>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <Btn kind="primary" disabled={!canStart} onClick={() => onStart(codeOk.toUpperCase(), team.trim(), doc, e.id)} style={{ fontSize: 15, padding: "12px 20px" }}>
+        <Btn kind="primary" disabled={!canStart} className={canStart ? "qvibe" : ""} onClick={() => onStart(codeOk.toUpperCase(), team.trim(), doc, e.id)} style={{ fontSize: 15, padding: "12px 20px" }}>
           <Icon n="player-play" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Entrer au palais (avec année conseil)
         </Btn>
         {canStart && <Btn onClick={() => onSkipConseil(codeOk.toUpperCase(), team.trim(), doc, e.id)}><Icon n="player-skip-forward" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Passer l'année conseil</Btn>}
@@ -2166,7 +2174,7 @@ function leverConseq(lever, d) {
   if (lever.cro) add(lever.cro, "croissance", false);
   if (lever.cho) add(lever.cho, "chômage", true);
   if (lever.fx) { add(lever.fx.popularite, "popularité", false); add(lever.fx.cohesion, "cohésion", false); add(lever.fx.environnement, "environnement", false); }
-  if (INEG[lever.id]) add(INEG[lever.id], "inégalités", true);
+  if (INEG[lever.id]) add(-INEG[lever.id], "égalité", false);
   return out.slice(0, 5);
 }
 // Explications concrètes, pensées pour des élèves de 16-17 ans : qui est touché, pourquoi.
@@ -2324,8 +2332,8 @@ function EventScreen({ event, index, total, onChoose }) {
     <div>
       {/* En-tête : numéro d'événement bien visible + progression */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 20, fontWeight: 600, color: C.ink, fontFamily: "Fraunces,serif" }}>Événement {index + 1} <span style={{ color: C.dim, fontSize: 15 }}>sur {total}</span></span>
-        <div style={{ display: "flex", gap: 5 }}>{Array.from({ length: total }).map((_, i) => <div key={i} style={{ width: 26, height: 5, borderRadius: 3, background: i <= index ? C.gold : C.line }} />)}</div>
+        <span className="qvibe3" style={{ fontSize: 20, fontWeight: 600, color: C.ink, fontFamily: "Fraunces,serif", padding: "2px 8px", margin: "-2px -8px" }}>Événement {index + 1} <span style={{ color: C.dim, fontSize: 15 }}>sur {total}</span></span>
+        <div style={{ display: "flex", gap: 5 }}>{Array.from({ length: total }).map((_, i) => <div key={i} className={i === index ? "qvibe3" : ""} style={{ width: 26, height: 5, borderRadius: 3, background: i <= index ? C.gold : C.line }} />)}</div>
       </div>
       <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16 }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: t.color + "26", color: t.color, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}>
@@ -2350,8 +2358,9 @@ function EventScreen({ event, index, total, onChoose }) {
 function ChoiceRow({ choice, num, onClick }) {
   const fxChips = Object.entries(choice.fx).map(([k, v]) => {
     const m = k === "soldeDur" ? { label: "Solde (chaque année)" } : IND_META.find((x) => x.id === k); if (!m) return null;
-    const good = ["chomage", "dette", "inflation", "inegalites"].includes(k) ? v < 0 : v > 0;
-    return <span key={k} style={{ fontSize: 10.5, fontFamily: "monospace", color: good ? C.mint : C.coral, background: C.inset, padding: "1px 6px", borderRadius: 5, border: `1px solid ${C.line}` }}>{m.label} {v > 0 ? "+" : ""}{fmt(v, 1)}</span>;
+    const vv = k === "inegalites" ? -v : v; // l'indicateur affiché est l'ÉGALITÉ : sens inversé
+    const good = ["chomage", "dette", "inflation"].includes(k) ? vv < 0 : vv > 0;
+    return <span key={k} style={{ fontSize: 10.5, fontFamily: "monospace", color: good ? C.mint : C.coral, background: C.inset, padding: "1px 6px", borderRadius: 5, border: `1px solid ${C.line}` }}>{m.label} {vv > 0 ? "+" : ""}{fmt(vv, 1)}</span>;
   }).filter(Boolean);
   return (
     <div style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 13px" }}>
@@ -2496,7 +2505,7 @@ function EvolutionCharts({ history }) {
       </ChartFrame>
       <ChartFrame title="PIB (Md€)">
         <LineChartSVG data={rows.map((r) => ({ x: r.x, y: Math.round(r.pib) }))} color={C.mint} decimals={0} />
-        <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>PIB nominal (en euros courants) : il progresse avec la croissance <em>et</em> l'inflation (~1,3 %/an supposée).</div>
+        <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>PIB nominal (en euros courants) : il progresse avec la croissance <em>et</em> l'inflation de l'époque.</div>
       </ChartFrame>
       <ChartFrame title="Recettes vs Dépenses (Md€)" legend={[{ label: "Recettes", color: C.mint }, { label: "Dépenses", color: C.coral }]}>
         <GroupedBarsSVG data={rows.map((r) => ({ x: r.x, a: r.rec, b: r.dep }))} colorA={C.mint} colorB={C.coral} />
@@ -2925,7 +2934,7 @@ export default function App() {
   function chooseConseilEvent(choice) {
     const newInd = applyFx(conseil.ind, choice.fx);
     if (conseilEvtIdx + 1 < conseilEvts.length) { setConseil({ ...conseil, ind: newInd }); setConseilEvtIdx(conseilEvtIdx + 1); }
-    else { const fr = finalizeYear(newInd, conseil.taux, conseil.marche); setConseil({ ...conseil, ind: fr.ind }); setScreen("conseil_bilan"); }
+    else { const fr = finalizeYear(newInd, conseil.taux, conseil.marche, MARCHE0); setConseil({ ...conseil, ind: fr.ind }); setScreen("conseil_bilan"); }
   }
   async function resume() {
     const ptr = await storage.get(saveKey("STMG", "__any__")); if (!ptr) return;
@@ -2957,7 +2966,7 @@ export default function App() {
     const decisions = [...(game.decisions || []), { year: game.year, event: ev.title, type: ev.type, choice: choice.label, solde: (choice.fx.solde || 0) + (choice.fx.soldeDur || 0), eid: ev.id, ci: ev.choices.indexOf(choice), hist: !!ev.hist }];
     if (evtIdx + 1 < evts.length) { setGame({ ...game, ind: newInd, usedIds, decisions }); setEvtIdx(evtIdx + 1); }
     else {
-      const fr = finalizeYear(newInd, game.taux ?? TAUX0, game.tauxMarche ?? MARCHE0);
+      const fr = finalizeYear(newInd, game.taux ?? TAUX0, game.tauxMarche ?? MARCHE0, game._marchePrev ?? MARCHE0);
       const finalInd = fr.ind, fl = fr.flags;
       const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB * ECH;
       const flows = computeFlows(finalInd, game.levels, pibPrev);
@@ -3030,6 +3039,12 @@ export default function App() {
         @keyframes qgrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
         @media (max-width: 480px) { .qmandat { padding-right: 48px; } }
         .qposter { transition: transform .15s ease, box-shadow .15s ease; } .qposter:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,.35); }
+        @keyframes qposterVibe { 0%,100% { transform: translateY(-3px) rotate(0); } 20% { transform: translateY(-3px) translateX(-1.6px) rotate(-1.1deg); } 40% { transform: translateY(-3px) translateX(1.6px) rotate(1.1deg); } 60% { transform: translateY(-3px) translateX(-1.1px) rotate(-.7deg); } 80% { transform: translateY(-3px) translateX(1.1px) rotate(.7deg); } }
+        .qposter:hover, .qposter:focus-visible, .qposter:active { animation: qposterVibe .45s ease-in-out infinite; }
+        @keyframes qvibe { 0%, 55%, 100% { transform: translate(0, 0) rotate(0); } 5% { transform: translate(-2.5px, 0) rotate(-3deg); } 10% { transform: translate(2.5px, 0) rotate(3deg); } 15% { transform: translate(-2.5px, 0) rotate(-2.4deg); } 20% { transform: translate(2.5px, 0) rotate(2.4deg); } 25% { transform: translate(-1.5px, 0) rotate(-1.4deg); } 30% { transform: translate(1.5px, 0) rotate(1.4deg); } 38% { transform: translate(-.8px, 0); } 46% { transform: translate(.8px, 0); } }
+        @keyframes qring { 0% { box-shadow: 0 0 0 0 rgba(244,198,74,.85); } 45% { box-shadow: 0 0 0 11px rgba(244,198,74,0); } 100% { box-shadow: 0 0 0 0 rgba(244,198,74,0); } }
+        .qvibe { animation: qvibe 2.2s ease-in-out infinite, qring 2.2s ease-out infinite; }
+        .qvibe3 { display: inline-block; animation: qvibe 2.2s ease-in-out 3, qring 2.2s ease-out 3; border-radius: 8px; }
         ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }`}</style>
       <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} title={theme === "light" ? "Passer en mode sombre" : "Passer en mode clair"}
         style={{ position: "fixed", top: 12, right: 12, zIndex: 40, width: 38, height: 38, borderRadius: 10, cursor: "pointer", background: C.card, border: `1px solid ${C.line}`, color: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -3037,9 +3052,11 @@ export default function App() {
       </button>
       <div style={{ maxWidth: ["home", "mission", "era"].includes(screen) ? 1040 : 760, margin: "0 auto", padding: ["home", "mission", "era"].includes(screen) ? "40px 24px 48px" : "18px 16px 40px" }}>
         {conseil && ["conseil_budget", "conseil_events"].includes(screen) && (
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.gold + "22", color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 8 }}><Icon n="user-star" size={13} /> Année conseil — ne compte pas</div>
+          <div style={{ marginBottom: 18, background: C.card, border: `1px solid ${C.gold}55`, borderRadius: 16, padding: "16px 16px 14px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.gold + "22", color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="user-star" size={13} /> Année conseil — ne compte pas</div>
+            <ScreenTitle icon="dashboard" title="Votre tableau de bord" sub="Les chiffres clés de la France au début de l'année : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure." />
             <HUD ind={conseil.ind} />
+            <div style={{ marginTop: 10, fontSize: 11.5, color: C.dim, lineHeight: 1.5 }}><b style={{ color: C.sub }}>Comment lire :</b> pour la société et la vie politique, <b style={{ color: C.sub }}>plus la valeur est haute, mieux c'est</b>. Pour l'économie, une flèche <span style={{ color: C.mint, fontWeight: 600 }}>verte</span> signale une amélioration (dette, chômage et inflation sont meilleurs quand ils baissent).</div>
           </div>
         )}
         {game && screen !== "home" && (
