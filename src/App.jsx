@@ -45,7 +45,8 @@ const GROWTH_MIN = -3.5, GROWTH_MAX = 4.0;
      déficit 5,4 % du PIB (cible 2026 du gouvernement, maintenue le 04/11/2026 ; 5,1 % en 2025 selon l'INSEE) ;
      chômage BIT 8,3 % (INSEE, T2 2026, 07/08/2026) ; inflation +3,4 % sur un an (INSEE, estimation provisoire d'octobre 2026) ;
      OAT 10 ans 4,9 % (4,88 % le 04/11/2026, pic à 5,03 % fin octobre) ; croissance 2026 prévue à 0,5 % (gouvernement ; le HCFP juge 0,3 % plus vraisemblable) ;
-     taux moyen de la dette ≈ 2,0 % (charge de la dette de l'État : 62,6 Md€ en 2026, 72,9 Md€ prévus en 2027, Agence France Trésor).
+     taux moyen de la dette ≈ 2,0 % (charge de la dette de l'État : 62,6 Md€ en 2026, 72,9 Md€ prévus en 2027, Agence France Trésor) ;
+     tendance d'inflation de long terme (vers laquelle l'inflation revient) : 2,0 %, cible de la BCE — l'inflation de départ (3,4 %, tirée par l'énergie) retombe donc progressivement.
    ============================================================ */
 const ERAS = [
   { id: "giscard", cohesion: 60, inegalites: 52, environnement: 26, president: "V. Giscard d'Estaing", debut: 1974, duree: 7, tagline: "Le choc pétrolier frappe", pib: 175, pop: 52.6,
@@ -76,7 +77,7 @@ const ERAS = [
     dette: 111.0, solde: -4.8, chomage: 7.3, inflation: 5.2, inflTrend: 2.5, croissance: 2.6, potentiel: 1.0, marche: 1.7, moyen: 1.4, marcheFin: 3.3, inflFin: 1.0, inflLink: 0,
     rates: { tva: 20, ir: 45, is: 25, csg: 9.2 }, disabled: [], couleurs: ["#3a4a72", "#10162a"] },
   { id: "today", cohesion: 40, inegalites: 45, environnement: 50, president: "Vous", debut: 2027, duree: 5, tagline: "Dette record, taux proches de 5 %", pib: 3000, pop: 68.5,
-    dette: 119, solde: -5.4, chomage: 8.3, inflation: 3.4, inflTrend: 1.3, croissance: 0.5, potentiel: 1.0, marche: 4.9, moyen: 2.0,
+    dette: 119, solde: -5.4, chomage: 8.3, inflation: 3.4, inflTrend: 2.0, croissance: 0.5, potentiel: 1.0, marche: 4.9, moyen: 2.0,
     rates: {}, disabled: [], couleurs: ["#1c2b55", "#070b18"] },
 ];
 /* Indicateurs de société au départ de chaque époque (indices de jeu, 0-100) :
@@ -90,7 +91,7 @@ const ERAS = [
 const START_TODAY = { ...START };
 // Contexte d'époque (modifié par applyEra au lancement d'une partie)
 let CURRENT_ERA = ERAS[ERAS.length - 1];
-let BASE_YEAR = 2026, ECH = 1, DETTE0 = 119, CHOM0 = 8.3, INFL0 = 3.4, INFL_TREND = 1.3, GROWTH_POT = 1.0;
+let BASE_YEAR = 2026, ECH = 1, DETTE0 = 119, CHOM0 = 8.3, INFL0 = 3.4, INFL_TREND = 2.0, GROWTH_POT = 1.0;
 let ERA_RATES = {}, DISABLED = [], ERA_ZERO = [], INFL_LINK = 0.7, MARCHE_DRIFT = 0, CUR_Y = 1, CHAIN_MODE = false, INFL_REF = 0;
 const eraById = (id) => ERAS.find((e) => e.id === id) || ERAS[ERAS.length - 1];
 const eraLabel = (e) => e.id === "today" ? `Aujourd'hui · ${e.debut}-${e.debut + e.duree}` : `Mandat de ${e.president} · ${e.debut}-${e.debut + e.duree}`;
