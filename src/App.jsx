@@ -31,7 +31,8 @@ let TAUX_MIN = 2.5, TAUX_MAX = 9.0;  // vitesse d'ajustement et bornes du taux d
 const REFI_BASE = 0.07, REFI_DEF = 0.5;                // part de la dette refinancée chaque année au taux de marché
 // Bornes de croissance annuelle : même en poussant tous les curseurs, pas de miracle (4 %),
 // et une récession plafonnée à -3,5 % (plus réaliste que ±6 %).
-const GROWTH_MIN = -3.5, GROWTH_MAX = 4.0;
+let GROWTH_MIN = -3.5;            // plancher de croissance annuelle (réglable par époque : -10 dans le mandat prolongé, qui connaît des crises majeures)
+const GROWTH_MAX = 4.0;
 
 /* ============================================================
    ÉPOQUES — « Auriez-vous fait mieux ? »
@@ -104,6 +105,7 @@ function applyEra(id, override = null) {
   PRIMARY_BASE = +(e.solde + e.moyen * e.dette / 100).toFixed(2);
   TAUX_BASE = e.marche - TAUX_KDETTE * Math.max(0, e.dette - 100) - TAUX_KDEF * Math.max(0, -PRIMARY_BASE - 2);
   TAUX_MIN = Math.max(0, Math.min(2.5, e.marche - 1)); TAUX_MAX = Math.max(9, e.marche + 6);
+  GROWTH_MIN = e.growthMin ?? -3.5;
   INFL_REF = e.inflation;                                       // référence d'inflation du lien taux/inflation (≠ « départ » affiché si prolongement)
   if (e.fixed) { PRIMARY_BASE = e.fixed.primaryBase; TAUX_BASE = e.fixed.tauxBase; TAUX_MIN = e.fixed.tauxMin; TAUX_MAX = e.fixed.tauxMax; INFL_REF = e.fixed.inflRef; }   // prolongement : EXACTEMENT la même dynamique
   START = { ...START_TODAY, solde: e.solde, dette: e.dette, chomage: e.chomage, croissance: e.croissance, inflation: e.inflation, cohesion: e.cohesion ?? 55, inegalites: e.inegalites ?? 45, environnement: e.environnement ?? 50, integrite: e.integrite ?? START_TODAY.integrite, popularite: e.popularite ?? START_TODAY.popularite, ...(e.ecart != null ? { ecart: e.ecart } : {}), ...(e.soldeDur != null ? { soldeDur: e.soldeDur } : {}) };
@@ -165,7 +167,7 @@ function futureCarry(g, endKey) {
   const last = (g.history || [])[(g.history || []).length - 1];
   const nextId = CHAIN_NEXT[g.eraId] || "futur1";
   Object.assign(override, {
-    debut: CURRENT_ERA.debut + CURRENT_ERA.duree, duree: FUTURE_ERAS[nextId].duree, futur: nextId,
+    debut: CURRENT_ERA.debut + CURRENT_ERA.duree, duree: FUTURE_ERAS[nextId].duree, futur: nextId, growthMin: -10,   // les crises mondiales imaginées peuvent faire chuter la croissance de près de 10 points
     pib: Math.round(num(last && last.pib, ECH * 3000)),        // PIB de la dernière année : le nouveau mandat part de là
     popularite: START_TODAY.popularite + (endKey === "triomphe" ? 6 : 0),
     ecart: num(ind.ecart, 0), soldeDur: num(ind.soldeDur, 0),
@@ -270,51 +272,54 @@ const FUTURE_EVENTS = {
 
 /* ============================================================
    CRISES MONDIALES IMAGINÉES (uchronie) — UNE par mandat 2032-2037, tirée par la graine de la classe (identique pour tous),
-   entre la 3e et la 5e année (une crise précoce serait amortie avant l'élection). Chacune est un choc majeur (récession, chômage,
-   finances publiques) avec trois réponses de nature différente (nat : S = soutenir/dépenser, R = réguler/coordonner, L = laisser faire).
-   Intensité calibrée par simulation : une crise fait passer la réélection d'un mandat sain de 97 % à environ 80 %, sans qu'aucune
-   nature de réponse ne l'emporte (écart ≤ 2 points). Ce ne sont pas des prévisions.
+   entre la 3e et la 5e année (une crise précoce serait amortie avant l'élection). Chacune est un choc majeur avec trois réponses de nature
+   différente (nat : S = soutenir/dépenser, R = réguler/coordonner, L = laisser faire).
+   INTENSITÉ : croissance de l'année de crise d'environ −6 % (soutenir), −8 % (réguler) et −10 % (laisser faire), du niveau de la crise
+   de 2020 ; le plancher de croissance est abaissé à −10 dans ce mandat. Le chômage (+3 à +6 points), le solde (stabilisateurs) et
+   l'écart de production en découlent dans le moteur : on n'ajoute à la main que ce qui s'y ajoute vraiment.
+   Calibrage par simulation : réélection ≈ 65 % après une crise, quelle que soit la nature de la réponse (écart ≈ 2 points).
+   Ce ne sont pas des prévisions.
    ============================================================ */
 const FUTURE_CRISES = [
   { id: "c_krach_obligataire", type: "crise", title: "Crise mondiale : le krach obligataire",
     desc: "Un grand pays développé perd la confiance des marchés. Les taux d'emprunt s'envolent partout, des banques européennes vacillent, et la France paie plus cher pour financer sa dette.",
     contexte: "Quand les investisseurs doutent de la capacité d'un État à rembourser, ils exigent des taux plus élevés ; la hausse peut se propager aux autres pays très endettés et fragiliser les banques qui détiennent leurs titres. Ce scénario imagine une panique obligataire mondiale.",
     choices: [
-      { nat: "S", label: "Soutenir les banques et l'économie, quoi qu'il en coûte", fx: { solde: -1.82, dette: 5.46, croissance: -2.6, chomage: 0.65, popularite: 1.3 }, note: "La panique est contenue, mais la dette grimpe au pire moment." },
-      { nat: "R", label: "Plan européen de garanties et règles de prudence renforcées", fx: { solde: -1.04, dette: 3.25, croissance: -3.9, chomage: 1.17, popularite: -1.95, inflation: -0.39 }, note: "Une réponse coordonnée, plus lente, qui n'évite pas une récession." },
-      { nat: "L", label: "Laisser les marchés purger, sans filet public", fx: { solde: -0.26, dette: 0.65, croissance: -5.85, chomage: 2.6, popularite: -6.5, cohesion: -3.9 }, note: "Les comptes sont préservés, mais la récession est brutale." },
+      { nat: "S", label: "Soutenir les banques et l'économie, quoi qu'il en coûte", fx: { croissance: -7.5, solde: -2, dette: 5, popularite: 1, integrite: -1 }, note: "La panique est contenue, mais la dette grimpe au pire moment." },
+      { nat: "R", label: "Plan européen de garanties et règles de prudence renforcées", fx: { croissance: -9.5, solde: -0.8, dette: 2, popularite: -3, cohesion: -2 }, note: "Une réponse coordonnée, plus lente, qui n'évite pas une récession." },
+      { nat: "L", label: "Laisser les marchés purger, sans filet public", fx: { croissance: -11.5, solde: -0.2, chomage: 1.5, popularite: -8, cohesion: -6 }, note: "Les comptes sont préservés, mais la récession est brutale." },
     ] },
   { id: "c_blocus_puces", type: "crise", title: "Crise mondiale : le blocus des puces",
     desc: "Un conflit régional coupe l'approvisionnement mondial en semi-conducteurs et perturbe le fret maritime. Les usines s'arrêtent, les prix montent.",
     contexte: "Une grande partie des puces électroniques est fabriquée dans un très petit nombre de lieux, et acheminée par quelques routes maritimes. Une interruption prolongée frapperait l'automobile, l'électronique et l'industrie, tout en faisant monter les prix. Ce scénario imagine un blocus durable.",
     choices: [
-      { nat: "S", label: "Plan d'urgence industriel : stocks stratégiques et aides aux usines", fx: { solde: -1.36, dette: 2.73, croissance: -1.95, chomage: 0.65, inflation: 1.3, popularite: 1.3 }, note: "L'industrie tient, au prix d'une facture publique lourde." },
-      { nat: "R", label: "Rationner et prioriser (santé, défense, énergie), négocier des accords d'approvisionnement", fx: { solde: -0.65, croissance: -3.25, chomage: 1.3, inflation: 1.95, cohesion: -1.3, popularite: -1.95 }, note: "Les secteurs vitaux sont protégés, les autres attendent." },
-      { nat: "L", label: "Laisser les entreprises s'adapter par les prix", fx: { croissance: -4.55, chomage: 2.34, inflation: 2.6, popularite: -4.55, cohesion: -2.6 }, note: "Aucune dépense publique, mais une récession industrielle et des prix élevés." },
+      { nat: "S", label: "Plan d'urgence industriel : stocks stratégiques et aides aux usines", fx: { croissance: -7, solde: -1.8, dette: 3, inflation: 1.5, popularite: 1 }, note: "L'industrie tient, au prix d'une facture publique lourde." },
+      { nat: "R", label: "Rationner et prioriser (santé, défense, énergie), négocier des accords d'approvisionnement", fx: { croissance: -9, solde: -0.6, inflation: 2.5, popularite: -3, cohesion: -2 }, note: "Les secteurs vitaux sont protégés, les autres attendent." },
+      { nat: "L", label: "Laisser les entreprises s'adapter par les prix", fx: { croissance: -11, chomage: 1.5, inflation: 3.5, popularite: -7, cohesion: -5 }, note: "Aucune dépense publique, mais une récession industrielle et des prix élevés." },
     ] },
   { id: "c_annee_sans_ete", type: "crise", title: "Crise mondiale : l'année sans été",
     desc: "Une mégasécheresse simultanée sur plusieurs continents ruine les récoltes. Les prix alimentaires flambent, des pays interdisent leurs exportations.",
     contexte: "Les récoltes mondiales dépendent d'un petit nombre de grandes régions agricoles. Des sécheresses simultanées réduiraient fortement l'offre et feraient monter les prix alimentaires, avec des tensions sociales et géopolitiques. Ce scénario imagine un tel épisode.",
     choices: [
-      { nat: "S", label: "Aides massives aux agriculteurs et plafonnement des prix alimentaires", fx: { solde: -1.64, dette: 3.64, popularite: 2.6, inflation: 0.39, cohesion: 2.6, croissance: -1.3 }, note: "Les ménages sont protégés, mais la mesure coûte cher et dure." },
-      { nat: "R", label: "Constituer des stocks, réquisitionner et contrôler les exportations", fx: { solde: -0.78, croissance: -1.95, inflation: 1.56, cohesion: -1.95, integrite: -1.3, popularite: -1.3 }, note: "Le pays s'approvisionne, au prix de tensions avec ses partenaires." },
-      { nat: "L", label: "Laisser les prix s'ajuster", fx: { croissance: -3.25, inflation: 3.25, chomage: 1.04, cohesion: -5.2, popularite: -5.2 }, note: "Aucune dépense, mais les plus modestes décrochent." },
+      { nat: "S", label: "Aides massives aux agriculteurs et plafonnement des prix alimentaires", fx: { croissance: -7, solde: -2, dette: 4, inflation: 1, popularite: 2, cohesion: 2 }, note: "Les ménages sont protégés, mais la mesure coûte cher et dure." },
+      { nat: "R", label: "Constituer des stocks, réquisitionner et contrôler les exportations", fx: { croissance: -9, solde: -0.8, inflation: 2.5, popularite: -2, cohesion: -3, integrite: -1 }, note: "Le pays s'approvisionne, au prix de tensions avec ses partenaires." },
+      { nat: "L", label: "Laisser les prix s'ajuster", fx: { croissance: -11, chomage: 1, inflation: 4, popularite: -7, cohesion: -7 }, note: "Aucune dépense, mais les plus modestes décrochent." },
     ] },
   { id: "c_bulle_ia", type: "crise", title: "Crise mondiale : l'éclatement de la bulle de l'IA",
     desc: "Les valorisations des géants de l'intelligence artificielle s'effondrent. Licenciements en cascade, fonds de pension touchés, crédit qui se resserre.",
     contexte: "Quand des valorisations boursières montent beaucoup plus vite que les profits attendus, un retournement peut entraîner des pertes en chaîne : entreprises, épargnants, banques. Ce scénario imagine l'éclatement d'une bulle autour de l'intelligence artificielle.",
     choices: [
-      { nat: "S", label: "Sauver les grands groupes technologiques et soutenir l'emploi", fx: { solde: -1.82, dette: 4.55, croissance: -1.95, chomage: 0.78, popularite: -2.6, integrite: -2.6 }, note: "L'emploi est amorti, mais le sauvetage de géants privés est mal accepté." },
-      { nat: "R", label: "Encadrer la finance et lancer un grand plan de reconversion", fx: { solde: -1.3, dette: 2.6, croissance: -3.64, chomage: 1.82, popularite: 0.65, cohesion: 1.3 }, note: "Un effort de long terme, mais la secousse économique est réelle." },
-      { nat: "L", label: "Laisser la bulle se dégonfler", fx: { solde: -0.39, croissance: -5.2, chomage: 3.25, popularite: -5.2, cohesion: -3.9 }, note: "Les comptes tiennent, mais le chômage bondit." },
+      { nat: "S", label: "Sauver les grands groupes technologiques et soutenir l'emploi", fx: { croissance: -7, solde: -2.2, dette: 5, popularite: -2, integrite: -2 }, note: "L'emploi est amorti, mais le sauvetage de géants privés est mal accepté." },
+      { nat: "R", label: "Encadrer la finance et lancer un grand plan de reconversion", fx: { croissance: -9, solde: -1, dette: 2, popularite: -1, cohesion: 1 }, note: "Un effort de long terme, mais la secousse économique est réelle." },
+      { nat: "L", label: "Laisser la bulle se dégonfler", fx: { croissance: -11, chomage: 1.5, popularite: -7, cohesion: -5 }, note: "Les comptes tiennent, mais le chômage bondit." },
     ] },
   { id: "c_cyber_paiements", type: "crise", title: "Crise mondiale : la panne des paiements",
     desc: "Une cyberattaque mondiale paralyse les systèmes de paiement pendant plusieurs semaines. Distributeurs vides, salaires bloqués, commerces à l'arrêt.",
     contexte: "Les paiements, les salaires et les échanges entre banques reposent sur quelques infrastructures numériques très interconnectées. Une attaque réussie pourrait en bloquer le fonctionnement et geler l'activité. Ce scénario imagine une telle paralysie.",
     choices: [
-      { nat: "S", label: "Rétablir les paiements avec des garanties publiques et une monnaie d'urgence", fx: { solde: -1.09, dette: 2.27, croissance: -2.6, chomage: 0.65, popularite: 1.3, integrite: -1.3 }, note: "Le choc est amorti, mais l'État endosse les pertes." },
-      { nat: "R", label: "Imposer des protocoles de crise et la coopération entre banques", fx: { solde: -0.52, croissance: -3.9, chomage: 1.3, popularite: -1.3, cohesion: -1.3 }, note: "Une sortie de crise plus lente, mais mieux contrôlée." },
-      { nat: "L", label: "Laisser les banques se débrouiller", fx: { solde: -0.13, croissance: -5.2, chomage: 2.5, popularite: -5.5, cohesion: -3.5, integrite: -1.3 }, note: "Aucune dépense publique, mais la confiance est durablement abîmée." },
+      { nat: "S", label: "Rétablir les paiements avec des garanties publiques et une monnaie d'urgence", fx: { croissance: -7, solde: -1.8, dette: 3, popularite: 1, integrite: -1 }, note: "Le choc est amorti, mais l'État endosse les pertes." },
+      { nat: "R", label: "Imposer des protocoles de crise et la coopération entre banques", fx: { croissance: -9, solde: -0.6, popularite: -2, cohesion: -1 }, note: "Une sortie de crise plus lente, mais mieux contrôlée." },
+      { nat: "L", label: "Laisser les banques se débrouiller", fx: { croissance: -11, chomage: 1.5, popularite: -6, cohesion: -4, integrite: -1 }, note: "Aucune dépense publique, mais la confiance est durablement abîmée." },
     ] },
 ];
 // Crise du mandat prolongé : choisie (et datée) par la graine, donc identique pour toute la classe et stable à la reprise d'une partie
