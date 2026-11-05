@@ -178,9 +178,10 @@ function futureCarry(g, endKey) {
    SCÉNARIOS IMAGINÉS — mandat 2032-2037 (prolongement d'« Aujourd'hui »)
    Ce ne sont PAS des prévisions : des situations plausibles, inspirées de tendances actuelles.
    Chaque scénario offre trois réponses de nature différente (nat : S = dépenser, R = réguler, L = laisser faire / économiser) dont
-   les coûts portent sur des dimensions différentes ; la proposition « populaire » change de nature d'un scénario à l'autre,
-   et aucune réponse ne domine les autres. Effets calibrés par simulation : écart de score final entre les trois natures ≈ 1,6 point
-   (une dépense « achète » de la cohésion et coûte peu au budget ; l'économie budgétaire de « laisser faire » est modérée).
+   les coûts portent sur des dimensions différentes ; aucune réponse ne domine les autres.
+   ÉCHELLE alignée sur celle des événements classiques : popularité, cohésion et intégrité de l'ordre de ±3 (médiane 2,5), coûts
+   budgétaires réalistes, environnement et inégalités inchangés, aucun effet nul. Équilibre vérifié par simulation : écart de score
+   final entre les trois natures ≈ 1 point.
    ============================================================ */
 const FUTURE_EVENTS = {
   futur1: [
@@ -188,81 +189,81 @@ const FUTURE_EVENTS = {
       desc: "Les générations nombreuses du baby-boom atteignent 85 ans. Maisons de retraite saturées, aides à domicile introuvables, familles épuisées.",
       contexte: "Les personnes nées pendant le baby-boom (1946-1975) arrivent progressivement au grand âge. Le financement de la perte d'autonomie (hébergement, aide à domicile) est débattu depuis des années ; une branche « autonomie » a été ajoutée à la Sécurité sociale en 2020. Ce scénario imagine le moment où la question devient pressante.",
       choices: [
-        { nat: "S", label: "Grand plan public de financement de la dépendance", fx: { solde: -0.12, soldeDur: -0.05, cohesion: 1, popularite: 0 }, note: "Une réponse solidaire, mais une dépense durable qui pèse sur les comptes." },
-        { nat: "R", label: "Assurance dépendance obligatoire, payée par les ménages", fx: { solde: 0.4, popularite: 0, inegalites: 1, cohesion: -0.5 }, note: "Le coût est reporté sur les ménages : moins de dépense publique, plus d'inégalités." },
-        { nat: "L", label: "S'appuyer sur le maintien à domicile et les aidants familiaux", fx: { solde: 0.25, cohesion: -0.5, popularite: -0.5 }, note: "Peu coûteux à court terme, mais la charge retombe sur les familles." },
+        { nat: "S", label: "Grand plan public de financement de la dépendance", fx: { solde: -0.6, soldeDur: -0.25, cohesion: 2.5 }, note: "Une réponse solidaire, mais une dépense durable qui pèse sur les comptes." },
+        { nat: "R", label: "Assurance dépendance obligatoire, payée par les ménages", fx: { solde: 0.4, inegalites: 1, cohesion: -2.5 }, note: "Le coût est reporté sur les ménages : moins de dépense publique, plus d'inégalités." },
+        { nat: "L", label: "S'appuyer sur le maintien à domicile et les aidants familiaux", fx: { solde: 0.5, cohesion: -2.5, popularite: -2.5 }, note: "Peu coûteux à court terme, mais la charge retombe sur les familles." },
       ] },
     { id: "f32_natalite", an: 1, type: "social", title: "Les naissances reculent",
       desc: "Moins d'enfants chaque année : des classes et des maternités ferment, des maires protestent, les prévisions de retraites se dégradent.",
       contexte: "Le nombre de naissances en France recule depuis plus de dix ans. Moins d'enfants, c'est à terme moins d'élèves, moins de maternités ouvertes et, plus tard, moins d'actifs pour financer les retraites. Ce scénario imagine les arbitrages que cela impose aux territoires.",
       choices: [
-        { nat: "L", label: "Laisser les collectivités gérer les fermetures", fx: { solde: 0.2, popularite: 0.5, cohesion: -0.5, inegalites: 1.5 }, note: "Aucune dépense nouvelle, mais les territoires les plus fragiles décrochent." },
-        { nat: "S", label: "Relancer la politique familiale (crèches, congés parentaux)", fx: { solde: -0.08, soldeDur: -0.03, popularite: 0, cohesion: 1 }, note: "Un effort durable dont les effets sur la natalité restent incertains." },
-        { nat: "R", label: "Regrouper écoles et maternités pour garder la qualité", fx: { solde: 0.3, popularite: 0, cohesion: -1, croissance: 0.05 }, note: "Des services plus efficaces, mais plus éloignés des habitants." },
+        { nat: "L", label: "Laisser les collectivités gérer les fermetures", fx: { solde: 0.4, popularite: 2.5, cohesion: -2.5, inegalites: 1.5 }, note: "Aucune dépense nouvelle, mais les territoires les plus fragiles décrochent." },
+        { nat: "S", label: "Relancer la politique familiale (crèches, congés parentaux)", fx: { solde: -0.4, soldeDur: -0.15, cohesion: 2.5 }, note: "Un effort durable dont les effets sur la natalité restent incertains." },
+        { nat: "R", label: "Regrouper écoles et maternités pour garder la qualité", fx: { solde: 0.3, cohesion: -5, croissance: 0.2 }, note: "Des services plus efficaces, mais plus éloignés des habitants." },
       ] },
     { id: "f33_douanes", an: 2, type: "international", title: "Guerre commerciale",
       desc: "De nouveaux droits de douane frappent les exportations européennes. Les industriels demandent de l'aide, les consommateurs craignent des hausses de prix.",
       contexte: "Un droit de douane est une taxe sur les produits importés, utilisée pour protéger une production nationale ou pour faire pression. Une escalade entre grandes puissances peut frapper les exportateurs européens et renchérir certains produits. Ce scénario imagine une nouvelle montée des tensions commerciales.",
       choices: [
-        { nat: "S", label: "Soutenir massivement les exportateurs (aides, garanties)", fx: { solde: -0.08, popularite: 0, croissance: 0.1, chomage: -0.1, cohesion: 0.5 }, note: "Les emplois sont protégés à court terme, au prix d'une dépense publique supplémentaire." },
-        { nat: "R", label: "Riposter par des droits de douane européens", fx: { inflation: 0.4, croissance: -0.15, popularite: 0.5 }, note: "Un rapport de force qui peut payer, mais qui renchérit les produits importés." },
-        { nat: "L", label: "Négocier et accepter des concessions", fx: { solde: 0.1, croissance: -0.2, popularite: -0.5, chomage: 0.15 }, note: "On évite l'escalade, mais certains secteurs en paient le prix." },
+        { nat: "S", label: "Soutenir massivement les exportateurs (aides, garanties)", fx: { solde: -0.4, croissance: 0.5, chomage: -0.5 }, note: "Les emplois sont protégés à court terme, au prix d'une dépense publique supplémentaire." },
+        { nat: "R", label: "Riposter par des droits de douane européens", fx: { inflation: 1.8, croissance: -0.7, popularite: 2.5 }, note: "Un rapport de force qui peut payer, mais qui renchérit les produits importés." },
+        { nat: "L", label: "Négocier et accepter des concessions", fx: { solde: 0.2, croissance: -0.9, popularite: -2.5, chomage: 0.7 }, note: "On évite l'escalade, mais certains secteurs en paient le prix." },
       ] },
     { id: "f33_metaux", an: 2, type: "crise", title: "Pénurie de métaux critiques",
       desc: "Lithium, cuivre, terres rares : les approvisionnements se tendent. Les industriels de la batterie et des éoliennes tirent la sonnette d'alarme.",
       contexte: "Batteries, éoliennes, puces ou équipements militaires dépendent de métaux extraits et raffinés dans un petit nombre de pays. Une tension sur ces approvisionnements ferait monter les prix et freinerait certaines industries. Ce scénario imagine une pénurie.",
       choices: [
-        { nat: "S", label: "Plan d'investissement dans les mines et le recyclage", fx: { solde: -0.08, environnement: -1, croissance: 0.1, popularite: -0.5, cohesion: 0.5 }, note: "Plus d'autonomie, mais des chantiers contestés et un coût pour l'État." },
-        { nat: "R", label: "Imposer des quotas et la sobriété d'usage", fx: { inflation: 0.3, popularite: -0.5, environnement: 2, croissance: -0.1 }, note: "Moins de dépendance, mais des produits plus chers et des contraintes pour tous." },
-        { nat: "L", label: "Acheter au plus offrant sur le marché mondial", fx: { inflation: 0.5, popularite: 0.5, integrite: -0.5 }, note: "Aucun effort immédiat, mais la dépendance et les prix restent entiers." },
+        { nat: "S", label: "Plan d'investissement dans les mines et le recyclage", fx: { solde: -0.4, environnement: -1, croissance: 0.5, popularite: -2.5 }, note: "Plus d'autonomie, mais des chantiers contestés et un coût pour l'État." },
+        { nat: "R", label: "Imposer des quotas et la sobriété d'usage", fx: { inflation: 1.3, popularite: -2.5, environnement: 2, croissance: -0.5 }, note: "Moins de dépendance, mais des produits plus chers et des contraintes pour tous." },
+        { nat: "L", label: "Acheter au plus offrant sur le marché mondial", fx: { inflation: 2.3, popularite: 2.5, integrite: -2.5 }, note: "Aucun effort immédiat, mais la dépendance et les prix restent entiers." },
       ] },
     { id: "f34_note", an: 3, type: "crise", title: "La France est dégradée par une agence de notation",
       desc: "Une grande agence abaisse la note de la dette française. Les taux d'emprunt montent, les éditorialistes réclament un plan de rigueur.",
       contexte: "Les agences de notation évaluent la capacité d'un État à rembourser sa dette ; une dégradation renchérit en général les emprunts futurs. Les effets exacts sur les taux dépendent du contexte et des marchés. Ce scénario imagine une nouvelle baisse de la note de la France.",
       choices: [
-        { nat: "L", label: "Plan d'économies immédiat sur les dépenses", fx: { solde: 0.35, popularite: -1.5, cohesion: -0.5, croissance: -0.2 }, note: "Le signal est fort pour les marchés, mais la facture sociale est lourde." },
-        { nat: "R", label: "Hausse d'impôts ciblée sur les plus hauts revenus", fx: { solde: 0.3, popularite: 0.5, croissance: -0.25, inegalites: -1 }, note: "Un effort plus équitable, qui peut freiner l'investissement." },
-        { nat: "S", label: "Rassurer et compter sur la croissance pour réduire le déficit", fx: { solde: -0.04, dette: 1.5, popularite: 0.5, integrite: -1, cohesion: 0.5 }, note: "Pas de rigueur, mais la dette et les taux risquent de s'alourdir." },
+        { nat: "L", label: "Plan d'économies immédiat sur les dépenses", fx: { solde: 0.7, popularite: -7.5, cohesion: -2.5, croissance: -0.9 }, note: "Le signal est fort pour les marchés, mais la facture sociale est lourde." },
+        { nat: "R", label: "Hausse d'impôts ciblée sur les plus hauts revenus", fx: { solde: 0.3, popularite: 2.5, croissance: -1.1, inegalites: -1 }, note: "Un effort plus équitable, qui peut freiner l'investissement." },
+        { nat: "S", label: "Rassurer et compter sur la croissance pour réduire le déficit", fx: { solde: -0.2, dette: 1.5, popularite: 2.5, integrite: -5 }, note: "Pas de rigueur, mais la dette et les taux risquent de s'alourdir." },
       ] },
     { id: "f34_littoral", an: 3, type: "climat", title: "La mer grignote le littoral",
       desc: "Des maisons et des routes tombent à la mer. Des maires demandent qui va payer pour déplacer des quartiers entiers.",
       contexte: "Avec le réchauffement, le niveau des mers monte et l'érosion s'accélère sur certaines côtes. Des communes sont déjà identifiées comme exposées à l'érosion du littoral. Ce scénario imagine le moment où il faut décider qui finance leur relocalisation.",
       choices: [
-        { nat: "R", label: "Imposer des règles strictes de recul des constructions", fx: { environnement: 2, popularite: 0, cohesion: -1, solde: 0.1 }, note: "On limite les risques futurs, mais on fige la valeur de biens existants." },
-        { nat: "S", label: "Financer la relocalisation des communes les plus exposées", fx: { solde: -0.1, soldeDur: -0.02, environnement: 1.5, cohesion: 1, popularite: -0.5 }, note: "Une solidarité nationale coûteuse, mais qui évite des drames." },
-        { nat: "L", label: "Protéger par des digues et laisser les assureurs trancher", fx: { solde: -0.3, environnement: -2, popularite: 1, cohesion: 0 }, note: "Des protections visibles, mais des coûts qui reviennent plus tard." },
+        { nat: "R", label: "Imposer des règles strictes de recul des constructions", fx: { environnement: 2, cohesion: -5, solde: 0.1 }, note: "On limite les risques futurs, mais on fige la valeur de biens existants." },
+        { nat: "S", label: "Financer la relocalisation des communes les plus exposées", fx: { solde: -0.5, soldeDur: -0.1, environnement: 1.5, cohesion: 2.5, popularite: -2.5 }, note: "Une solidarité nationale coûteuse, mais qui évite des drames." },
+        { nat: "L", label: "Protéger par des digues et laisser les assureurs trancher", fx: { solde: -0.3, environnement: -2, popularite: 5 }, note: "Des protections visibles, mais des coûts qui reviennent plus tard." },
       ] },
     { id: "f35_defense", an: 4, type: "international", title: "L'effort de défense s'accélère",
       desc: "Les partenaires européens attendent un effort de défense accru. Les armées demandent des moyens, le ministère des Finances des arbitrages.",
       contexte: "En 2025, les pays de l'OTAN se sont engagés à relever fortement leurs dépenses de défense dans la décennie. Pour la France, cela suppose de trouver des moyens supplémentaires ou d'en mutualiser une partie avec ses partenaires européens. Ce scénario imagine l'échéance qui approche.",
       choices: [
-        { nat: "R", label: "Mutualiser les achats avec nos partenaires européens", fx: { solde: -0.2, popularite: 0.5, croissance: 0.05 }, note: "Des économies d'échelle, mais une souveraineté partagée." },
-        { nat: "L", label: "Étaler l'effort et protéger les dépenses sociales", fx: { cohesion: 0.5, popularite: -0.5, integrite: -0.5, croissance: -0.05 }, note: "Le budget social est épargné, mais la crédibilité de la France est entamée." },
-        { nat: "S", label: "Hausse massive et durable du budget de la défense", fx: { solde: -0.12, soldeDur: -0.02, croissance: 0.15, popularite: 0, cohesion: 0.5 }, note: "Un effort réel et visible, financé par la dette ou par d'autres économies." },
+        { nat: "R", label: "Mutualiser les achats avec nos partenaires européens", fx: { solde: -0.2, popularite: 2.5, croissance: 0.2 }, note: "Des économies d'échelle, mais une souveraineté partagée." },
+        { nat: "L", label: "Étaler l'effort et protéger les dépenses sociales", fx: { cohesion: 2.5, popularite: -2.5, integrite: -2.5, croissance: -0.2 }, note: "Le budget social est épargné, mais la crédibilité de la France est entamée." },
+        { nat: "S", label: "Hausse massive et durable du budget de la défense", fx: { solde: -0.6, soldeDur: -0.1, croissance: 0.7 }, note: "Un effort réel et visible, financé par la dette ou par d'autres économies." },
       ] },
     { id: "f35_deepfakes", an: 4, type: "ethique", title: "Fausses vidéos et désinformation",
       desc: "Des vidéos truquées à s'y méprendre circulent massivement. La confiance dans l'information s'effondre, à deux ans d'une présidentielle.",
       contexte: "Les outils d'intelligence artificielle permettent de fabriquer des images, des voix et des vidéos très réalistes, qui peuvent servir à tromper, en particulier en période électorale. Ce scénario imagine une vague de faux contenus à l'approche d'une élection présidentielle.",
       choices: [
-        { nat: "S", label: "Financer l'éducation aux médias et une cellule de vérification", fx: { solde: -0.04, popularite: 0, cohesion: 1, integrite: 0.5 }, note: "Une réponse de long terme, dont l'effet est lent et diffus." },
-        { nat: "R", label: "Imposer la traçabilité et sanctionner les plateformes", fx: { popularite: -0.5, integrite: 1.5, croissance: -0.1, cohesion: 0.5 }, note: "Des règles claires, mais une charge pour les entreprises et un risque d'atteinte à la liberté d'expression." },
-        { nat: "L", label: "Laisser les plateformes s'autoréguler", fx: { popularite: 1.5, integrite: -2.5, cohesion: -0.5 }, note: "Aucune contrainte nouvelle, mais la confiance démocratique s'érode." },
+        { nat: "S", label: "Financer l'éducation aux médias et une cellule de vérification", fx: { solde: -0.2, cohesion: 2.5, integrite: 2.5 }, note: "Une réponse de long terme, dont l'effet est lent et diffus." },
+        { nat: "R", label: "Imposer la traçabilité et sanctionner les plateformes", fx: { popularite: -2.5, integrite: 7.5, croissance: -0.5, cohesion: 2.5 }, note: "Des règles claires, mais une charge pour les entreprises et un risque d'atteinte à la liberté d'expression." },
+        { nat: "L", label: "Laisser les plateformes s'autoréguler", fx: { popularite: 7.5, integrite: -12.5, cohesion: -2.5 }, note: "Aucune contrainte nouvelle, mais la confiance démocratique s'érode." },
       ] },
     { id: "f36_logement", an: 5, type: "climat", title: "Passoires thermiques : l'échéance approche",
       desc: "Le calendrier de rénovation des logements énergivores arrive à échéance. Propriétaires, locataires et artisans demandent des clarifications.",
       contexte: "Une partie du parc de logements est très énergivore (les « passoires thermiques »). La loi prévoit déjà un calendrier progressif qui restreint la location des logements les moins performants. Ce scénario imagine un durcissement ou un report à l'approche d'une échéance.",
       choices: [
-        { nat: "L", label: "Reporter les échéances", fx: { environnement: -2.5, popularite: 0.5, solde: 0.1, inegalites: -0.5 }, note: "Les propriétaires respirent, mais la facture énergétique et climatique reste." },
-        { nat: "S", label: "Grand plan de rénovation fortement subventionné", fx: { solde: -0.1, soldeDur: -0.03, environnement: 2, popularite: 0.5, croissance: 0.1, cohesion: 0.5 }, note: "Les ménages sont aidés et le climat y gagne, mais la dépense publique est lourde." },
-        { nat: "R", label: "Maintenir le calendrier d'obligations", fx: { environnement: 2, popularite: -1, inegalites: 1.5, cohesion: -0.5 }, note: "Un cap clair pour le climat, mais des ménages modestes en difficulté." },
+        { nat: "L", label: "Reporter les échéances", fx: { environnement: -2.5, popularite: 2.5, solde: 0.2, inegalites: -0.5 }, note: "Les propriétaires respirent, mais la facture énergétique et climatique reste." },
+        { nat: "S", label: "Grand plan de rénovation fortement subventionné", fx: { solde: -0.5, soldeDur: -0.15, environnement: 2, popularite: 2.5, croissance: 0.5 }, note: "Les ménages sont aidés et le climat y gagne, mais la dépense publique est lourde." },
+        { nat: "R", label: "Maintenir le calendrier d'obligations", fx: { environnement: 2, popularite: -5, inegalites: 1.5, cohesion: -2.5 }, note: "Un cap clair pour le climat, mais des ménages modestes en difficulté." },
       ] },
     { id: "f36_medecins", an: 5, type: "sante", title: "Déserts médicaux : la situation s'aggrave",
       desc: "Dans de nombreux territoires, trouver un médecin devient un parcours du combattant. Urgences saturées, élus mobilisés.",
       contexte: "Plusieurs millions de Français n'ont déjà plus de médecin traitant et certains territoires manquent de praticiens. Les pistes en débat vont de l'incitation à l'installation à l'encadrement, en passant par la délégation de tâches. Ce scénario imagine l'aggravation de la situation.",
       choices: [
-        { nat: "R", label: "Encadrer l'installation des médecins", fx: { popularite: 0, cohesion: 0.5, croissance: -0.05 }, note: "Une répartition plus équilibrée, mais une mesure mal acceptée par la profession." },
-        { nat: "L", label: "Déléguer davantage aux infirmiers et à la télémédecine", fx: { solde: 0.15, popularite: -0.5, cohesion: -1, inegalites: 1 }, note: "Une solution peu coûteuse, mais la qualité des soins reste inégale selon les territoires." },
-        { nat: "S", label: "Embaucher des médecins salariés et ouvrir des centres de santé", fx: { solde: -0.1, soldeDur: -0.04, cohesion: 1.5, popularite: 0.5 }, note: "Une offre de soins réelle, mais une dépense durable et des recrutements difficiles." },
+        { nat: "R", label: "Encadrer l'installation des médecins", fx: { cohesion: 2.5, croissance: -0.2 }, note: "Une répartition plus équilibrée, mais une mesure mal acceptée par la profession." },
+        { nat: "L", label: "Déléguer davantage aux infirmiers et à la télémédecine", fx: { solde: 0.3, popularite: -2.5, cohesion: -5, inegalites: 1 }, note: "Une solution peu coûteuse, mais la qualité des soins reste inégale selon les territoires." },
+        { nat: "S", label: "Embaucher des médecins salariés et ouvrir des centres de santé", fx: { solde: -0.5, soldeDur: -0.2, cohesion: 5, popularite: 2.5 }, note: "Une offre de soins réelle, mais une dépense durable et des recrutements difficiles." },
       ] },
   ],
 };
@@ -1484,6 +1485,11 @@ function conseillerDetaille(before, after, flags, ctx) {
   const { year, levels = {}, prevLevels = {}, decisions = [], taux, tauxPrev, marche, marchePrev, chargeMd, chargePct, chargePctPrev } = ctx;
   const pedago = year === 1;
   const S = [];
+  // Pastille « avant → après » : ton = bon (ok) / mauvais (ko) / neutre (nt) selon le sens souhaitable ; flèche = sens réel (lisible sans couleur)
+  const chip = (k, a, b, dec, unit, good, eps = 0.05) => {
+    const d = b - a, flat = Math.abs(d) < eps;
+    return { k, v: `${fmt(a, dec)} → ${fmt(b, dec)}${unit}`, tone: flat ? "nt" : ((good === "down" ? d < 0 : d > 0) ? "ok" : "ko"), dir: flat ? "=" : d > 0 ? "▲" : "▼" };
+  };
 
   // 1. Vos décisions
   const changes = LEVERS.map((l) => ({ l, d: (levels[l.id] || 0) - (prevLevels[l.id] || 0) }))
@@ -1498,7 +1504,11 @@ function conseillerDetaille(before, after, flags, ctx) {
     dec = `Cette année, vous avez ${parts.join(", ")}${changes.length > 3 ? `, et ${changes.length - 3} autre(s) changement(s)` : ""}.`;
   }
   if (decisions.length) dec += ` Face aux imprévus, vous avez choisi : ${decisions.map((x) => `« ${x.choice} » (${x.event.toLowerCase()})`).join(" ; ")}.`;
-  S.push({ icon: "list-check", color: C.gold, t: "Ce que vous avez décidé", c: dec });
+  const decChips = changes.length
+    ? [...changes.slice(0, 3).map((c) => ({ k: shortLabel(c.l), v: `${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} Md€`, tone: "nt", dir: c.eur > 0 ? "▲" : "▼" })),
+       ...(changes.length > 3 ? [{ k: "", v: `+${changes.length - 3} autre${changes.length - 3 > 1 ? "s" : ""}`, tone: "nt" }] : [])]
+    : [{ k: "Budget", v: "reconduit à l'identique", tone: "nt" }];
+  S.push({ icon: "list-check", color: C.gold, t: "Ce que vous avez décidé", c: dec, chips: decChips, list: decisions.map((x) => ({ ev: x.event, choice: x.choice })) });
 
   // 2. Vos comptes publics — chaque composante est exprimée en évolution (points de PIB),
   // afin que la somme colle toujours à la variation réelle du solde (avant -> après).
@@ -1534,7 +1544,15 @@ function conseillerDetaille(before, after, flags, ctx) {
     cpt += ` Le taux moyen de votre dette passe de ${fmt(tauxPrev, 2)} % à ${fmt(taux, 2)} % : chaque année, de vieux emprunts à taux bas arrivent à échéance et doivent être remplacés par de nouveaux, plus chers. C'est pour cela que la charge de la dette augmente, même sans nouvelle erreur de gestion.`;
     if (pedago && CURRENT_ERA.id === "today") cpt += ` Aujourd'hui, la France emprunte autour de 4,9 % sur 10 ans, alors qu'une partie de sa dette a été empruntée à 0-1 % il y a quelques années.`;
   }
-  S.push({ icon: "wallet", color: C.coral, t: "Vos comptes publics", c: cpt });
+  const dSol = after.solde - before.solde, detDown = after.dette < before.dette - 0.3, detUp = after.dette > before.dette + 0.3;
+  const solTxt = after.solde >= 0 ? "Vos comptes sont à l'équilibre ou excédentaires" : dSol > 0.15 ? "Le déficit se réduit" : dSol < -0.15 ? "Le déficit se creuse" : "Le déficit est stable";
+  const conj = (dSol < -0.15 && detDown) || (dSol > 0.15 && detUp) ? "mais" : "et";
+  const cptVerdict = `${solTxt}, ${conj} ${detDown ? "la dette recule" : detUp ? "la dette augmente" : "la dette est stable"}${detDown && after.solde < 0 ? " : la croissance la dilue" : ""}.`;
+  const cptChips = [chip("Solde", before.solde, after.solde, 1, " % du PIB", "up", 0.15), chip("Dette", before.dette, after.dette, 0, " %", "down", 0.3)];
+  if (marche != null && marchePrev != null) cptChips.push(chip("Nouveaux emprunts", marchePrev, marche, 1, " %", "down", 0.1));
+  if (taux != null && tauxPrev != null) { const tc = chip("Taux moyen", tauxPrev, taux, 2, " %", "down", 0.05); if (taux > tauxPrev + 0.05) tc.tone = "mid"; cptChips.push(tc); }
+  S.push({ icon: "wallet", color: C.coral, t: "Vos comptes publics", c: cpt, verdict: cptVerdict, chips: cptChips,
+    bars: [{ k: "Vos décisions", v: dBudget }, { k: "Imprévus", v: dEvents }, { k: "Intérêts de la dette", v: dCharge }, { k: "Ajustement automatique", v: residu }], total: dTotal });
 
   // Le front de l'inflation (époques où elle est au cœur de la bataille économique)
   if (CURRENT_ERA.inflation >= 4 || (before.inflation ?? 0) >= 4 || (after.inflation ?? 0) >= 4) {
@@ -1542,7 +1560,7 @@ function conseillerDetaille(before, after, flags, ctx) {
     let inf = `L'inflation passe de ${fmt(bi, 1)} % à ${fmt(ai, 1)} %. `;
     inf += ai < bi - 0.3 ? "Les prix ralentissent : bonne nouvelle pour le pouvoir d'achat, et les taux d'intérêt pourront baisser. " : ai > bi + 0.3 ? "Les prix s'emballent : les salaires et l'épargne perdent de leur valeur, et les taux d'intérêt restent élevés. " : "L'inflation est stable. ";
     if (pedago || year <= 2) inf += "C'est le cœur de la bataille économique de l'époque : quand les prix montent de 10 % par an, un salaire qui ne suit pas perd 10 % de pouvoir d'achat. Pour faire baisser l'inflation, on peut freiner la demande (rigueur), contenir les prix et les salaires, ou défendre la monnaie, au risque d'augmenter le chômage à court terme.";
-    S.push({ icon: "flame", color: "var(--c-ethique)", t: "Le front de l'inflation", c: inf });
+    S.push({ icon: "flame", color: "var(--c-ethique)", t: "Le front de l'inflation", c: inf, verdict: ai < bi - 0.3 ? "Les prix ralentissent." : ai > bi + 0.3 ? "Les prix s'emballent." : "L'inflation est stable.", chips: [chip("Inflation", bi, ai, 1, " %", "down", 0.3)] });
   }
 
   // 3. Croissance et emploi
@@ -1554,7 +1572,9 @@ function conseillerDetaille(before, after, flags, ctx) {
   if (changes.some((c) => ["invest", "education"].includes(c.l.id) && c.d > 0)) emp += `Vos investissements (éducation, recherche, infrastructures) préparent l'avenir : leur effet sur la croissance grandira les années suivantes. `;
   if (changes.some((c) => c.l.id === "cotpat" && c.d > 0)) emp += `La hausse des cotisations patronales rend l'embauche plus chère : les entreprises recrutent moins. `;
   if (pedago) emp += `À retenir : quand l'activité accélère, les entreprises embauchent et le chômage baisse ; quand elle ralentit, il monte (c'est la loi d'Okun).`;
-  S.push({ icon: "trending-up", color: C.mint, t: "Croissance et emploi", c: emp.trim() });
+  S.push({ icon: "trending-up", color: C.mint, t: "Croissance et emploi", c: emp.trim(),
+    verdict: impulse > 3 ? "Votre budget a soutenu l'activité, au prix d'un déficit plus lourd." : impulse < -3 ? "Votre budget a freiné l'activité : c'est le prix à payer, à court terme, pour réduire le déficit." : "Votre budget est resté neutre pour l'activité.",
+    chips: [{ k: "Croissance", v: `${fmt(after.croissance, 1)} %`, tone: after.croissance >= 1.5 ? "ok" : after.croissance < 0.5 ? "ko" : "mid", dir: before.croissance != null && Math.abs(after.croissance - before.croissance) >= 0.1 ? (after.croissance > before.croissance ? "▲" : "▼") : undefined }, chip("Chômage", before.chomage, after.chomage, 1, " %", "down", 0.1)] });
 
   // 4. Société et opinion
   let soc = "";
@@ -1574,7 +1594,13 @@ function conseillerDetaille(before, after, flags, ctx) {
   const dP = after.popularite - before.popularite;
   soc += dP <= -1 ? `Votre popularité baisse (${fmt(before.popularite, 0)} → ${fmt(after.popularite, 0)}) : les hausses d'impôts et les économies sont impopulaires, même quand elles sont nécessaires.` : dP >= 1 ? `Votre popularité progresse (${fmt(before.popularite, 0)} → ${fmt(after.popularite, 0)}).` : `Votre popularité est stable (${fmt(after.popularite, 0)}).`;
   if (pedago) soc += ` Sachez aussi que le pouvoir « s'use » : la popularité baisse un peu chaque année, quoi qu'on fasse.`;
-  S.push({ icon: "users-group", color: "var(--c-sante)", t: "Société et opinion", c: soc });
+  const frag = [];
+  if (dI <= -1) frag.push("inégalités en recul"); else if (dI >= 1) frag.push("inégalités en hausse");
+  if (dC >= 2) frag.push("société plus unie"); else if (dC <= -2) frag.push("société plus tendue");
+  if (dP >= 1) frag.push("popularité en hausse"); else if (dP <= -1) frag.push("popularité en baisse");
+  S.push({ icon: "users-group", color: "var(--c-sante)", t: "Société et opinion", c: soc,
+    verdict: frag.length ? frag.slice(0, 2).join(", ").replace(/^./, (m) => m.toUpperCase()) + "." : "Peu de changement dans la société et l'opinion.",
+    chips: [chip("Égalité", 100 - (before.inegalites ?? 45), 100 - (after.inegalites ?? 45), 0, "", "up", 1), chip("Cohésion", before.cohesion, after.cohesion, 0, "", "up", 2), chip("Popularité", before.popularite, after.popularite, 0, "", "up", 1)] });
 
   // 5. Conseil pour l'an prochain
   const tips = [];
@@ -1586,7 +1612,7 @@ function conseillerDetaille(before, after, flags, ctx) {
   if (marche != null && marche > 5.2) tips.push("Surveillez le taux de vos nouveaux emprunts : s'il continue de monter, les intérêts mangeront une part croissante de votre budget.");
   else if (after.solde < -3) tips.push("Rappelez-vous : chaque année, votre dette se refinance plus cher. Plus le déficit est réduit tôt, moins la charge d'intérêts s'envolera.");
   if (!tips.length) tips.push("Votre situation est équilibrée : gardez le cap, et restez attentif aux imprévus.");
-  S.push({ icon: "bulb", color: C.gold, t: "Mon conseil pour l'an prochain", c: tips.slice(0, 2).join(" ") });
+  S.push({ icon: "bulb", color: C.gold, t: "Mon conseil pour l'an prochain", c: tips.slice(0, 2).join(" "), tip: true });
 
   return S;
 }
@@ -2949,7 +2975,7 @@ function EventScreen({ event, index, total, onChoose }) {
   );
 }
 function ChoiceRow({ choice, num, onClick }) {
-  const fxChips = Object.entries(choice.fx).map(([k, v]) => {
+  const fxChips = Object.entries(choice.fx).filter(([, v]) => Math.abs(v) >= 0.05).map(([k, v]) => {   // un effet nul ou quasi nul (« 0,0 », « −0,0 ») n'est pas affiché
     const m = k === "soldeDur" ? { label: "Solde (chaque année)" } : IND_META.find((x) => x.id === k); if (!m) return null;
     const vv = k === "inegalites" ? -v : v; // l'indicateur affiché est l'ÉGALITÉ : sens inversé
     const good = ["chomage", "dette", "inflation"].includes(k) ? vv < 0 : vv > 0;
@@ -3128,13 +3154,81 @@ function EvolutionCharts({ history }) {
   );
 }
 
+/* ---------- Bilan du conseiller : version « essentiel » (verdict + chiffres clés), explication repliée ---------- */
+// Décomposition du solde en petites barres : la somme des barres égale exactement la variation du solde
+function SoldeBars({ bars, total }) {
+  const rows = (bars || []).filter((b) => Number.isFinite(b.v) && Math.abs(b.v) >= 0.05);
+  if (!rows.length) return null;
+  const mx = Math.max(0.5, ...rows.map((b) => Math.abs(b.v)));
+  const sg = (v) => (v > 0.0499 ? "+" : v < -0.0499 ? "−" : "") + fmt(Math.abs(v), 1);
+  const colOf = (v) => (v > 0 ? C.mint : C.coral);
+  const grid = { display: "grid", gridTemplateColumns: "minmax(0, 38%) minmax(0, 1fr) 46px", alignItems: "center", gap: 8, fontSize: 12.5 };
+  return (
+    <div data-solde-bars="1" style={{ marginTop: 12 }}>
+      <div style={{ color: C.dim, fontSize: 12, marginBottom: 4 }}>Pourquoi le solde a bougé (en points de PIB)</div>
+      {rows.map((b) => (
+        <div key={b.k} data-bar={b.k} style={{ ...grid, margin: "5px 0" }}>
+          <span style={{ color: C.sub, lineHeight: 1.25 }}>{b.k}</span>
+          <div aria-hidden="true" style={{ position: "relative", height: 10, background: al(C.dim, "26"), borderRadius: 4 }}>
+            <i style={{ position: "absolute", left: "50%", top: -2, bottom: -2, width: 1, background: C.line }} />
+            <i style={{ position: "absolute", top: 0, height: 10, borderRadius: 2, background: colOf(b.v), [b.v > 0 ? "left" : "right"]: "50%", width: `${Math.max(2, (Math.abs(b.v) / mx) * 46)}%`, transition: "width .3s" }} />
+          </div>
+          <b style={{ textAlign: "right", fontFamily: "monospace", fontWeight: 600, color: colOf(b.v) }}>{sg(b.v)}</b>
+        </div>
+      ))}
+      {Number.isFinite(total) && (
+        <div data-bar-total="1" style={{ ...grid, marginTop: 6, paddingTop: 6, borderTop: `1px solid ${C.line}` }}>
+          <span style={{ color: C.ink, fontWeight: 600 }}>Variation du solde</span><span />
+          <b style={{ textAlign: "right", fontFamily: "monospace", fontWeight: 600, color: total >= 0 ? C.mint : C.coral }}>{sg(total)}</b>
+        </div>
+      )}
+    </div>
+  );
+}
+function ConseilBlock({ sec, showSquares, onSquares }) {
+  const [open, setOpen] = useState(false);
+  const toneC = { ok: C.mint, ko: C.coral, mid: C.gold, nt: C.ink };
+  return (
+    <div data-conseil-block={sec.t} style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, color: sec.color, fontSize: 13, fontWeight: 600 }}><Icon n={sec.icon} size={15} /> {sec.t}</div>
+      {sec.verdict && <div data-verdict="1" style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.5, margin: "6px 0 8px" }}>{sec.verdict}</div>}
+      {sec.chips && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: sec.verdict ? 0 : 8 }}>
+          {sec.chips.map((c, i) => {
+            const nt = !c.tone || c.tone === "nt", col = toneC[c.tone] || C.ink;
+            return (
+              <span key={i} data-chip={c.tone || "nt"} style={{ display: "inline-flex", alignItems: "baseline", gap: 5, fontSize: 12.5, padding: "4px 9px", borderRadius: 8, background: nt ? C.card : al(col, "22"), border: `1px solid ${nt ? C.line : al(col, "55")}` }}>
+                {c.k && <span style={{ color: C.dim }}>{c.k}</span>}
+                <b style={{ fontWeight: 600, color: nt ? C.ink : col }}>{c.dir && c.dir !== "=" ? c.dir + " " : ""}{c.v}</b>
+              </span>
+            );
+          })}
+        </div>
+      )}
+      {sec.list && sec.list.length > 0 && (
+        <div data-decisions-list="1" style={{ color: C.sub, fontSize: 12.5, lineHeight: 1.45, marginTop: 10, display: "grid", gap: 4 }}>
+          {sec.list.map((x, i) => <span key={i}><Icon n="arrow-right" size={12} /> {x.ev} : « {x.choice} »</span>)}
+        </div>
+      )}
+      {sec.bars && <SoldeBars bars={sec.bars} total={sec.total} />}
+      {showSquares && (
+        <div><button onClick={() => onSquares("sources", "emprunt")} data-link-squares="1" style={{ marginTop: 8, background: "none", border: "none", padding: "8px 0", minHeight: 40, color: C.gold, fontSize: 12.5, fontWeight: 600, cursor: "pointer", textDecoration: "underline", touchAction: "manipulation", textAlign: "left" }}>Voir ce déficit pour 1 000 € dépensés →</button></div>
+      )}
+      <button onClick={() => setOpen(!open)} aria-expanded={open} data-explain-toggle="1" style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: showSquares ? 0 : 8, background: "none", border: "none", padding: "6px 0", minHeight: 32, color: C.dim, fontSize: 12.5, cursor: "pointer", touchAction: "manipulation" }}>
+        <Icon n={open ? "chevron-up" : "chevron-down"} size={14} /> Comprendre ces chiffres
+      </button>
+      <Collapse open={open}><div style={{ color: C.sub, fontSize: 13, lineHeight: 1.6, marginTop: 2 }}>{sec.c}</div></Collapse>
+    </div>
+  );
+}
+
 /* ---------- Bilan d'année + Conseiller ---------- */
 function YearSummary({ year, indBefore, ind, flags, onNext, onTable, onSquares, history, ctx = {} }) {
   const isMobile = useIsMobile();
-  const [openSec, setOpenSec] = useState(0); // sur mobile : seule une section est dépliée à la fois (la 1re par défaut)
   const bilan = useMemo(() => conseiller(indBefore, ind, flags), [indBefore, ind, flags]);
   const sections = useMemo(() => conseillerDetaille(indBefore, ind, flags, { ...ctx, year }), [indBefore, ind, flags, ctx, year]);
   const wins = useMemo(() => victoires(indBefore, ind), [indBefore, ind]);
+  const tip = sections.find((x) => x.tip), blocks = sections.filter((x) => !x.tip);   // le conseil passe en bandeau, en tête
   return (
     <div>
       <ScreenTitle icon="clipboard-check" title={`Bilan ${BASE_YEAR + year}`} sub="Ce que vos décisions ont changé cette année" />
@@ -3158,29 +3252,13 @@ function YearSummary({ year, indBefore, ind, flags, onNext, onTable, onSquares, 
           <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.goldFill, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-check" size={18} color="var(--on-accent)" /></div>
           <div><div style={{ color: C.ink, fontSize: 13.5, fontWeight: 500 }}>Le mot de votre conseiller</div><div style={{ color: C.dim, fontSize: 11 }}>Bilan de l'année {BASE_YEAR + year}</div></div>
         </div>
-        <div style={{ display: "grid", gap: 12 }}>
-          {sections.map((sec, i) => {
-            const folded = isMobile && openSec !== i;
-            return (
-            <div key={i} style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px" }}>
-              {isMobile ? (
-                <button onClick={() => setOpenSec(folded ? i : -1)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, padding: 0, minHeight: 32, touchAction: "manipulation" }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6, color: sec.color, fontSize: 13, fontWeight: 600 }}><Icon n={sec.icon} size={15} /> {sec.t}</span>
-                  <Icon n={folded ? "chevron-down" : "chevron-up"} size={16} color={C.dim} />
-                </button>
-              ) : (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, color: sec.color, fontSize: 13, fontWeight: 600, marginBottom: 4 }}><Icon n={sec.icon} size={15} /> {sec.t}</div>
-              )}
-              <Collapse open={!folded}>
-                <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.6, marginTop: isMobile ? 7 : 0 }}>
-                  {sec.c}
-                  {sec.t === "Vos comptes publics" && history && history.length > 0 && (
-                    <div><button onClick={() => onSquares("sources", "emprunt")} data-link-squares="1" style={{ marginTop: 8, background: "none", border: "none", padding: "8px 0", minHeight: 40, color: C.gold, fontSize: 12.5, fontWeight: 600, cursor: "pointer", textDecoration: "underline", touchAction: "manipulation", textAlign: "left" }}>Voir ce déficit pour 1 000 € dépensés →</button></div>
-                  )}
-                </div>
-              </Collapse>
-            </div>
-            ); })}
+        {tip && (
+          <div data-conseil-tip="1" style={{ margin: "0 0 12px", padding: "10px 12px", borderRadius: 10, background: al(C.gold, "1F"), border: `1px solid ${al(C.gold, "66")}`, display: "flex", gap: 8, alignItems: "flex-start", color: C.ink, fontSize: 13.5, lineHeight: 1.5 }}>
+            <Icon n="bulb" size={18} color={C.gold} /><span><b style={{ fontWeight: 600 }}>Conseil pour l'an prochain :</b> {tip.c}</span>
+          </div>
+        )}
+        <div style={{ display: "grid", gap: 10 }}>
+          {blocks.map((sec) => <ConseilBlock key={sec.t} sec={sec} showSquares={sec.t === "Vos comptes publics" && !!history && history.length > 0} onSquares={onSquares} />)}
           {bilan.alerte.map((a, i) => <BilanLine key={i} icon="alert-triangle" color={C.coral} label="Alerte" text={a} />)}
         </div>
       </div>
@@ -3551,7 +3629,7 @@ export default function App() {
   function start(code, team, doctrineId, eraId = "today", chain = null) {
     applyEra(eraId, chain ? chain.override : null);
     const g = { code, team, doctrineId, eraId, year: 1, ind: { ...START }, levels: chain && chain.levels ? { ...chain.levels } : {}, taux: TAUX0, tauxMarche: MARCHE0, history: [], usedIds: chain && chain.usedIds ? [...chain.usedIds] : [], pendingFlags: [], ...(chain ? { chain: { n: chain.n, from: chain.from, key: chain.key, override: chain.override, gaps: chain.gaps, futur: !!chain.futur, fromDebut: chain.fromDebut } } : {}) };
-    setGame(g); setWorkLevels({}); setScreen("mission"); persist(g);
+    setGame(g); setWorkLevels({ ...(g.levels || {}) }); setScreen("mission"); persist(g);   // mandat prolongé : on repart des leviers repris (TVA à 25 %, etc.), pas de zéro
   }
   // --- Année conseil (guidée, ne compte pas) ---
   function startConseil(code, team, doctrineId, eraId = "today") {
