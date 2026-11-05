@@ -85,7 +85,7 @@ const START_TODAY = { ...START };
 // Contexte d'époque (modifié par applyEra au lancement d'une partie)
 let CURRENT_ERA = ERAS[ERAS.length - 1];
 let BASE_YEAR = 2026, ECH = 1, DETTE0 = 116, CHOM0 = 7.5, INFL0 = 1.3, INFL_TREND = 1.3, GROWTH_POT = 1.0;
-let ERA_RATES = {}, DISABLED = [], ERA_ZERO = [], INFL_LINK = 0.7, MARCHE_DRIFT = 0, CUR_Y = 1, CHAIN_MODE = false;
+let ERA_RATES = {}, DISABLED = [], ERA_ZERO = [], INFL_LINK = 0.7, MARCHE_DRIFT = 0, CUR_Y = 1, CHAIN_MODE = false, INFL_REF = 0;
 const eraById = (id) => ERAS.find((e) => e.id === id) || ERAS[ERAS.length - 1];
 const eraLabel = (e) => e.id === "today" ? `Aujourd'hui · ${e.debut}-${e.debut + e.duree}` : `Mandat de ${e.president} · ${e.debut}-${e.debut + e.duree}`;
 function applyEra(id, override = null) {
@@ -97,7 +97,9 @@ function applyEra(id, override = null) {
   PRIMARY_BASE = +(e.solde + e.moyen * e.dette / 100).toFixed(2);
   TAUX_BASE = e.marche - TAUX_KDETTE * Math.max(0, e.dette - 100) - TAUX_KDEF * Math.max(0, -PRIMARY_BASE - 2);
   TAUX_MIN = Math.max(0, Math.min(2.5, e.marche - 1)); TAUX_MAX = Math.max(9, e.marche + 6);
-  START = { ...START_TODAY, solde: e.solde, dette: e.dette, chomage: e.chomage, croissance: e.croissance, inflation: e.inflation, cohesion: e.cohesion ?? 55, inegalites: e.inegalites ?? 45, environnement: e.environnement ?? 50, integrite: e.integrite ?? START_TODAY.integrite, popularite: e.popularite ?? START_TODAY.popularite };
+  INFL_REF = e.inflation;                                       // référence d'inflation du lien taux/inflation (≠ « départ » affiché si prolongement)
+  if (e.fixed) { PRIMARY_BASE = e.fixed.primaryBase; TAUX_BASE = e.fixed.tauxBase; TAUX_MIN = e.fixed.tauxMin; TAUX_MAX = e.fixed.tauxMax; INFL_REF = e.fixed.inflRef; }   // prolongement : EXACTEMENT la même dynamique
+  START = { ...START_TODAY, solde: e.solde, dette: e.dette, chomage: e.chomage, croissance: e.croissance, inflation: e.inflation, cohesion: e.cohesion ?? 55, inegalites: e.inegalites ?? 45, environnement: e.environnement ?? 50, integrite: e.integrite ?? START_TODAY.integrite, popularite: e.popularite ?? START_TODAY.popularite, ...(e.ecart != null ? { ecart: e.ecart } : {}), ...(e.soldeDur != null ? { soldeDur: e.soldeDur } : {}) };
   return e;
 }
 
@@ -108,7 +110,7 @@ function applyEra(id, override = null) {
    Un bon (ou mauvais) bilan se transmet pour moitié ; la réalité historique reprend la main sur le reste, ce qui garde
    les calibrages de chaque époque (taux, inflation, leviers disponibles) cohérents.
    ============================================================ */
-const CHAIN_NEXT = { giscard: "mitterrand1" };   // prototype : 1974 → 1981 uniquement
+const CHAIN_NEXT = { giscard: "mitterrand1", today: "futur1" };   // 1974 → 1981 (histoire revisitée) ; Aujourd'hui → 2032-2037 (scénarios imaginés)
 const CHAIN_PERSISTENCE = 0.5;                    // part de l'écart à l'Histoire transmise (0 = on repart de l'Histoire, 1 = état brut)
 // Bornes de sécurité : un héritage ne doit jamais provoquer une fin de partie immédiate (voir ending())
 const CHAIN_FIELDS = [["solde", -8, 6], ["dette", 0, 140], ["chomage", 2, 18], ["inflation", -1, 20], ["cohesion", 35, 90], ["inegalites", 15, 80], ["environnement", 10, 90], ["integrite", 40, 95], ["moyen", 0.5, 15], ["marche", 0.5, 18]];
@@ -131,6 +133,188 @@ function chainCarry(ind, rates, nextId, endKey, p = CHAIN_PERSISTENCE) {
   }
   override.popularite = START_TODAY.popularite + (endKey === "triomphe" ? 6 : 0);   // état de grâce : plus net après un triomphe
   return { override, gaps };
+}
+
+/* ============================================================
+   PROLONGEMENT DANS LE FUTUR (« Aujourd'hui » → 2032-2037)
+   Contrairement aux mandats historiques, il n'y a pas d'« Histoire » vers laquelle revenir : le pays est repris TEL QUE VOUS
+   L'AVEZ LAISSÉ. On garde exactement la même dynamique (base primaire, taux de base, référence d'inflation), on reprend les
+   états cachés (écart de production, mesures durables) et les leviers (donc l'effet d'offre de l'investissement). Seuls
+   le score (dette et chômage « de départ ») et la popularité (nouvel état de grâce) repartent à zéro.
+   ============================================================ */
+const FUTURE_ERAS = { futur1: { duree: 5 } };
+const nextEraInfo = (id) => (FUTURE_ERAS[id] ? { debut: CURRENT_ERA.debut + CURRENT_ERA.duree, duree: FUTURE_ERAS[id].duree, futur: true } : eraById(id));
+function futureCarry(g, endKey) {
+  const num = (v, d) => (Number.isFinite(v) ? v : d);
+  const ind = g.ind || {};
+  const hist = { solde: START.solde, dette: START.dette, chomage: START.chomage, inflation: START.inflation, cohesion: START.cohesion, inegalites: START.inegalites, environnement: START.environnement, integrite: START.integrite, moyen: TAUX0, marche: MARCHE0 };
+  const mine = { solde: ind.solde, dette: ind.dette, chomage: ind.chomage, inflation: ind.inflation, cohesion: ind.cohesion, inegalites: ind.inegalites, environnement: ind.environnement, integrite: ind.integrite, moyen: g.taux, marche: g.tauxMarche };
+  const override = {}, gaps = [];
+  for (const [k, lo, hi] of CHAIN_FIELDS) {
+    const m = num(mine[k], hist[k]);
+    override[k] = clamp(m, lo, hi);                          // mêmes bornes de sécurité que l'héritage historique, mais SANS atténuation ni arrondi (prolongement exact)
+    gaps.push({ k, hist: hist[k], mine: m, start: override[k] });
+  }
+  const last = (g.history || [])[(g.history || []).length - 1];
+  const nextId = CHAIN_NEXT[g.eraId] || "futur1";
+  Object.assign(override, {
+    debut: CURRENT_ERA.debut + CURRENT_ERA.duree, duree: FUTURE_ERAS[nextId].duree, futur: nextId,
+    pib: Math.round(num(last && last.pib, ECH * 3000)),        // PIB de la dernière année : le nouveau mandat part de là
+    popularite: START_TODAY.popularite + (endKey === "triomphe" ? 6 : 0),
+    ecart: num(ind.ecart, 0), soldeDur: num(ind.soldeDur, 0),
+    fixed: { primaryBase: PRIMARY_BASE, tauxBase: TAUX_BASE, inflRef: INFL_REF, tauxMin: TAUX_MIN, tauxMax: TAUX_MAX },
+  });
+  return { override, gaps, levels: { ...(g.levels || {}) }, usedIds: [...(g.usedIds || [])], futur: true, fromDebut: CURRENT_ERA.debut };
+}
+
+/* ============================================================
+   SCÉNARIOS IMAGINÉS — mandat 2032-2037 (prolongement d'« Aujourd'hui »)
+   Ce ne sont PAS des prévisions : des situations plausibles, inspirées de tendances actuelles.
+   Chaque scénario offre trois réponses de nature différente (nat : S = dépenser, R = réguler, L = laisser faire / économiser) dont
+   les coûts portent sur des dimensions différentes ; la proposition « populaire » change de nature d'un scénario à l'autre,
+   et aucune réponse ne domine les autres. Effets calibrés par simulation : écart de score final entre les trois natures ≈ 1,6 point
+   (une dépense « achète » de la cohésion et coûte peu au budget ; l'économie budgétaire de « laisser faire » est modérée).
+   ============================================================ */
+const FUTURE_EVENTS = {
+  futur1: [
+    { id: "f32_grand_age", an: 1, type: "social", title: "Le grand âge devient une urgence",
+      desc: "Les générations nombreuses du baby-boom atteignent 85 ans. Maisons de retraite saturées, aides à domicile introuvables, familles épuisées.",
+      contexte: "Les personnes nées pendant le baby-boom (1946-1975) arrivent progressivement au grand âge. Le financement de la perte d'autonomie (hébergement, aide à domicile) est débattu depuis des années ; une branche « autonomie » a été ajoutée à la Sécurité sociale en 2020. Ce scénario imagine le moment où la question devient pressante.",
+      choices: [
+        { nat: "S", label: "Grand plan public de financement de la dépendance", fx: { solde: -0.12, soldeDur: -0.05, cohesion: 1, popularite: 0 }, note: "Une réponse solidaire, mais une dépense durable qui pèse sur les comptes." },
+        { nat: "R", label: "Assurance dépendance obligatoire, payée par les ménages", fx: { solde: 0.4, popularite: 0, inegalites: 1, cohesion: -0.5 }, note: "Le coût est reporté sur les ménages : moins de dépense publique, plus d'inégalités." },
+        { nat: "L", label: "S'appuyer sur le maintien à domicile et les aidants familiaux", fx: { solde: 0.25, cohesion: -0.5, popularite: -0.5 }, note: "Peu coûteux à court terme, mais la charge retombe sur les familles." },
+      ] },
+    { id: "f32_natalite", an: 1, type: "social", title: "Les naissances reculent",
+      desc: "Moins d'enfants chaque année : des classes et des maternités ferment, des maires protestent, les prévisions de retraites se dégradent.",
+      contexte: "Le nombre de naissances en France recule depuis plus de dix ans. Moins d'enfants, c'est à terme moins d'élèves, moins de maternités ouvertes et, plus tard, moins d'actifs pour financer les retraites. Ce scénario imagine les arbitrages que cela impose aux territoires.",
+      choices: [
+        { nat: "L", label: "Laisser les collectivités gérer les fermetures", fx: { solde: 0.2, popularite: 0.5, cohesion: -0.5, inegalites: 1.5 }, note: "Aucune dépense nouvelle, mais les territoires les plus fragiles décrochent." },
+        { nat: "S", label: "Relancer la politique familiale (crèches, congés parentaux)", fx: { solde: -0.08, soldeDur: -0.03, popularite: 0, cohesion: 1 }, note: "Un effort durable dont les effets sur la natalité restent incertains." },
+        { nat: "R", label: "Regrouper écoles et maternités pour garder la qualité", fx: { solde: 0.3, popularite: 0, cohesion: -1, croissance: 0.05 }, note: "Des services plus efficaces, mais plus éloignés des habitants." },
+      ] },
+    { id: "f33_douanes", an: 2, type: "international", title: "Guerre commerciale",
+      desc: "De nouveaux droits de douane frappent les exportations européennes. Les industriels demandent de l'aide, les consommateurs craignent des hausses de prix.",
+      contexte: "Un droit de douane est une taxe sur les produits importés, utilisée pour protéger une production nationale ou pour faire pression. Une escalade entre grandes puissances peut frapper les exportateurs européens et renchérir certains produits. Ce scénario imagine une nouvelle montée des tensions commerciales.",
+      choices: [
+        { nat: "S", label: "Soutenir massivement les exportateurs (aides, garanties)", fx: { solde: -0.08, popularite: 0, croissance: 0.1, chomage: -0.1, cohesion: 0.5 }, note: "Les emplois sont protégés à court terme, au prix d'une dépense publique supplémentaire." },
+        { nat: "R", label: "Riposter par des droits de douane européens", fx: { inflation: 0.4, croissance: -0.15, popularite: 0.5 }, note: "Un rapport de force qui peut payer, mais qui renchérit les produits importés." },
+        { nat: "L", label: "Négocier et accepter des concessions", fx: { solde: 0.1, croissance: -0.2, popularite: -0.5, chomage: 0.15 }, note: "On évite l'escalade, mais certains secteurs en paient le prix." },
+      ] },
+    { id: "f33_metaux", an: 2, type: "crise", title: "Pénurie de métaux critiques",
+      desc: "Lithium, cuivre, terres rares : les approvisionnements se tendent. Les industriels de la batterie et des éoliennes tirent la sonnette d'alarme.",
+      contexte: "Batteries, éoliennes, puces ou équipements militaires dépendent de métaux extraits et raffinés dans un petit nombre de pays. Une tension sur ces approvisionnements ferait monter les prix et freinerait certaines industries. Ce scénario imagine une pénurie.",
+      choices: [
+        { nat: "S", label: "Plan d'investissement dans les mines et le recyclage", fx: { solde: -0.08, environnement: -1, croissance: 0.1, popularite: -0.5, cohesion: 0.5 }, note: "Plus d'autonomie, mais des chantiers contestés et un coût pour l'État." },
+        { nat: "R", label: "Imposer des quotas et la sobriété d'usage", fx: { inflation: 0.3, popularite: -0.5, environnement: 2, croissance: -0.1 }, note: "Moins de dépendance, mais des produits plus chers et des contraintes pour tous." },
+        { nat: "L", label: "Acheter au plus offrant sur le marché mondial", fx: { inflation: 0.5, popularite: 0.5, integrite: -0.5 }, note: "Aucun effort immédiat, mais la dépendance et les prix restent entiers." },
+      ] },
+    { id: "f34_note", an: 3, type: "crise", title: "La France est dégradée par une agence de notation",
+      desc: "Une grande agence abaisse la note de la dette française. Les taux d'emprunt montent, les éditorialistes réclament un plan de rigueur.",
+      contexte: "Les agences de notation évaluent la capacité d'un État à rembourser sa dette ; une dégradation renchérit en général les emprunts futurs. Les effets exacts sur les taux dépendent du contexte et des marchés. Ce scénario imagine une nouvelle baisse de la note de la France.",
+      choices: [
+        { nat: "L", label: "Plan d'économies immédiat sur les dépenses", fx: { solde: 0.35, popularite: -1.5, cohesion: -0.5, croissance: -0.2 }, note: "Le signal est fort pour les marchés, mais la facture sociale est lourde." },
+        { nat: "R", label: "Hausse d'impôts ciblée sur les plus hauts revenus", fx: { solde: 0.3, popularite: 0.5, croissance: -0.25, inegalites: -1 }, note: "Un effort plus équitable, qui peut freiner l'investissement." },
+        { nat: "S", label: "Rassurer et compter sur la croissance pour réduire le déficit", fx: { solde: -0.04, dette: 1.5, popularite: 0.5, integrite: -1, cohesion: 0.5 }, note: "Pas de rigueur, mais la dette et les taux risquent de s'alourdir." },
+      ] },
+    { id: "f34_littoral", an: 3, type: "climat", title: "La mer grignote le littoral",
+      desc: "Des maisons et des routes tombent à la mer. Des maires demandent qui va payer pour déplacer des quartiers entiers.",
+      contexte: "Avec le réchauffement, le niveau des mers monte et l'érosion s'accélère sur certaines côtes. Des communes sont déjà identifiées comme exposées à l'érosion du littoral. Ce scénario imagine le moment où il faut décider qui finance leur relocalisation.",
+      choices: [
+        { nat: "R", label: "Imposer des règles strictes de recul des constructions", fx: { environnement: 2, popularite: 0, cohesion: -1, solde: 0.1 }, note: "On limite les risques futurs, mais on fige la valeur de biens existants." },
+        { nat: "S", label: "Financer la relocalisation des communes les plus exposées", fx: { solde: -0.1, soldeDur: -0.02, environnement: 1.5, cohesion: 1, popularite: -0.5 }, note: "Une solidarité nationale coûteuse, mais qui évite des drames." },
+        { nat: "L", label: "Protéger par des digues et laisser les assureurs trancher", fx: { solde: -0.3, environnement: -2, popularite: 1, cohesion: 0 }, note: "Des protections visibles, mais des coûts qui reviennent plus tard." },
+      ] },
+    { id: "f35_defense", an: 4, type: "international", title: "L'effort de défense s'accélère",
+      desc: "Les partenaires européens attendent un effort de défense accru. Les armées demandent des moyens, le ministère des Finances des arbitrages.",
+      contexte: "En 2025, les pays de l'OTAN se sont engagés à relever fortement leurs dépenses de défense dans la décennie. Pour la France, cela suppose de trouver des moyens supplémentaires ou d'en mutualiser une partie avec ses partenaires européens. Ce scénario imagine l'échéance qui approche.",
+      choices: [
+        { nat: "R", label: "Mutualiser les achats avec nos partenaires européens", fx: { solde: -0.2, popularite: 0.5, croissance: 0.05 }, note: "Des économies d'échelle, mais une souveraineté partagée." },
+        { nat: "L", label: "Étaler l'effort et protéger les dépenses sociales", fx: { cohesion: 0.5, popularite: -0.5, integrite: -0.5, croissance: -0.05 }, note: "Le budget social est épargné, mais la crédibilité de la France est entamée." },
+        { nat: "S", label: "Hausse massive et durable du budget de la défense", fx: { solde: -0.12, soldeDur: -0.02, croissance: 0.15, popularite: 0, cohesion: 0.5 }, note: "Un effort réel et visible, financé par la dette ou par d'autres économies." },
+      ] },
+    { id: "f35_deepfakes", an: 4, type: "ethique", title: "Fausses vidéos et désinformation",
+      desc: "Des vidéos truquées à s'y méprendre circulent massivement. La confiance dans l'information s'effondre, à deux ans d'une présidentielle.",
+      contexte: "Les outils d'intelligence artificielle permettent de fabriquer des images, des voix et des vidéos très réalistes, qui peuvent servir à tromper, en particulier en période électorale. Ce scénario imagine une vague de faux contenus à l'approche d'une élection présidentielle.",
+      choices: [
+        { nat: "S", label: "Financer l'éducation aux médias et une cellule de vérification", fx: { solde: -0.04, popularite: 0, cohesion: 1, integrite: 0.5 }, note: "Une réponse de long terme, dont l'effet est lent et diffus." },
+        { nat: "R", label: "Imposer la traçabilité et sanctionner les plateformes", fx: { popularite: -0.5, integrite: 1.5, croissance: -0.1, cohesion: 0.5 }, note: "Des règles claires, mais une charge pour les entreprises et un risque d'atteinte à la liberté d'expression." },
+        { nat: "L", label: "Laisser les plateformes s'autoréguler", fx: { popularite: 1.5, integrite: -2.5, cohesion: -0.5 }, note: "Aucune contrainte nouvelle, mais la confiance démocratique s'érode." },
+      ] },
+    { id: "f36_logement", an: 5, type: "climat", title: "Passoires thermiques : l'échéance approche",
+      desc: "Le calendrier de rénovation des logements énergivores arrive à échéance. Propriétaires, locataires et artisans demandent des clarifications.",
+      contexte: "Une partie du parc de logements est très énergivore (les « passoires thermiques »). La loi prévoit déjà un calendrier progressif qui restreint la location des logements les moins performants. Ce scénario imagine un durcissement ou un report à l'approche d'une échéance.",
+      choices: [
+        { nat: "L", label: "Reporter les échéances", fx: { environnement: -2.5, popularite: 0.5, solde: 0.1, inegalites: -0.5 }, note: "Les propriétaires respirent, mais la facture énergétique et climatique reste." },
+        { nat: "S", label: "Grand plan de rénovation fortement subventionné", fx: { solde: -0.1, soldeDur: -0.03, environnement: 2, popularite: 0.5, croissance: 0.1, cohesion: 0.5 }, note: "Les ménages sont aidés et le climat y gagne, mais la dépense publique est lourde." },
+        { nat: "R", label: "Maintenir le calendrier d'obligations", fx: { environnement: 2, popularite: -1, inegalites: 1.5, cohesion: -0.5 }, note: "Un cap clair pour le climat, mais des ménages modestes en difficulté." },
+      ] },
+    { id: "f36_medecins", an: 5, type: "sante", title: "Déserts médicaux : la situation s'aggrave",
+      desc: "Dans de nombreux territoires, trouver un médecin devient un parcours du combattant. Urgences saturées, élus mobilisés.",
+      contexte: "Plusieurs millions de Français n'ont déjà plus de médecin traitant et certains territoires manquent de praticiens. Les pistes en débat vont de l'incitation à l'installation à l'encadrement, en passant par la délégation de tâches. Ce scénario imagine l'aggravation de la situation.",
+      choices: [
+        { nat: "R", label: "Encadrer l'installation des médecins", fx: { popularite: 0, cohesion: 0.5, croissance: -0.05 }, note: "Une répartition plus équilibrée, mais une mesure mal acceptée par la profession." },
+        { nat: "L", label: "Déléguer davantage aux infirmiers et à la télémédecine", fx: { solde: 0.15, popularite: -0.5, cohesion: -1, inegalites: 1 }, note: "Une solution peu coûteuse, mais la qualité des soins reste inégale selon les territoires." },
+        { nat: "S", label: "Embaucher des médecins salariés et ouvrir des centres de santé", fx: { solde: -0.1, soldeDur: -0.04, cohesion: 1.5, popularite: 0.5 }, note: "Une offre de soins réelle, mais une dépense durable et des recrutements difficiles." },
+      ] },
+  ],
+};
+
+/* ============================================================
+   CRISES MONDIALES IMAGINÉES (uchronie) — UNE par mandat 2032-2037, tirée par la graine de la classe (identique pour tous),
+   entre la 3e et la 5e année (une crise précoce serait amortie avant l'élection). Chacune est un choc majeur (récession, chômage,
+   finances publiques) avec trois réponses de nature différente (nat : S = soutenir/dépenser, R = réguler/coordonner, L = laisser faire).
+   Intensité calibrée par simulation : une crise fait passer la réélection d'un mandat sain de 97 % à environ 80 %, sans qu'aucune
+   nature de réponse ne l'emporte (écart ≤ 2 points). Ce ne sont pas des prévisions.
+   ============================================================ */
+const FUTURE_CRISES = [
+  { id: "c_krach_obligataire", type: "crise", title: "Crise mondiale : le krach obligataire",
+    desc: "Un grand pays développé perd la confiance des marchés. Les taux d'emprunt s'envolent partout, des banques européennes vacillent, et la France paie plus cher pour financer sa dette.",
+    contexte: "Quand les investisseurs doutent de la capacité d'un État à rembourser, ils exigent des taux plus élevés ; la hausse peut se propager aux autres pays très endettés et fragiliser les banques qui détiennent leurs titres. Ce scénario imagine une panique obligataire mondiale.",
+    choices: [
+      { nat: "S", label: "Soutenir les banques et l'économie, quoi qu'il en coûte", fx: { solde: -1.82, dette: 5.46, croissance: -2.6, chomage: 0.65, popularite: 1.3 }, note: "La panique est contenue, mais la dette grimpe au pire moment." },
+      { nat: "R", label: "Plan européen de garanties et règles de prudence renforcées", fx: { solde: -1.04, dette: 3.25, croissance: -3.9, chomage: 1.17, popularite: -1.95, inflation: -0.39 }, note: "Une réponse coordonnée, plus lente, qui n'évite pas une récession." },
+      { nat: "L", label: "Laisser les marchés purger, sans filet public", fx: { solde: -0.26, dette: 0.65, croissance: -5.85, chomage: 2.6, popularite: -6.5, cohesion: -3.9 }, note: "Les comptes sont préservés, mais la récession est brutale." },
+    ] },
+  { id: "c_blocus_puces", type: "crise", title: "Crise mondiale : le blocus des puces",
+    desc: "Un conflit régional coupe l'approvisionnement mondial en semi-conducteurs et perturbe le fret maritime. Les usines s'arrêtent, les prix montent.",
+    contexte: "Une grande partie des puces électroniques est fabriquée dans un très petit nombre de lieux, et acheminée par quelques routes maritimes. Une interruption prolongée frapperait l'automobile, l'électronique et l'industrie, tout en faisant monter les prix. Ce scénario imagine un blocus durable.",
+    choices: [
+      { nat: "S", label: "Plan d'urgence industriel : stocks stratégiques et aides aux usines", fx: { solde: -1.36, dette: 2.73, croissance: -1.95, chomage: 0.65, inflation: 1.3, popularite: 1.3 }, note: "L'industrie tient, au prix d'une facture publique lourde." },
+      { nat: "R", label: "Rationner et prioriser (santé, défense, énergie), négocier des accords d'approvisionnement", fx: { solde: -0.65, croissance: -3.25, chomage: 1.3, inflation: 1.95, cohesion: -1.3, popularite: -1.95 }, note: "Les secteurs vitaux sont protégés, les autres attendent." },
+      { nat: "L", label: "Laisser les entreprises s'adapter par les prix", fx: { croissance: -4.55, chomage: 2.34, inflation: 2.6, popularite: -4.55, cohesion: -2.6 }, note: "Aucune dépense publique, mais une récession industrielle et des prix élevés." },
+    ] },
+  { id: "c_annee_sans_ete", type: "crise", title: "Crise mondiale : l'année sans été",
+    desc: "Une mégasécheresse simultanée sur plusieurs continents ruine les récoltes. Les prix alimentaires flambent, des pays interdisent leurs exportations.",
+    contexte: "Les récoltes mondiales dépendent d'un petit nombre de grandes régions agricoles. Des sécheresses simultanées réduiraient fortement l'offre et feraient monter les prix alimentaires, avec des tensions sociales et géopolitiques. Ce scénario imagine un tel épisode.",
+    choices: [
+      { nat: "S", label: "Aides massives aux agriculteurs et plafonnement des prix alimentaires", fx: { solde: -1.64, dette: 3.64, popularite: 2.6, inflation: 0.39, cohesion: 2.6, croissance: -1.3 }, note: "Les ménages sont protégés, mais la mesure coûte cher et dure." },
+      { nat: "R", label: "Constituer des stocks, réquisitionner et contrôler les exportations", fx: { solde: -0.78, croissance: -1.95, inflation: 1.56, cohesion: -1.95, integrite: -1.3, popularite: -1.3 }, note: "Le pays s'approvisionne, au prix de tensions avec ses partenaires." },
+      { nat: "L", label: "Laisser les prix s'ajuster", fx: { croissance: -3.25, inflation: 3.25, chomage: 1.04, cohesion: -5.2, popularite: -5.2 }, note: "Aucune dépense, mais les plus modestes décrochent." },
+    ] },
+  { id: "c_bulle_ia", type: "crise", title: "Crise mondiale : l'éclatement de la bulle de l'IA",
+    desc: "Les valorisations des géants de l'intelligence artificielle s'effondrent. Licenciements en cascade, fonds de pension touchés, crédit qui se resserre.",
+    contexte: "Quand des valorisations boursières montent beaucoup plus vite que les profits attendus, un retournement peut entraîner des pertes en chaîne : entreprises, épargnants, banques. Ce scénario imagine l'éclatement d'une bulle autour de l'intelligence artificielle.",
+    choices: [
+      { nat: "S", label: "Sauver les grands groupes technologiques et soutenir l'emploi", fx: { solde: -1.82, dette: 4.55, croissance: -1.95, chomage: 0.78, popularite: -2.6, integrite: -2.6 }, note: "L'emploi est amorti, mais le sauvetage de géants privés est mal accepté." },
+      { nat: "R", label: "Encadrer la finance et lancer un grand plan de reconversion", fx: { solde: -1.3, dette: 2.6, croissance: -3.64, chomage: 1.82, popularite: 0.65, cohesion: 1.3 }, note: "Un effort de long terme, mais la secousse économique est réelle." },
+      { nat: "L", label: "Laisser la bulle se dégonfler", fx: { solde: -0.39, croissance: -5.2, chomage: 3.25, popularite: -5.2, cohesion: -3.9 }, note: "Les comptes tiennent, mais le chômage bondit." },
+    ] },
+  { id: "c_cyber_paiements", type: "crise", title: "Crise mondiale : la panne des paiements",
+    desc: "Une cyberattaque mondiale paralyse les systèmes de paiement pendant plusieurs semaines. Distributeurs vides, salaires bloqués, commerces à l'arrêt.",
+    contexte: "Les paiements, les salaires et les échanges entre banques reposent sur quelques infrastructures numériques très interconnectées. Une attaque réussie pourrait en bloquer le fonctionnement et geler l'activité. Ce scénario imagine une telle paralysie.",
+    choices: [
+      { nat: "S", label: "Rétablir les paiements avec des garanties publiques et une monnaie d'urgence", fx: { solde: -1.09, dette: 2.27, croissance: -2.6, chomage: 0.65, popularite: 1.3, integrite: -1.3 }, note: "Le choc est amorti, mais l'État endosse les pertes." },
+      { nat: "R", label: "Imposer des protocoles de crise et la coopération entre banques", fx: { solde: -0.52, croissance: -3.9, chomage: 1.3, popularite: -1.3, cohesion: -1.3 }, note: "Une sortie de crise plus lente, mais mieux contrôlée." },
+      { nat: "L", label: "Laisser les banques se débrouiller", fx: { solde: -0.13, croissance: -5.2, chomage: 2.5, popularite: -5.5, cohesion: -3.5, integrite: -1.3 }, note: "Aucune dépense publique, mais la confiance est durablement abîmée." },
+    ] },
+];
+// Crise du mandat prolongé : choisie (et datée) par la graine, donc identique pour toute la classe et stable à la reprise d'une partie
+const CRISIS_WINDOW = [3, 3];   // [première année possible, nombre d'années possibles] : ici 3e à 5e année
+function crisisFor(seed) {
+  const R = seededRandom((seed || "") + ":crise");
+  const c = FUTURE_CRISES[Math.floor(R() * FUTURE_CRISES.length)];
+  return { c, an: CRISIS_WINDOW[0] + Math.floor(R() * CRISIS_WINDOW[1]) };
 }
 
 /* ============================================================
@@ -1147,7 +1331,7 @@ function applyBudgetYear(indPrev, levels, prevLevels, year, doctrine) {
 // Calculé dès la validation du budget, pour que la charge soit intégrée tout de suite.
 function computeMarche(marchePrev, dette, soldePrimaire, infl) {
   const prog = YEARS > 1 ? (CUR_Y - 1) / (YEARS - 1) : 0;
-  const cible = TAUX_BASE + MARCHE_DRIFT * prog + INFL_LINK * ((infl ?? INFL0) - INFL0)
+  const cible = TAUX_BASE + MARCHE_DRIFT * prog + INFL_LINK * ((infl ?? INFL_REF) - INFL_REF)
     + TAUX_KDETTE * Math.max(0, dette - 100)
     + TAUX_KDEF * Math.max(0, -soldePrimaire - 2)
     - TAUX_KCONF * Math.max(0, soldePrimaire);
@@ -1231,6 +1415,9 @@ function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   const picks = [];
   // Événements historiques datés de l'époque (identiques pour tous)
   for (const h of (HIST_EVENTS[CURRENT_ERA.id] || [])) if (h.an === year && !usedIds.includes(h.id) && picks.length < n) picks.push({ ...h, hist: true, ...(CHAIN_MODE && CHAIN_DESC[h.id] ? { desc: CHAIN_DESC[h.id] } : {}) });
+  // Scénarios imaginés du mandat prolongé (identiques pour tous), étiquetés « prosp » : ce ne sont pas des faits historiques
+  if (CURRENT_ERA.futur) { const cr = crisisFor(seed); if (cr.an === year && !usedIds.includes(cr.c.id) && picks.length < n) picks.push({ ...cr.c, an: cr.an, prosp: true, crise: true }); }
+  for (const f of (FUTURE_EVENTS[CURRENT_ERA.futur] || [])) if (f.an === year && !usedIds.includes(f.id) && picks.length < n) picks.push({ ...f, prosp: true });
   for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && !usedIds.includes(id) && picks.length < n) picks.push(e); }
   for (const e of order) {
     if (picks.length >= n) break;
@@ -1719,12 +1906,12 @@ function Btn({ onClick, children, kind = "ghost", disabled, style, className }) 
   return <button onClick={disabled ? undefined : onClick} className={className} style={{ ...base, ...kinds[kind], ...style }}>{children}</button>;
 }
 
-function HistContext({ text }) {
+function HistContext({ text, label }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ marginBottom: 14 }}>
       <button onClick={() => setOpen(!open)} style={{ width: "100%", background: C.inset, border: `1px solid ${al(C.gold, "55")}`, borderRadius: 10, padding: "9px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 12.5, fontWeight: 600 }}>
-        <Icon n="history" size={15} /> {CHAIN_MODE ? "Dans la réalité" : "Le contexte historique"} {open ? "▲" : "▼"}
+        <Icon n="history" size={15} /> {label || (CHAIN_MODE ? "Dans la réalité" : "Le contexte historique")} {open ? "▲" : "▼"}
       </button>
       <Collapse open={open}><div style={{ marginTop: 6, fontSize: 13, color: C.sub, lineHeight: 1.6, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px" }}>{text}</div></Collapse>
     </div>
@@ -1949,6 +2136,7 @@ function ElectionIntro({ team, onElected }) {
 
 // Mandat enchaîné : l'écart entre l'Histoire et votre fin de mandat, et ce qui est transmis au mandat suivant
 function ChainHeritage({ chain }) {
+  const fut = !!chain.futur;
   const rows = ["dette", "solde", "chomage", "inflation", "cohesion", "inegalites", "environnement", "integrite", "marche"].map((k) => {
     const g = chain.gaps.find((x) => x.k === k);
     if (!g) return null;
@@ -1961,17 +2149,21 @@ function ChainHeritage({ chain }) {
   }).filter(Boolean);
   const col = { width: 62, textAlign: "right", flexShrink: 0 };
   return (
-    <div data-chain-heritage="1" style={{ background: C.card, border: `1px solid ${al(C.gold, "66")}`, borderRadius: 14, padding: 16, marginBottom: 18 }}>
+    <div data-chain-heritage="1" data-chain-futur={fut ? "1" : "0"} style={{ background: C.card, border: `1px solid ${al(C.gold, "66")}`, borderRadius: 14, padding: 16, marginBottom: 18 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 16, fontWeight: 600, fontFamily: "Fraunces,serif", marginBottom: 4 }}><Icon n="history" size={18} /> Votre héritage</div>
-      <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.55, marginBottom: 10 }}>L'Histoire a continué, mais votre mandat l'a infléchie. <b style={{ color: C.ink }}>La moitié de votre écart avec la réalité</b> se transmet à ce nouveau mandat ; le reste revient à la situation historique.</div>
+      <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.55, marginBottom: 10 }}>
+        {fut
+          ? <>Le pays est repris <b style={{ color: C.ink }}>tel que vous l'avez laissé</b> : mêmes politiques, mêmes marges de manœuvre. Les événements de ce mandat sont des <b style={{ color: C.ink }}>scénarios imaginés</b> à partir de tendances actuelles : ce ne sont pas des prévisions.</>
+          : <>L'Histoire a continué, mais votre mandat l'a infléchie. <b style={{ color: C.ink }}>La moitié de votre écart avec la réalité</b> se transmet à ce nouveau mandat ; le reste revient à la situation historique.</>}
+      </div>
       <div style={{ display: "grid", gap: 6 }}>
-        <div style={{ display: "flex", gap: 8, fontSize: 11, color: C.dim, padding: "0 10px" }}><span style={{ flex: 1 }}>Indicateur</span><span style={col}>Histoire</span><span style={col}>Votre fin</span><span style={col}>Départ</span></div>
+        <div style={{ display: "flex", gap: 8, fontSize: 11, color: C.dim, padding: "0 10px" }}><span style={{ flex: 1 }}>Indicateur</span><span style={col}>{fut ? `Début ${chain.fromDebut}` : "Histoire"}</span><span style={col}>{fut ? `Départ ${chain.override.debut}` : "Votre fin"}</span>{!fut && <span style={col}>Départ</span>}</div>
         {rows.map((r) => (
           <div key={r.k} data-heritage-row={r.k} style={{ display: "flex", alignItems: "center", gap: 8, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 9, padding: "8px 10px", fontSize: 13 }}>
             <span style={{ flex: 1, minWidth: 0, color: C.ink }}>{r.label}</span>
             <span style={{ ...col, fontFamily: "monospace", color: C.dim }}>{r.hist}</span>
-            <span style={{ ...col, fontFamily: "monospace", fontWeight: 600, color: r.flat ? C.sub : r.good ? C.mint : C.coral }}>{r.mine}</span>
-            <span style={{ ...col, fontFamily: "monospace", color: C.ink }}>{r.start}</span>
+            <span style={{ ...col, fontFamily: "monospace", fontWeight: 600, color: r.flat ? C.sub : r.good ? C.mint : C.coral }}>{fut ? r.start : r.mine}</span>
+            {!fut && <span style={{ ...col, fontFamily: "monospace", color: C.ink }}>{r.start}</span>}
           </div>
         ))}
       </div>
@@ -2373,7 +2565,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const solde0 = base0.ind.solde - taux0 * indPrev.dette / 100;
   const dSolde = soldeTotal - solde0;
   // Guidage : étapes cochées au fur et à mesure des actions du joueur
-  const guided = conseil || year === 1;
+  const guided = conseil || (year === 1 && !CHAIN_MODE);   // le guidage ne se rejoue pas dans un mandat enchaîné
   const changedIn = (cat) => LEVERS.some((l) => l.cat === cat && inFilter(l) && (levels[l.id] || 0) !== (baseLevels[l.id] || 0));
   const anyRec = changedIn("rec"), anyDep = changedIn("dep");
   const readyToValidate = guided && anyRec && anyDep; // les deux étapes sont faites : le bouton Valider pulse
@@ -2439,7 +2631,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
       </div>
       <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "2px 12px" }}>
         {visibleList.map((l, idx) => (
-          <LeverRow key={l.id} lever={l} level={levels[l.id] || 0} baseLevel={baseLevels[l.id] || 0} onChange={(v) => setLevel(l.id, v)} verbose={conseil || year === 1} pulse={guided && !anyRec && !anyDep && idx === 0} />
+          <LeverRow key={l.id} lever={l} level={levels[l.id] || 0} baseLevel={baseLevels[l.id] || 0} onChange={(v) => setLevel(l.id, v)} verbose={conseil || (year === 1 && !CHAIN_MODE)} pulse={guided && !anyRec && !anyDep && idx === 0} />
         ))}
         {collapse && (
           <button onClick={() => setExpanded(true)} style={{ width: "100%", background: C.card, border: `1px dashed ${al(C.gold, "88")}`, borderRadius: 10, padding: "12px 14px", color: C.gold, fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, minHeight: 44, touchAction: "manipulation" }}>
@@ -2732,10 +2924,11 @@ function EventScreen({ event, index, total, onChoose }) {
           <Icon n={t.icon.replace("ti-", "")} size={14} /> {t.label}
         </div>
         {event.hist && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: al(C.gold, "26"), color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="history" size={13} /> {CHAIN_MODE ? "Dossier historique · uchronie" : "Événement historique réel"}</div>}
+        {event.prosp && <div data-badge-prosp="1" style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: event.crise ? al(C.coral, "26") : al(C.mint, "26"), color: event.crise ? C.coral : C.mint, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n={event.crise ? "alert-triangle" : "sparkles"} size={13} /> {event.crise ? "Crise mondiale imaginée" : "Scénario imaginé"}</div>}
         {!event.hist && CURRENT_ERA.id !== "today" && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: C.line, color: C.dim, fontSize: 11, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}>Situation imaginée (non historique)</div>}
         <h3 style={{ margin: "0 0 6px", color: C.ink, fontSize: 19, fontFamily: "Fraunces,serif", fontWeight: 600 }}>{event.title}</h3>
         <p style={{ margin: "0 0 14px", color: C.sub, fontSize: 13.5, lineHeight: 1.6 }}>{event.desc}</p>
-        {event.contexte && <HistContext text={event.contexte} />}
+        {event.contexte && <HistContext text={event.contexte} label={event.prosp ? (event.crise ? "Pourquoi cette crise ?" : "Pourquoi ce scénario ?") : undefined} />}
         {/* Consigne claire */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontWeight: 500, marginBottom: 10 }}>
           <Icon n="hand-click" size={16} /> Sélectionnez l'un des {event.choices.length} choix ci-dessous :
@@ -3101,12 +3294,12 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
           <div style={{ color: C.ink, fontSize: 13, lineHeight: 1.55 }}>{expliquerFin(game)}</div>
         </div>
       </div>
-      {chainNext && (() => { const nx = eraById(chainNext); return (
+      {chainNext && (() => { const nx = nextEraInfo(chainNext); return (
         <div data-chain-offer="1" style={{ background: al(C.gold, "14"), border: `1px solid ${al(C.gold, "88")}`, borderRadius: 16, padding: 18, marginBottom: 16, textAlign: "center" }}>
           <div style={{ color: C.gold, fontFamily: "Fraunces,serif", fontSize: 18, fontWeight: 600, marginBottom: 6 }}>Vous restez aux commandes</div>
-          <p style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 12px" }}>Réélu·e, vous pouvez poursuivre avec le mandat suivant ({nx.debut}–{nx.debut + nx.duree}). Le pays garde la marque de vos choix : la moitié de votre écart avec l'Histoire est transmise.</p>
+          <p style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 12px" }}>{nx.futur ? <>Réélu·e, vous pouvez poursuivre avec un nouveau mandat ({nx.debut}–{nx.debut + nx.duree}). Le pays est repris tel que vous l'avez laissé, et les événements sont des scénarios imaginés à partir de tendances actuelles.</> : <>Réélu·e, vous pouvez poursuivre avec le mandat suivant ({nx.debut}–{nx.debut + nx.duree}). Le pays garde la marque de vos choix : la moitié de votre écart avec l'Histoire est transmise.</>}</p>
           <Btn kind="primary" onClick={onContinue}>Poursuivre : mandat {nx.debut}–{nx.debut + nx.duree} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
-          <div style={{ color: C.dim, fontSize: 11.5, marginTop: 8 }}>Version d'essai : seul le passage 1974 → 1981 est disponible.</div>
+          <div style={{ color: C.dim, fontSize: 11.5, marginTop: 8 }}>{nx.futur ? "Ces scénarios sont fictifs : ce ne sont pas des prévisions." : "Version d'essai : seul le passage 1974 → 1981 est disponible."}</div>
         </div>); })()}
       {game.chain && <div data-chain-note="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, color: C.dim, fontSize: 12.5, lineHeight: 1.55 }}>Mandat enchaîné : son score n'entre pas dans le classement de la classe, car votre départ dépendait de votre mandat précédent.</div>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
@@ -3349,7 +3542,7 @@ export default function App() {
 
   function start(code, team, doctrineId, eraId = "today", chain = null) {
     applyEra(eraId, chain ? chain.override : null);
-    const g = { code, team, doctrineId, eraId, year: 1, ind: { ...START }, levels: {}, taux: TAUX0, tauxMarche: MARCHE0, history: [], usedIds: [], pendingFlags: [], ...(chain ? { chain: { n: chain.n, from: chain.from, key: chain.key, override: chain.override, gaps: chain.gaps } } : {}) };
+    const g = { code, team, doctrineId, eraId, year: 1, ind: { ...START }, levels: chain && chain.levels ? { ...chain.levels } : {}, taux: TAUX0, tauxMarche: MARCHE0, history: [], usedIds: chain && chain.usedIds ? [...chain.usedIds] : [], pendingFlags: [], ...(chain ? { chain: { n: chain.n, from: chain.from, key: chain.key, override: chain.override, gaps: chain.gaps, futur: !!chain.futur, fromDebut: chain.fromDebut } } : {}) };
     setGame(g); setWorkLevels({}); setScreen("mission"); persist(g);
   }
   // --- Année conseil (guidée, ne compte pas) ---
@@ -3393,7 +3586,7 @@ export default function App() {
     const chargePct = taux * game.ind.dette / 100;
     const indTotal = { ...res.ind, solde: clamp(soldePrimaire - chargePct, -18, 8) };
     setIndBefore(game.ind);                         // état avant l'année (pour le conseiller)
-    const drawn = drawEvents(game.year, game.usedIds, game.pendingFlags, game.code + ":" + (game.eraId || "today"));
+    const drawn = drawEvents(game.year, game.usedIds, game.pendingFlags, game.code + ":" + (game.eraId || "today") + (game.chain ? ":m" + game.chain.n : ""));
     setEvts(drawn); setEvtIdx(0);
     setGame({ ...game, ind: indTotal, levels: { ...workLevels }, _prevLevels: { ...(game.levels || {}) }, _tauxPrev: game.taux ?? TAUX0, _marchePrev: game.tauxMarche ?? MARCHE0, tauxMarche, taux, _soldePrim: +soldePrimaire.toFixed(1), _chargeMd: Math.round(chargePct * PIB * ECH / 100), _chargePct: +chargePct.toFixed(2), _chargePctPrev: game._chargePct ?? +(TAUX0 * DETTE0 / 100).toFixed(2) });
     setScreen("events");
@@ -3446,6 +3639,12 @@ export default function App() {
   function continueCampaign() {
     const nextId = CHAIN_NEXT[game.eraId];
     if (!nextId || !end) return;
+    if (FUTURE_ERAS[nextId]) {   // prolongement dans le futur : le pays est repris tel quel
+      const fc = futureCarry(game, end.key);
+      setSc(null); setEnd(null);
+      start(game.code, game.team, game.doctrineId, game.eraId, { n: (game.chain ? game.chain.n : 1) + 1, from: game.eraId, key: end.key, ...fc });
+      return;
+    }
     const carry = chainCarry(game.ind, { moyen: game.taux ?? TAUX0, marche: game.tauxMarche ?? MARCHE0 }, nextId, end.key);
     setSc(null); setEnd(null);
     start(game.code, game.team, game.doctrineId, nextId, { n: (game.chain ? game.chain.n : 1) + 1, from: game.eraId, key: end.key, ...carry });
@@ -3512,7 +3711,7 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 30, height: 30, borderRadius: 8, background: C.goldFill, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={17} color="var(--on-accent)" /></div>
-                <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{game.chain ? `Votre ${game.chain.n}ᵉ mandat · ${eraById(game.eraId).debut}-${eraById(game.eraId).debut + eraById(game.eraId).duree}` : eraLabel(eraById(game.eraId))} · {doctrineOf(game)?.label} · {game.code}</div></div>
+                <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{game.chain ? `Votre ${game.chain.n}ᵉ mandat · ${CURRENT_ERA.debut}-${CURRENT_ERA.debut + CURRENT_ERA.duree}` : eraLabel(eraById(game.eraId))} · {doctrineOf(game)?.label} · {game.code}</div></div>
               </div>
               <div style={{ textAlign: "right" }} className="qmandat">
                 <div style={{ color: C.dim, fontSize: 10, textTransform: "uppercase" }}>Mandat</div>
@@ -3544,7 +3743,7 @@ export default function App() {
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "squares" && game && <BudgetSquares history={game.history} levels={game.levels} year={game.year} view={squaresView} focus0={squaresFocus} onClose={() => setScreen("summary")} />}
         {screen === "election" && game && <Election onReveal={reveal} />}
-        {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} newTrophies={newTrophies} chainNext={["triomphe", "reelu"].includes(end.key) ? (CHAIN_NEXT[game.eraId] || null) : null} onContinue={continueCampaign} onReplay={() => start(game.code, game.team, game.doctrineId, game.eraId)} onHome={() => { setGame(null); setScreen("home"); }} />}
+        {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} newTrophies={newTrophies} chainNext={["triomphe", "reelu"].includes(end.key) && !game.chain ? (CHAIN_NEXT[game.eraId] || null) : null} onContinue={continueCampaign} onReplay={() => start(game.code, game.team, game.doctrineId, game.eraId)} onHome={() => { setGame(null); setScreen("home"); }} />}
         {screen === "leaderboard" && <LeaderboardView code={boardCode} entries={board} onBack={() => setScreen("home")} />}
       </div>
     </div>
