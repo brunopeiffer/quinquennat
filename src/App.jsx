@@ -7,7 +7,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
    ============================================================ */
 
 let START = {
-  solde: -5.0, dette: 116, chomage: 7.5, croissance: 1.0, inflation: 1.3,
+  solde: -5.4, dette: 119, chomage: 8.3, croissance: 0.5, inflation: 3.4,
   popularite: 52, cohesion: 40, integrite: 70, environnement: 50, inegalites: 45,
 };
 const PIB = 3000;           // Md€ (1 % PIB ≈ 30 Md€)
@@ -40,6 +40,12 @@ const GROWTH_MIN = -3.5, GROWTH_MAX = 4.0;
    À VÉRIFIER (étape 2) : croissance, taux à 10 ans, taux moyen de la dette, population,
    taux d'impôt d'époque, et chômage 1974 (la série BIT INSEE débute en 1975 à 3,6 %).
    pib = PIB de l'année en milliards d'euros courants (montants affichés convertis en euros).
+   « AUJOURD'HUI » — mise à jour du 5 novembre 2026 (sources vérifiées) :
+     dette 119,0 % du PIB (INSEE, fin T2 2026, 29/09/2026 ; 3 595,5 Md€, record) ;
+     déficit 5,4 % du PIB (cible 2026 du gouvernement, maintenue le 04/11/2026 ; 5,1 % en 2025 selon l'INSEE) ;
+     chômage BIT 8,3 % (INSEE, T2 2026, 07/08/2026) ; inflation +3,4 % sur un an (INSEE, estimation provisoire d'octobre 2026) ;
+     OAT 10 ans 4,9 % (4,88 % le 04/11/2026, pic à 5,03 % fin octobre) ; croissance 2026 prévue à 0,5 % (gouvernement ; le HCFP juge 0,3 % plus vraisemblable) ;
+     taux moyen de la dette ≈ 2,0 % (charge de la dette de l'État : 62,6 Md€ en 2026, 72,9 Md€ prévus en 2027, Agence France Trésor).
    ============================================================ */
 const ERAS = [
   { id: "giscard", cohesion: 60, inegalites: 52, environnement: 26, president: "V. Giscard d'Estaing", debut: 1974, duree: 7, tagline: "Le choc pétrolier frappe", pib: 175, pop: 52.6,
@@ -69,8 +75,8 @@ const ERAS = [
   { id: "macron2", cohesion: 45, inegalites: 41, environnement: 47, president: "E. Macron", debut: 2022, duree: 5, tagline: "Inflation et remontée des taux", pib: 2640, pop: 67.9,
     dette: 111.0, solde: -4.8, chomage: 7.3, inflation: 5.2, inflTrend: 2.5, croissance: 2.6, potentiel: 1.0, marche: 1.7, moyen: 1.4, marcheFin: 3.3, inflFin: 1.0, inflLink: 0,
     rates: { tva: 20, ir: 45, is: 25, csg: 9.2 }, disabled: [], couleurs: ["#3a4a72", "#10162a"] },
-  { id: "today", cohesion: 40, inegalites: 45, environnement: 50, president: "Vous", debut: 2027, duree: 5, tagline: "Dette record, taux à 4,7 %", pib: 3000, pop: 68.5,
-    dette: 116, solde: -5.0, chomage: 7.5, inflation: 1.3, inflTrend: 1.3, croissance: 1.0, potentiel: 1.0, marche: 4.7, moyen: 1.8,
+  { id: "today", cohesion: 40, inegalites: 45, environnement: 50, president: "Vous", debut: 2027, duree: 5, tagline: "Dette record, taux proches de 5 %", pib: 3000, pop: 68.5,
+    dette: 119, solde: -5.4, chomage: 8.3, inflation: 3.4, inflTrend: 1.3, croissance: 0.5, potentiel: 1.0, marche: 4.9, moyen: 2.0,
     rates: {}, disabled: [], couleurs: ["#1c2b55", "#070b18"] },
 ];
 /* Indicateurs de société au départ de chaque époque (indices de jeu, 0-100) :
@@ -84,7 +90,7 @@ const ERAS = [
 const START_TODAY = { ...START };
 // Contexte d'époque (modifié par applyEra au lancement d'une partie)
 let CURRENT_ERA = ERAS[ERAS.length - 1];
-let BASE_YEAR = 2026, ECH = 1, DETTE0 = 116, CHOM0 = 7.5, INFL0 = 1.3, INFL_TREND = 1.3, GROWTH_POT = 1.0;
+let BASE_YEAR = 2026, ECH = 1, DETTE0 = 119, CHOM0 = 8.3, INFL0 = 3.4, INFL_TREND = 1.3, GROWTH_POT = 1.0;
 let ERA_RATES = {}, DISABLED = [], ERA_ZERO = [], INFL_LINK = 0.7, MARCHE_DRIFT = 0, CUR_Y = 1, CHAIN_MODE = false, INFL_REF = 0;
 const eraById = (id) => ERAS.find((e) => e.id === id) || ERAS[ERAS.length - 1];
 const eraLabel = (e) => e.id === "today" ? `Aujourd'hui · ${e.debut}-${e.debut + e.duree}` : `Mandat de ${e.president} · ${e.debut}-${e.debut + e.duree}`;
@@ -350,7 +356,7 @@ const ERA_INFO = {
     rappel: "Le quinquennat qui s'achève a transformé l'ISF en impôt sur la fortune immobilière (2018), puis affronté le mouvement des « gilets jaunes » (2018-2019) et la pandémie de Covid-19 (2020), pendant laquelle l'État a dépensé massivement (« quoi qu'il en coûte »). La dette a dépassé 110 % du PIB. Début 2022, la guerre en Ukraine fait flamber les prix de l'énergie et l'inflation repart.",
     fin: { annee: 2025, dette: 115.6, solde: -5.1, chomage: 7.5, inflation: 1.0, note: "dernières données connues (2025)" } },
   today: { pred: "Emmanuel Macron", predSituation: "achève son second quinquennat — la Constitution lui interdit d'en briguer un troisième",
-    rappel: "Depuis 2022, la France a connu une forte poussée d'inflation, une réforme des retraites portant l'âge légal à 64 ans (2023), puis une instabilité politique après la dissolution de l'Assemblée en 2024. Le déficit public reste supérieur à 5 % du PIB, la dette dépasse 115 %, et les taux auxquels l'État emprunte remontent vers 4,5 à 5 %.",
+    rappel: "Depuis 2022, la France a connu une forte poussée d'inflation, une réforme des retraites portant l'âge légal à 64 ans (2023), puis une instabilité politique après la dissolution de l'Assemblée en 2024. Le déficit public reste supérieur à 5 % du PIB (5,4 % attendus en 2026), la dette atteint un record de 119 %, le chômage remonte à 8,3 %, l'inflation est repartie (3,4 % sur un an) et les taux auxquels l'État emprunte à dix ans approchent 5 %.",
     fin: null },
 };
 
@@ -823,7 +829,7 @@ const AMBIANCE = {
   today: { date: "Nous sommes en mai 2027.", variants: [
     [ "La France compte environ 68,5 millions d'habitants et reste la septième économie mondiale.",
       "Une baguette coûte un peu plus d'un euro. Le SMIC brut est d'environ 1 867 € par mois depuis juin 2026.",
-      "La dette dépasse 115 % du PIB, et l'État emprunte autour de 4,7 % sur dix ans.",
+      "La dette atteint 119 % du PIB, le chômage dépasse 8 %, et l'État emprunte autour de 4,9 % sur dix ans.",
       "L'intelligence artificielle s'est invitée dans les entreprises, les écoles et les foyers.",
       "Canicules et sécheresses se multiplient avec le changement climatique." ] ] },
 };
@@ -1525,7 +1531,7 @@ function conseillerDetaille(before, after, flags, ctx) {
   }
   if (taux != null && tauxPrev != null && taux > tauxPrev + 0.05) {
     cpt += ` Le taux moyen de votre dette passe de ${fmt(tauxPrev, 2)} % à ${fmt(taux, 2)} % : chaque année, de vieux emprunts à taux bas arrivent à échéance et doivent être remplacés par de nouveaux, plus chers. C'est pour cela que la charge de la dette augmente, même sans nouvelle erreur de gestion.`;
-    if (pedago && CURRENT_ERA.id === "today") cpt += ` Aujourd'hui, la France emprunte autour de 4,7 % sur 10 ans, alors qu'une partie de sa dette a été empruntée à 0-1 % il y a quelques années.`;
+    if (pedago && CURRENT_ERA.id === "today") cpt += ` Aujourd'hui, la France emprunte autour de 4,9 % sur 10 ans, alors qu'une partie de sa dette a été empruntée à 0-1 % il y a quelques années.`;
   }
   S.push({ icon: "wallet", color: C.coral, t: "Vos comptes publics", c: cpt });
 
@@ -2211,17 +2217,18 @@ function Mission({ team, doctrine, onGo, chain = null }) {
         {infoChiffres && (
           <div style={{ padding: "0 16px 16px", color: C.sub, fontSize: 13.5, lineHeight: 1.65 }}>
             <p style={{ margin: "0 0 10px" }}>
-              Le jeu simule <b style={{ color: C.ink }}>les dépenses publiques de la France</b> — l'ensemble des administrations publiques : l'<b>État</b>, la <b>Sécurité sociale</b> (retraites, santé, chômage) et les <b>collectivités locales</b>. Ce n'est donc pas seulement « le budget de l'État » au sens strict : c'est le périmètre utilisé quand on parle du <b>déficit public</b> (~5 % du PIB) et de la <b>dette</b> (~116 %). Les dépenses <b>privées</b> des ménages et des entreprises n'y figurent pas.
+              Le jeu simule <b style={{ color: C.ink }}>les dépenses publiques de la France</b> — l'ensemble des administrations publiques : l'<b>État</b>, la <b>Sécurité sociale</b> (retraites, santé, chômage) et les <b>collectivités locales</b>. Ce n'est donc pas seulement « le budget de l'État » au sens strict : c'est le périmètre utilisé quand on parle du <b>déficit public</b> (~5,4 % du PIB) et de la <b>dette</b> (~119 %). Les dépenses <b>privées</b> des ménages et des entreprises n'y figurent pas.
             </p>
             <p style={{ margin: "0 0 10px" }}>
               Les chiffres de départ sont des <b style={{ color: C.ink }}>ordres de grandeur arrondis</b>, issus de sources publiques (INSEE, projet de loi de finances, Cour des comptes).
               {CURRENT_ERA.id !== "today" && <><br /><b style={{ color: C.gold }}>Votre époque ({CURRENT_ERA.debut}) :</b> dette {fmt(CURRENT_ERA.dette, 0)} % du PIB, déficit {fmt(CURRENT_ERA.solde, 1)} %, chômage {fmt(CURRENT_ERA.chomage, 1)} %, inflation {fmt(CURRENT_ERA.inflation, 1)} %, taux d'emprunt {fmt(CURRENT_ERA.marche, 1)} %. Les montants sont convertis en euros de l'époque (PIB ≈ {fmt(CURRENT_ERA.pib, 0)} milliards d'euros). Les repères ci-dessous sont ceux de la France d'aujourd'hui, pour comparaison.</>}
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 18px", fontSize: 13, fontFamily: "monospace", color: C.dim, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
-              <div>PIB ≈ 3 000 Md€</div><div>Dette ≈ 116 % du PIB</div>
-              <div>Recettes ≈ 1 450 Md€</div><div>Déficit ≈ 5 % du PIB</div>
-              <div>Dépenses ≈ 1 600 Md€</div><div>Chômage ≈ 7,5 %</div>
-              <div>Nouveaux emprunts ≈ 4,7 % (OAT 10 ans, oct. 2026)</div><div>Taux moyen de la dette ≈ 1,8 %</div>
+              <div>PIB ≈ 3 000 Md€</div><div>Dette ≈ 119 % du PIB</div>
+              <div>Recettes ≈ 1 450 Md€</div><div>Déficit ≈ 5,4 % du PIB</div>
+              <div>Dépenses ≈ 1 600 Md€</div><div>Chômage ≈ 8,3 %</div>
+              <div>Nouveaux emprunts ≈ 4,9 % (OAT 10 ans, nov. 2026)</div><div>Taux moyen de la dette ≈ 2,0 %</div>
+              <div>Inflation ≈ 3,4 % sur un an (oct. 2026)</div><div>Croissance 2026 ≈ 0,5 %</div>
             </div>
             <div style={{ fontSize: 12.5, lineHeight: 1.7 }}>
               <div><b style={{ color: C.mint }}>Recettes</b> : TVA ~211 · impôt sur le revenu ~95 · CSG ~130 · impôt sur les sociétés ~58 · cotisations ~610 Md€</div>
