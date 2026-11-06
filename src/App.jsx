@@ -1391,7 +1391,8 @@ function finalizeYear(ind0, taux = TAUX0, marche = MARCHE0, marchePrev = null) {
   const excesPrev = (marchePrev ?? MARCHE0) - (MARCHE0 + MARCHE_DRIFT * pg(CUR_Y - 1));
   if (exces > 0.8 && exces > excesPrev + 0.1) flags.push("taux");
   if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, GROWTH_MIN, GROWTH_MAX); flags.push("defiance"); }
-  if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
+  if (n.cohesion < 25 || n.inegalites > 75) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
+  else if (n.cohesion < 40 || n.inegalites > 62) flags.push("tensions");
   if (n.popularite < 22) flags.push("censure");
   if (n.integrite < 30) flags.push("scandale");
   return { ind: clampInd(n), flags };
@@ -1420,7 +1421,11 @@ function shuffleChoices(e, seed) {
 function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   const forced = [];
   if (flags?.includes("scandale")) forced.push("ethique_scandale");
-  if (flags?.includes("emeutes")) forced.push("banlieues");
+  // Colère sociale : 1 événement imposé sous tension, 2 en cas d'émeutes. Ils peuvent se répéter d'une année à l'autre.
+  const unrest = ["greve", "banlieues", ...(CURRENT_ERA.id === "today" ? ["gilets"] : [])];
+  const nUnrest = flags?.includes("emeutes") ? 2 : flags?.includes("tensions") ? 1 : 0;
+  const unrestPicks = flags?.includes("emeutes") ? ["banlieues", ...unrest.filter((id) => id !== "banlieues")] : unrest;
+  forced.push(...unrestPicks.slice(0, nUnrest));
   const rnd = seed ? seededRandom(seed + ":evts") : Math.random;
   // Ordre global de la classe, calculé une fois, identique pour tous
   const order = [...EVENTS];
@@ -1431,7 +1436,7 @@ function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   // Scénarios imaginés du mandat prolongé (identiques pour tous), étiquetés « prosp » : ce ne sont pas des faits historiques
   if (CURRENT_ERA.futur) { const cr = crisisFor(seed); if (cr.an === year && !usedIds.includes(cr.c.id) && picks.length < n) picks.push({ ...cr.c, an: cr.an, prosp: true, crise: true }); }
   for (const f of (FUTURE_EVENTS[CURRENT_ERA.futur] || [])) if (f.an === year && !usedIds.includes(f.id) && picks.length < n) picks.push({ ...f, prosp: true });
-  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && !usedIds.includes(id) && picks.length < n) picks.push(e); }
+  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && (unrest.includes(id) || !usedIds.includes(id)) && !picks.some((p) => p.id === id) && picks.length < n) picks.push(e); }
   for (const e of order) {
     if (picks.length >= n) break;
     // Époques historiques : aucun grand événement inventé (pandémie, guerre…), seulement des situations plausibles à toute époque
@@ -1478,7 +1483,7 @@ function conseiller(before, after, flags, bigEvent) {
   else if (up("environnement", 1)) social += `. Les indicateurs écologiques progressent.`;
   else social += `.`;
   // Alerte
-  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
+  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes : attendez-vous à de nouveaux troubles l'an prochain.", tensions: "La société gronde (cohésion faible ou inégalités fortes) : grèves et mouvements sociaux se préparent.", chute: "C'est la fin : vous ne pouvez plus gouverner, votre mandat s'arrête ici.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
   const alerte = flags.map((f) => alertMap[f]).filter(Boolean);
   return { eco, social, alerte };
 }
@@ -1643,6 +1648,15 @@ function scoreBreakdown(ind) {
   return { eco: courbe(eco), social: courbe(social), politique: courbe(politique), total: courbe(totalRaw) };
 }
 
+// Fin anticipée : un pouvoir sans aucun soutien ou un pays à feu et à sang ne peut pas aller au bout du mandat.
+// Vérifiée à la fin de chaque année ; sinon le joueur continuerait avec 0 de popularité ou de cohésion.
+function chuteAnticipee(ind) {
+  if (ind.popularite <= 5) return { key: "demission", title: "Contraint·e à la démission", icon: "door-exit", color: "var(--c-crise)",
+    text: "Plus personne ne vous soutient : manifestations massives, majorité qui vous lâche, appels à la démission. Vous quittez le pouvoir avant la fin de votre mandat. Sans confiance des citoyens, on ne peut pas gouverner." };
+  if (ind.cohesion <= 5) return { key: "chaos", title: "Le pays ingouvernable", icon: "urgent", color: "var(--c-ethique)",
+    text: "Émeutes, blocages, grève générale : le pays est paralysé et vous devez quitter le pouvoir avant la fin de votre mandat. Sans cohésion sociale, aucune réforme ne tient." };
+  return null;
+}
 function ending(ind, sc) {
   if (ind.integrite < 30) return { key: "scandale", title: "Chute sur scandale", icon: "gavel", color: "var(--c-lobby)",
     text: "Miné par les affaires, votre gouvernement tombe avant l'heure. La probité est le socle de la confiance démocratique." };
@@ -1671,22 +1685,11 @@ function expliquerFin(game) {
   const avgSolde = h.reduce((s, r) => s + r.ind.solde, 0) / h.length;
   const detteDelta = last.dette - DETTE0;
   const p = [];
-  p.push(`Sur ${YEARS} ans, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
+  p.push(`${h.length < YEARS ? `Votre mandat s'est arrêté au bout de ${h.length} an${h.length > 1 ? "s" : ""} sur ${YEARS}. Sur cette période` : `Sur ${YEARS} ans`}, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
   p.push(detteDelta > 2 ? `la dette est passée de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} % (+${fmt(detteDelta, 0)} points)` : detteDelta < -2 ? `la dette a reculé de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} %` : `la dette est restée stable (${fmt(last.dette, 0)} %)`);
   p.push(last.chomage < 7 ? `le chômage a baissé à ${fmt(last.chomage, 1)} %` : last.chomage > 9 ? `le chômage a grimpé à ${fmt(last.chomage, 1)} %` : `le chômage s'établit à ${fmt(last.chomage, 1)} %`);
   if (last.integrite < 40) p.push(`et votre intégrité, entamée (${fmt(last.integrite, 0)}/100), a nourri les scandales`);
   return p.join(", ") + ".";
-}
-
-function lessonFor(ind) {
-  const L = [];
-  if (ind.dette < 118) L.push("tenu la dette"); else if (ind.dette > 135) L.push("laissé filer la dette");
-  if (ind.chomage < 7) L.push("fait reculer le chômage"); else if (ind.chomage > 9) L.push("laissé monter le chômage");
-  if (ind.cohesion > 60) L.push("préservé la cohésion sociale"); else if (ind.cohesion < 35) L.push("fracturé la société");
-  if (ind.integrite < 45) L.push("cédé aux compromissions"); else if (ind.integrite > 75) L.push("gardé les mains propres");
-  if (ind.environnement > 60) L.push("investi pour le climat"); else if (ind.environnement < 35) L.push("négligé l'environnement");
-  if (!L.length) return "Un mandat sans relief, ni grand succès ni échec marquant.";
-  return "Vous avez " + L.slice(0, 3).join(", ") + ".";
 }
 
 // Bilan pédagogique développé : analyse par domaine des conséquences des choix
@@ -1738,7 +1741,7 @@ function leconDetaillee(game) {
    ============================================================ */
 const TROPHIES = [
   { id: "equilibre", label: "Équilibriste", icon: "scale", desc: "Finir avec un budget à l'équilibre ou en excédent.", check: (g) => g.ind.solde >= 0 },
-  { id: "desendet", label: "Désendetteur·se", icon: "trending-down", desc: "Faire reculer la dette sous 110 % du PIB.", check: (g) => g.ind.dette < 110 },
+  { id: "desendet", label: "Désendetteur·se", icon: "trending-down", desc: "Faire reculer la dette d'au moins 6 points de PIB sur le mandat.", check: (g) => g.ind.dette <= DETTE0 - 6 },
   { id: "pleinemploi", label: "Plein emploi", icon: "briefcase", desc: "Ramener le chômage sous 6 %.", check: (g) => g.ind.chomage < 6 },
   { id: "mainspropres", label: "Mains propres", icon: "shield-check", desc: "Garder une intégrité d'au moins 90.", check: (g) => g.ind.integrite >= 90 },
   { id: "vert", label: "Président·e vert·e", icon: "leaf", desc: "Atteindre 70 en environnement.", check: (g) => g.ind.environnement >= 70 },
@@ -2012,7 +2015,7 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 22 }}>
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre ma partie</Btn>}
-        <Btn onClick={() => onLeaderboard("CLASSE")}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
+        <Btn onClick={() => onLeaderboard()}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
         <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Trophées</Btn>
       </div>
     </div>
@@ -2613,7 +2616,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
     { id: "dep", title: "Ajustez une dépense", sub: "Onglet Dépenses : touchez − pour économiser, ou + pour dépenser davantage. Chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
     { id: "go", title: "Validez votre budget", sub: `Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
   ];
-  // Projection : si on garde ce solde total jusqu'en 2031, où finit la dette ?
+  // Projection : si on garde ce solde total jusqu'à la fin du mandat, où finit la dette ?
   const detteProjetee = useMemo(() => {
     let d = indPrev.dette; const g = (preview.ind.croissance + (indPrev.inflation ?? INFL_TREND)) / 100;
     for (let i = year; i <= YEARS; i++) d = d + (-soldeTotal) - d * g;
@@ -2697,7 +2700,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         {/* Aperçu complet des conséquences prévues */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 10 }}>
           <PreviewChip label="Solde total" value={`${fmt(soldeTotal, 1)} %`} tone={soldeTotal < -6 ? "bad" : soldeTotal > -1 ? "good" : "mid"} />
-          <PreviewChip label="Dette en 2031" value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
+          <PreviewChip label={`Dette en ${BASE_YEAR + YEARS}`} value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
           <PreviewChip label="Croissance" value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
           <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
         </div>
@@ -2710,7 +2713,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         {(alerteDeficit || alerteDette) && (
           <div style={{ marginTop: 10, background: C.coralBg, border: `1px solid ${al(C.coral, "66")}`, borderRadius: 9, padding: "9px 12px", color: C.coral, fontSize: 12.5, display: "flex", alignItems: "flex-start", gap: 8 }}>
             <Icon n="alert-triangle" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-            <span>{alerteDeficit && `Déficit très élevé (${fmt(preview.ind.solde, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
+            <span>{alerteDeficit && `Déficit très élevé (${fmt(soldeTotal, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
           </div>
         )}
         <div style={{ color: C.dim, fontSize: 11, marginTop: 8, textAlign: "center" }}>Prévision avant événements — les 3 cartes de l'année viendront tout bousculer.</div>
@@ -3228,7 +3231,7 @@ function ConseilBlock({ sec, showSquares, onSquares }) {
 }
 
 /* ---------- Bilan d'année + Conseiller ---------- */
-function YearSummary({ year, indBefore, ind, flags, onNext, onTable, onSquares, history, ctx = {} }) {
+function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSquares, history, ctx = {} }) {
   const isMobile = useIsMobile();
   const bilan = useMemo(() => conseiller(indBefore, ind, flags), [indBefore, ind, flags]);
   const sections = useMemo(() => conseillerDetaille(indBefore, ind, flags, { ...ctx, year }), [indBefore, ind, flags, ctx, year]);
@@ -3274,7 +3277,7 @@ function YearSummary({ year, indBefore, ind, flags, onNext, onTable, onSquares, 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 16 }}>
         <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Chiffres année par année</Btn>
         <Btn onClick={() => onSquares("postes")}><Icon n="grid-dots" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Le budget en 1 000 €</Btn>
-        <Btn kind="primary" onClick={onNext}>{year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+        <Btn kind="primary" onClick={onNext}>{chute ? "Fin du mandat" : year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
       </div>
     </div>
   );
@@ -3652,7 +3655,9 @@ export default function App() {
     const cp = t * conseil.ind.dette / 100;
     const indTotal = { ...res.ind, solde: clamp(sp - cp, -18, 8) };
     setConseil({ ind: indTotal, taux: t, marche: m });
-    setConseilEvts(drawEvents(1, [], [], null, 2)); setConseilEvtIdx(0);
+    // Exclure les événements historiques datés : ils reviendront dans la vraie année 1
+    const histIds = (HIST_EVENTS[CURRENT_ERA.id] || []).map((h) => h.id);
+    setConseilEvts(drawEvents(1, histIds, [], null, 2)); setConseilEvtIdx(0);
     setScreen("conseil_events");
   }
   function chooseConseilEvent(choice) {
@@ -3663,7 +3668,13 @@ export default function App() {
   async function resume() {
     const ptr = await storage.get(saveKey("STMG", "__any__")); if (!ptr) return;
     const g = await storage.get(saveKey(ptr.code, ptr.team));
-    if (g) { applyEra(g.eraId || "today", g.chain ? g.chain.override : null); setGame(g); setWorkLevels({ ...(g.levels || {}) }); setScreen("budget"); }
+    if (!g) return;
+    applyEra(g.eraId || "today", g.chain ? g.chain.override : null); setGame(g); setWorkLevels({ ...(g.levels || {}) });
+    // Sauvegarde faite à la fin des événements : l'année en cours est déjà jouée -> reprendre sur son bilan
+    const h = g.history || [];
+    if (h.length && h[h.length - 1].year === g.year) {
+      setIndBefore(h.length > 1 ? h[h.length - 2].ind : { ...START }); setFlags([...(g.pendingFlags || []), ...(g.chute ? ["chute"] : [])]); setScreen("summary");
+    } else setScreen("budget");
   }
 
   function validateBudget() {
@@ -3695,12 +3706,14 @@ export default function App() {
       const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB * ECH;
       const flows = computeFlows(finalInd, game.levels, pibPrev);
       const history = [...game.history, { year: game.year, ind: finalInd, taux: game.taux, marche: game.tauxMarche, charge: game._chargeMd, soldePrimaire: game._soldePrim, ...flows }];
-      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl };
-      setFlags(fl); setGame(g2); persist(g2); setScreen("summary");
+      const chute = chuteAnticipee(finalInd);
+      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl, ...(chute ? { chute } : {}) };
+      setFlags(chute ? [...fl, "chute"] : fl); setGame(g2); persist(g2); setScreen("summary");
     }
   }
 
   function nextYear() {
+    if (game.chute) { reveal(); return; }
     if (game.year >= YEARS) { setScreen("election"); return; }
     const g2 = { ...game, year: game.year + 1 };
     setGame(g2); setWorkLevels({ ...(g2.levels || {}) }); persist(g2); setScreen("budget");
@@ -3708,15 +3721,16 @@ export default function App() {
 
   async function reveal() {
     const score = scoreBreakdown(game.ind);
-    const e = ending(game.ind, score);
+    const e = game.chute || ending(game.ind, score);
     // Une fin catastrophique plafonne le score : impossible de "bien noter" un mandat qui s'effondre.
-    if (["faillite", "chaos", "scandale"].includes(e.key)) score.total = Math.min(score.total, 35);
+    if (["faillite", "chaos", "scandale", "demission"].includes(e.key)) score.total = Math.min(score.total, 35);
     setSc(score); setEnd(e);
     const eraTag = game.eraId && game.eraId !== "today" ? ` · ${eraById(game.eraId).debut}` : "";
     const entry = { team: game.team, score: score.total, eco: score.eco, social: score.social, politique: score.politique, ending: e.title + eraTag, date: Date.now() };
     const existing = (await storage.get(lbKey(game.code), true)) || [];
     const updated = game.chain ? existing : [...existing.filter((x) => x.team !== game.team), entry];   // un mandat enchaîné n'est pas classé
     if (!game.chain) await storage.set(lbKey(game.code), updated, true);
+    await storage.set("quinq:lastcode", game.code);
     // Trophées : calculer les gagnés, repérer les NOUVEAUX, fusionner et persister
     const won = trophiesWon(game, score, e).map((t) => t.id);
     const stored = (await storage.get(TROPHY_KEY)) || [];
@@ -3740,7 +3754,7 @@ export default function App() {
     setSc(null); setEnd(null);
     start(game.code, game.team, game.doctrineId, nextId, { n: (game.chain ? game.chain.n : 1) + 1, from: game.eraId, key: end.key, ...carry });
   }
-  async function openLeaderboard(code) { setBoardCode(code); const e = (await storage.get(lbKey(code), true)) || []; setBoard(e); setScreen("leaderboard"); }
+  async function openLeaderboard(code) { code = code || (await storage.get("quinq:lastcode")) || "CLASSE"; setBoardCode(code); const e = (await storage.get(lbKey(code), true)) || []; setBoard(e); setScreen("leaderboard"); }
   async function openTrophies() { const t = (await storage.get(TROPHY_KEY)) || []; setUnlockedTrophies(t); setScreen("trophies"); }
 
   const progress = game ? ((game.year - 1) / YEARS) * 100 : 0;
@@ -3830,7 +3844,7 @@ export default function App() {
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} chain={game.chain || null} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen key={evts[evtIdx].id} event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
-        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} onSquares={(v, f) => { setSquaresView(v || "postes"); setSquaresFocus(f || null); setScreen("squares"); }} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, marche: game.tauxMarche, marchePrev: game._marchePrev, chargeMd: game._chargeMd, chargePct: game._chargePct, chargePctPrev: game._chargePctPrev }} />}
+        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} chute={!!game.chute} onNext={nextYear} onTable={() => setScreen("table")} onSquares={(v, f) => { setSquaresView(v || "postes"); setSquaresFocus(f || null); setScreen("squares"); }} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, marche: game.tauxMarche, marchePrev: game._marchePrev, chargeMd: game._chargeMd, chargePct: game._chargePct, chargePctPrev: game._chargePctPrev }} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "squares" && game && <BudgetSquares history={game.history} levels={game.levels} year={game.year} view={squaresView} focus0={squaresFocus} onClose={() => setScreen("summary")} />}
         {screen === "election" && game && <Election onReveal={reveal} />}
