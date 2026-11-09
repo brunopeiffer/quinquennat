@@ -2,7 +2,7 @@
 
 Jeu de gestion budgétaire de la France, conçu pour des **élèves de Terminale STMG**.
 Chaque équipe gouverne le pays pendant **5 ans** : elle vote un budget annuel
-(20 leviers de recettes et de dépenses), affronte des **événements** (crises,
+(19 leviers de recettes et de dépenses), affronte des **événements** (crises,
 canicule, pandémie, émeutes, choc énergétique…), des **lobbies** et des
 **dilemmes éthiques**, puis passe devant les électeurs. Un **conseiller** livre
 un bilan après chaque année, et une **élection finale** tranche entre réélection,
@@ -42,9 +42,8 @@ npm run preview  # prévisualise la version de production
 
 Le projet est configuré avec `base: "./"` (chemins relatifs), compatible avec :
 
-- **GitHub Pages** : le workflow `.github/workflows/deploy.yml` construit et
-  publie le jeu à chaque push sur `main`. À activer une fois dans
-  *Settings → Pages → Source : GitHub Actions*.
+- **GitHub Pages** : publiez le contenu de `dist/` (ex. via l'action
+  `peaceiris/actions-gh-pages` ou la branche `gh-pages`).
 - **Netlify / Vercel** : commande de build `npm run build`, dossier publié `dist`.
 
 ## Utilisation en classe

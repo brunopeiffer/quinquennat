@@ -1391,8 +1391,7 @@ function finalizeYear(ind0, taux = TAUX0, marche = MARCHE0, marchePrev = null) {
   const excesPrev = (marchePrev ?? MARCHE0) - (MARCHE0 + MARCHE_DRIFT * pg(CUR_Y - 1));
   if (exces > 0.8 && exces > excesPrev + 0.1) flags.push("taux");
   if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, GROWTH_MIN, GROWTH_MAX); flags.push("defiance"); }
-  if (n.cohesion < 25 || n.inegalites > 75) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
-  else if (n.cohesion < 40 || n.inegalites > 62) flags.push("tensions");
+  if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
   if (n.popularite < 22) flags.push("censure");
   if (n.integrite < 30) flags.push("scandale");
   return { ind: clampInd(n), flags };
@@ -1421,11 +1420,7 @@ function shuffleChoices(e, seed) {
 function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   const forced = [];
   if (flags?.includes("scandale")) forced.push("ethique_scandale");
-  // Colère sociale : 1 événement imposé sous tension, 2 en cas d'émeutes. Ils peuvent se répéter d'une année à l'autre.
-  const unrest = ["greve", "banlieues", ...(CURRENT_ERA.id === "today" ? ["gilets"] : [])];
-  const nUnrest = flags?.includes("emeutes") ? 2 : flags?.includes("tensions") ? 1 : 0;
-  const unrestPicks = flags?.includes("emeutes") ? ["banlieues", ...unrest.filter((id) => id !== "banlieues")] : unrest;
-  forced.push(...unrestPicks.slice(0, nUnrest));
+  if (flags?.includes("emeutes")) forced.push("banlieues");
   const rnd = seed ? seededRandom(seed + ":evts") : Math.random;
   // Ordre global de la classe, calculé une fois, identique pour tous
   const order = [...EVENTS];
@@ -1436,7 +1431,7 @@ function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   // Scénarios imaginés du mandat prolongé (identiques pour tous), étiquetés « prosp » : ce ne sont pas des faits historiques
   if (CURRENT_ERA.futur) { const cr = crisisFor(seed); if (cr.an === year && !usedIds.includes(cr.c.id) && picks.length < n) picks.push({ ...cr.c, an: cr.an, prosp: true, crise: true }); }
   for (const f of (FUTURE_EVENTS[CURRENT_ERA.futur] || [])) if (f.an === year && !usedIds.includes(f.id) && picks.length < n) picks.push({ ...f, prosp: true });
-  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && (unrest.includes(id) || !usedIds.includes(id)) && !picks.some((p) => p.id === id) && picks.length < n) picks.push(e); }
+  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && !usedIds.includes(id) && picks.length < n) picks.push(e); }
   for (const e of order) {
     if (picks.length >= n) break;
     // Époques historiques : aucun grand événement inventé (pandémie, guerre…), seulement des situations plausibles à toute époque
@@ -1483,7 +1478,7 @@ function conseiller(before, after, flags, bigEvent) {
   else if (up("environnement", 1)) social += `. Les indicateurs écologiques progressent.`;
   else social += `.`;
   // Alerte
-  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes : attendez-vous à de nouveaux troubles l'an prochain.", tensions: "La société gronde (cohésion faible ou inégalités fortes) : grèves et mouvements sociaux se préparent.", chute: "C'est la fin : vous ne pouvez plus gouverner, votre mandat s'arrête ici.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
+  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
   const alerte = flags.map((f) => alertMap[f]).filter(Boolean);
   return { eco, social, alerte };
 }
@@ -1496,9 +1491,9 @@ function conseillerDetaille(before, after, flags, ctx) {
   const pedago = year === 1;
   const S = [];
   // Pastille « avant → après » : ton = bon (ok) / mauvais (ko) / neutre (nt) selon le sens souhaitable ; flèche = sens réel (lisible sans couleur)
-  const chip = (k, a, b, dec, unit, good, eps = 0.05) => {
+  const chip = (k, a, b, dec, unit, good, eps = 0.05, id = null) => {
     const d = b - a, flat = Math.abs(d) < eps;
-    return { k, v: `${fmt(a, dec)} → ${fmt(b, dec)}${unit}`, tone: flat ? "nt" : ((good === "down" ? d < 0 : d > 0) ? "ok" : "ko"), dir: flat ? "=" : d > 0 ? "▲" : "▼" };
+    return { k, id, v: `${fmt(a, dec)} → ${fmt(b, dec)}${unit}`, tone: flat ? "nt" : ((good === "down" ? d < 0 : d > 0) ? "ok" : "ko"), dir: flat ? "=" : d > 0 ? "▲" : "▼" };
   };
 
   // 1. Vos décisions
@@ -1515,8 +1510,13 @@ function conseillerDetaille(before, after, flags, ctx) {
   }
   if (decisions.length) dec += ` Face aux imprévus, vous avez choisi : ${decisions.map((x) => `« ${x.choice} » (${x.event.toLowerCase()})`).join(" ; ")}.`;
   const decChips = changes.length
-    ? [...changes.slice(0, 3).map((c) => ({ k: shortLabel(c.l), v: `${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} Md€`, tone: "nt", dir: c.eur > 0 ? "▲" : "▼" })),
-       ...(changes.length > 3 ? [{ k: "", v: `+${changes.length - 3} autre${changes.length - 3 > 1 ? "s" : ""}`, tone: "nt" }] : [])]
+    ? [...changes.slice(0, 3).map((c) => {
+         const amt = `${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} Md€`;
+         return { k: shortLabel(c.l), v: amt, tone: "nt", dir: c.eur > 0 ? "▲" : "▼", lever: c.l.id, hint: c.l.hint,
+           read: c.l.cat === "dep" ? `Vous avez ${c.eur > 0 ? "augmenté" : "réduit"} cette dépense : ${amt} par an.` : `Vous avez ${c.eur > 0 ? "alourdi" : "allégé"} ce prélèvement : ${amt} de recettes par an.` };
+       }),
+       ...(changes.length > 3 ? [{ k: "", v: `+${changes.length - 3} autre${changes.length - 3 > 1 ? "s" : ""}`, tone: "nt",
+         more: changes.slice(3).map((c) => ({ k: shortLabel(c.l), v: `${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} Md€`, dir: c.eur > 0 ? "▲" : "▼", cat: c.l.cat })) }] : [])]
     : [{ k: "Budget", v: "reconduit à l'identique", tone: "nt" }];
   S.push({ icon: "list-check", color: C.gold, t: "Ce que vous avez décidé", c: dec, chips: decChips, list: decisions.map((x) => ({ ev: x.event, choice: x.choice })) });
 
@@ -1558,9 +1558,9 @@ function conseillerDetaille(before, after, flags, ctx) {
   const solTxt = after.solde >= 0 ? "Vos comptes sont à l'équilibre ou excédentaires" : dSol > 0.15 ? "Le déficit se réduit" : dSol < -0.15 ? "Le déficit se creuse" : "Le déficit est stable";
   const conj = (dSol < -0.15 && detDown) || (dSol > 0.15 && detUp) ? "mais" : "et";
   const cptVerdict = `${solTxt}, ${conj} ${detDown ? "la dette recule" : detUp ? "la dette augmente" : "la dette est stable"}${detDown && after.solde < 0 ? " : la croissance la dilue" : ""}.`;
-  const cptChips = [chip("Solde", before.solde, after.solde, 1, " % du PIB", "up", 0.15), chip("Dette", before.dette, after.dette, 0, " %", "down", 0.3)];
-  if (marche != null && marchePrev != null) cptChips.push(chip("Nouveaux emprunts", marchePrev, marche, 1, " %", "down", 0.1));
-  if (taux != null && tauxPrev != null) { const tc = chip("Taux moyen", tauxPrev, taux, 2, " %", "down", 0.05); if (taux > tauxPrev + 0.05) tc.tone = "mid"; cptChips.push(tc); }
+  const cptChips = [chip("Solde", before.solde, after.solde, 1, " % du PIB", "up", 0.15, "solde"), chip("Dette", before.dette, after.dette, 0, " %", "down", 0.3, "dette")];
+  if (marche != null && marchePrev != null) cptChips.push(chip("Nouveaux emprunts", marchePrev, marche, 1, " %", "down", 0.1, "marche"));
+  if (taux != null && tauxPrev != null) { const tc = chip("Taux moyen", tauxPrev, taux, 2, " %", "down", 0.05, "taux"); if (taux > tauxPrev + 0.05) tc.tone = "mid"; cptChips.push(tc); }
   S.push({ icon: "wallet", color: C.coral, t: "Vos comptes publics", c: cpt, verdict: cptVerdict, chips: cptChips,
     bars: [{ k: "Vos décisions", v: dBudget }, { k: "Imprévus", v: dEvents }, { k: "Intérêts de la dette", v: dCharge }, { k: "Ajustement automatique", v: residu }], total: dTotal });
 
@@ -1570,7 +1570,7 @@ function conseillerDetaille(before, after, flags, ctx) {
     let inf = `L'inflation passe de ${fmt(bi, 1)} % à ${fmt(ai, 1)} %. `;
     inf += ai < bi - 0.3 ? "Les prix ralentissent : bonne nouvelle pour le pouvoir d'achat, et les taux d'intérêt pourront baisser. " : ai > bi + 0.3 ? "Les prix s'emballent : les salaires et l'épargne perdent de leur valeur, et les taux d'intérêt restent élevés. " : "L'inflation est stable. ";
     if (pedago || year <= 2) inf += "C'est le cœur de la bataille économique de l'époque : quand les prix montent de 10 % par an, un salaire qui ne suit pas perd 10 % de pouvoir d'achat. Pour faire baisser l'inflation, on peut freiner la demande (rigueur), contenir les prix et les salaires, ou défendre la monnaie, au risque d'augmenter le chômage à court terme.";
-    S.push({ icon: "flame", color: "var(--c-ethique)", t: "Le front de l'inflation", c: inf, verdict: ai < bi - 0.3 ? "Les prix ralentissent." : ai > bi + 0.3 ? "Les prix s'emballent." : "L'inflation est stable.", chips: [chip("Inflation", bi, ai, 1, " %", "down", 0.3)] });
+    S.push({ icon: "flame", color: "var(--c-ethique)", t: "Le front de l'inflation", c: inf, verdict: ai < bi - 0.3 ? "Les prix ralentissent." : ai > bi + 0.3 ? "Les prix s'emballent." : "L'inflation est stable.", chips: [chip("Inflation", bi, ai, 1, " %", "down", 0.3, "inflation")] });
   }
 
   // 3. Croissance et emploi
@@ -1584,7 +1584,7 @@ function conseillerDetaille(before, after, flags, ctx) {
   if (pedago) emp += `À retenir : quand l'activité accélère, les entreprises embauchent et le chômage baisse ; quand elle ralentit, il monte (c'est la loi d'Okun).`;
   S.push({ icon: "trending-up", color: C.mint, t: "Croissance et emploi", c: emp.trim(),
     verdict: impulse > 3 ? "Votre budget a soutenu l'activité, au prix d'un déficit plus lourd." : impulse < -3 ? "Votre budget a freiné l'activité : c'est le prix à payer, à court terme, pour réduire le déficit." : "Votre budget est resté neutre pour l'activité.",
-    chips: [{ k: "Croissance", v: `${fmt(after.croissance, 1)} %`, tone: after.croissance >= 1.5 ? "ok" : after.croissance < 0.5 ? "ko" : "mid", dir: before.croissance != null && Math.abs(after.croissance - before.croissance) >= 0.1 ? (after.croissance > before.croissance ? "▲" : "▼") : undefined }, chip("Chômage", before.chomage, after.chomage, 1, " %", "down", 0.1)] });
+    chips: [{ k: "Croissance", id: "croissance", v: `${fmt(after.croissance, 1)} %`, tone: after.croissance >= 1.5 ? "ok" : after.croissance < 0.5 ? "ko" : "mid", dir: before.croissance != null && Math.abs(after.croissance - before.croissance) >= 0.1 ? (after.croissance > before.croissance ? "▲" : "▼") : undefined }, chip("Chômage", before.chomage, after.chomage, 1, " %", "down", 0.1, "chomage")] });
 
   // 4. Société et opinion
   let soc = "";
@@ -1610,7 +1610,7 @@ function conseillerDetaille(before, after, flags, ctx) {
   if (dP >= 1) frag.push("popularité en hausse"); else if (dP <= -1) frag.push("popularité en baisse");
   S.push({ icon: "users-group", color: "var(--c-sante)", t: "Société et opinion", c: soc,
     verdict: frag.length ? frag.slice(0, 2).join(", ").replace(/^./, (m) => m.toUpperCase()) + "." : "Peu de changement dans la société et l'opinion.",
-    chips: [chip("Égalité", 100 - (before.inegalites ?? 45), 100 - (after.inegalites ?? 45), 0, "", "up", 1), chip("Cohésion", before.cohesion, after.cohesion, 0, "", "up", 2), chip("Popularité", before.popularite, after.popularite, 0, "", "up", 1)] });
+    chips: [chip("Égalité", 100 - (before.inegalites ?? 45), 100 - (after.inegalites ?? 45), 0, "", "up", 1, "inegalites"), chip("Cohésion", before.cohesion, after.cohesion, 0, "", "up", 2, "cohesion"), chip("Popularité", before.popularite, after.popularite, 0, "", "up", 1, "popularite")] });
 
   // 5. Conseil pour l'an prochain
   const tips = [];
@@ -1648,15 +1648,6 @@ function scoreBreakdown(ind) {
   return { eco: courbe(eco), social: courbe(social), politique: courbe(politique), total: courbe(totalRaw) };
 }
 
-// Fin anticipée : un pouvoir sans aucun soutien ou un pays à feu et à sang ne peut pas aller au bout du mandat.
-// Vérifiée à la fin de chaque année ; sinon le joueur continuerait avec 0 de popularité ou de cohésion.
-function chuteAnticipee(ind) {
-  if (ind.popularite <= 5) return { key: "demission", title: "Contraint·e à la démission", icon: "door-exit", color: "var(--c-crise)",
-    text: "Plus personne ne vous soutient : manifestations massives, majorité qui vous lâche, appels à la démission. Vous quittez le pouvoir avant la fin de votre mandat. Sans confiance des citoyens, on ne peut pas gouverner." };
-  if (ind.cohesion <= 5) return { key: "chaos", title: "Le pays ingouvernable", icon: "urgent", color: "var(--c-ethique)",
-    text: "Émeutes, blocages, grève générale : le pays est paralysé et vous devez quitter le pouvoir avant la fin de votre mandat. Sans cohésion sociale, aucune réforme ne tient." };
-  return null;
-}
 function ending(ind, sc) {
   if (ind.integrite < 30) return { key: "scandale", title: "Chute sur scandale", icon: "gavel", color: "var(--c-lobby)",
     text: "Miné par les affaires, votre gouvernement tombe avant l'heure. La probité est le socle de la confiance démocratique." };
@@ -1685,11 +1676,22 @@ function expliquerFin(game) {
   const avgSolde = h.reduce((s, r) => s + r.ind.solde, 0) / h.length;
   const detteDelta = last.dette - DETTE0;
   const p = [];
-  p.push(`${h.length < YEARS ? `Votre mandat s'est arrêté au bout de ${h.length} an${h.length > 1 ? "s" : ""} sur ${YEARS}. Sur cette période` : `Sur ${YEARS} ans`}, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
+  p.push(`Sur ${YEARS} ans, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
   p.push(detteDelta > 2 ? `la dette est passée de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} % (+${fmt(detteDelta, 0)} points)` : detteDelta < -2 ? `la dette a reculé de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} %` : `la dette est restée stable (${fmt(last.dette, 0)} %)`);
   p.push(last.chomage < 7 ? `le chômage a baissé à ${fmt(last.chomage, 1)} %` : last.chomage > 9 ? `le chômage a grimpé à ${fmt(last.chomage, 1)} %` : `le chômage s'établit à ${fmt(last.chomage, 1)} %`);
   if (last.integrite < 40) p.push(`et votre intégrité, entamée (${fmt(last.integrite, 0)}/100), a nourri les scandales`);
   return p.join(", ") + ".";
+}
+
+function lessonFor(ind) {
+  const L = [];
+  if (ind.dette < 118) L.push("tenu la dette"); else if (ind.dette > 135) L.push("laissé filer la dette");
+  if (ind.chomage < 7) L.push("fait reculer le chômage"); else if (ind.chomage > 9) L.push("laissé monter le chômage");
+  if (ind.cohesion > 60) L.push("préservé la cohésion sociale"); else if (ind.cohesion < 35) L.push("fracturé la société");
+  if (ind.integrite < 45) L.push("cédé aux compromissions"); else if (ind.integrite > 75) L.push("gardé les mains propres");
+  if (ind.environnement > 60) L.push("investi pour le climat"); else if (ind.environnement < 35) L.push("négligé l'environnement");
+  if (!L.length) return "Un mandat sans relief, ni grand succès ni échec marquant.";
+  return "Vous avez " + L.slice(0, 3).join(", ") + ".";
 }
 
 // Bilan pédagogique développé : analyse par domaine des conséquences des choix
@@ -1741,7 +1743,7 @@ function leconDetaillee(game) {
    ============================================================ */
 const TROPHIES = [
   { id: "equilibre", label: "Équilibriste", icon: "scale", desc: "Finir avec un budget à l'équilibre ou en excédent.", check: (g) => g.ind.solde >= 0 },
-  { id: "desendet", label: "Désendetteur·se", icon: "trending-down", desc: "Faire reculer la dette d'au moins 6 points de PIB sur le mandat.", check: (g) => g.ind.dette <= DETTE0 - 6 },
+  { id: "desendet", label: "Désendetteur·se", icon: "trending-down", desc: "Faire reculer la dette sous 110 % du PIB.", check: (g) => g.ind.dette < 110 },
   { id: "pleinemploi", label: "Plein emploi", icon: "briefcase", desc: "Ramener le chômage sous 6 %.", check: (g) => g.ind.chomage < 6 },
   { id: "mainspropres", label: "Mains propres", icon: "shield-check", desc: "Garder une intégrité d'au moins 90.", check: (g) => g.ind.integrite >= 90 },
   { id: "vert", label: "Président·e vert·e", icon: "leaf", desc: "Atteindre 70 en environnement.", check: (g) => g.ind.environnement >= 70 },
@@ -2015,7 +2017,7 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 22 }}>
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre ma partie</Btn>}
-        <Btn onClick={() => onLeaderboard()}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
+        <Btn onClick={() => onLeaderboard("CLASSE")}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
         <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Trophées</Btn>
       </div>
     </div>
@@ -2616,7 +2618,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
     { id: "dep", title: "Ajustez une dépense", sub: "Onglet Dépenses : touchez − pour économiser, ou + pour dépenser davantage. Chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
     { id: "go", title: "Validez votre budget", sub: `Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
   ];
-  // Projection : si on garde ce solde total jusqu'à la fin du mandat, où finit la dette ?
+  // Projection : si on garde ce solde total jusqu'en 2031, où finit la dette ?
   const detteProjetee = useMemo(() => {
     let d = indPrev.dette; const g = (preview.ind.croissance + (indPrev.inflation ?? INFL_TREND)) / 100;
     for (let i = year; i <= YEARS; i++) d = d + (-soldeTotal) - d * g;
@@ -2700,7 +2702,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         {/* Aperçu complet des conséquences prévues */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 10 }}>
           <PreviewChip label="Solde total" value={`${fmt(soldeTotal, 1)} %`} tone={soldeTotal < -6 ? "bad" : soldeTotal > -1 ? "good" : "mid"} />
-          <PreviewChip label={`Dette en ${BASE_YEAR + YEARS}`} value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
+          <PreviewChip label="Dette en 2031" value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
           <PreviewChip label="Croissance" value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
           <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
         </div>
@@ -2713,7 +2715,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         {(alerteDeficit || alerteDette) && (
           <div style={{ marginTop: 10, background: C.coralBg, border: `1px solid ${al(C.coral, "66")}`, borderRadius: 9, padding: "9px 12px", color: C.coral, fontSize: 12.5, display: "flex", alignItems: "flex-start", gap: 8 }}>
             <Icon n="alert-triangle" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-            <span>{alerteDeficit && `Déficit très élevé (${fmt(soldeTotal, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
+            <span>{alerteDeficit && `Déficit très élevé (${fmt(preview.ind.solde, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
           </div>
         )}
         <div style={{ color: C.dim, fontSize: 11, marginTop: 8, textAlign: "center" }}>Prévision avant événements — les 3 cartes de l'année viendront tout bousculer.</div>
@@ -3193,25 +3195,61 @@ function SoldeBars({ bars, total }) {
     </div>
   );
 }
+// Définitions des pastilles qui ne correspondent pas à un indicateur du tableau de bord
+const CHIP_HELP = {
+  marche: "Le taux auquel l'État emprunte aujourd'hui, sur 10 ans (on parle de l'« OAT à 10 ans »). Il ne s'applique qu'aux NOUVEAUX emprunts. Il monte quand les prêteurs doutent de la solidité des finances publiques (dette élevée, gros déficit, inflation) et baisse quand ils sont rassurés.",
+  taux: "Le coût moyen de TOUTE la dette en cours : un mélange de vieux emprunts à taux bas et de nouveaux emprunts à des taux plus élevés. Il bouge lentement : chaque année, des emprunts anciens arrivent à échéance et sont remplacés par des emprunts aux taux du marché. La charge d'intérêts de l'État = taux moyen × dette.",
+};
+// Petit panneau d'explication ouvert sous une pastille du bilan
+function ChipHelp({ chip }) {
+  if (!chip) return null;
+  const meta = chip.id ? IND_META.find((m) => m.id === chip.id) : null;
+  const text = chip.hint || (meta && meta.info) || CHIP_HELP[chip.id] || "";
+  const lecture = { ok: "C'est plutôt favorable.", ko: "C'est plutôt défavorable.", mid: "À surveiller.", nt: "Peu de changement." }[chip.tone || "nt"];
+  return (
+    <div data-chip-panel="1" style={{ marginTop: 8, padding: "10px 12px", borderRadius: 10, background: C.card, border: `1px solid ${C.line}`, fontSize: 13, lineHeight: 1.55, color: C.sub }}>
+      <div style={{ color: C.ink, fontWeight: 600, marginBottom: 4 }}>{chip.more ? "Les autres décisions de l'année" : (meta && meta.label !== chip.k ? `${chip.k} (${meta.label.toLowerCase()})` : chip.k)}</div>
+      {chip.more ? (
+        <div style={{ display: "grid", gap: 3 }}>
+          {chip.more.map((x, i) => <div key={i} data-more-line="1"><Icon n="arrow-right" size={12} /> {x.k} : <b style={{ color: C.ink, fontWeight: 600 }}>{x.dir} {x.v}</b> <span style={{ color: C.dim }}>{x.cat === "dep" ? "de dépenses" : "de recettes"} par an</span></div>)}
+        </div>
+      ) : <div>{text}</div>}
+      {chip.read && <div style={{ marginTop: 6, color: C.ink }}>{chip.read}</div>}
+      {!chip.more && !chip.lever && <div data-chip-reading="1" style={{ marginTop: 6, color: C.ink }}>Cette année : <b style={{ fontWeight: 600 }}>{chip.v}</b>. {lecture}</div>}
+    </div>
+  );
+}
 function ConseilBlock({ sec, showSquares, onSquares }) {
   const [open, setOpen] = useState(false);
+  const [sel, setSel] = useState(null);       // pastille dont l'explication est ouverte (une seule à la fois)
+  const [shown, setShown] = useState(null);   // contenu affiché : conservé pendant la fermeture animée
   const toneC = { ok: C.mint, ko: C.coral, mid: C.gold, nt: C.ink };
+  const toggleChip = (i) => { if (sel === i) setSel(null); else { setSel(i); setShown(i); } };
   return (
     <div data-conseil-block={sec.t} style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, color: sec.color, fontSize: 13, fontWeight: 600 }}><Icon n={sec.icon} size={15} /> {sec.t}</div>
       {sec.verdict && <div data-verdict="1" style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.5, margin: "6px 0 8px" }}>{sec.verdict}</div>}
       {sec.chips && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: sec.verdict ? 0 : 8 }}>
-          {sec.chips.map((c, i) => {
-            const nt = !c.tone || c.tone === "nt", col = toneC[c.tone] || C.ink;
-            return (
-              <span key={i} data-chip={c.tone || "nt"} style={{ display: "inline-flex", alignItems: "baseline", gap: 5, fontSize: 12.5, padding: "4px 9px", borderRadius: 8, background: nt ? C.card : al(col, "22"), border: `1px solid ${nt ? C.line : al(col, "55")}` }}>
-                {c.k && <span style={{ color: C.dim }}>{c.k}</span>}
-                <b style={{ fontWeight: 600, color: nt ? C.ink : col }}>{c.dir && c.dir !== "=" ? c.dir + " " : ""}{c.v}</b>
-              </span>
-            );
-          })}
-        </div>
+        <>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: sec.verdict ? 0 : 8 }}>
+            {sec.chips.map((c, i) => {
+              const nt = !c.tone || c.tone === "nt", col = toneC[c.tone] || C.ink, on = sel === i;
+              const help = !!(c.id || c.hint || c.more);
+              const inner = (
+                <>
+                  {c.k && <span style={{ color: C.dim }}>{c.k}</span>}
+                  <b style={{ fontWeight: 600, color: nt ? C.ink : col }}>{c.dir && c.dir !== "=" ? c.dir + " " : ""}{c.v}</b>
+                  {help && <Icon n={on ? "chevron-up" : "chevron-down"} size={12} color={C.dim} />}
+                </>
+              );
+              const st = { display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, padding: "5px 9px", minHeight: 32, borderRadius: 8, background: nt ? C.card : al(col, "22"), border: `1px solid ${on ? C.gold : nt ? C.line : al(col, "55")}`, font: "inherit", fontFamily: "inherit", color: "inherit", textAlign: "left", cursor: help ? "pointer" : "default", touchAction: "manipulation" };
+              return help
+                ? <button key={i} type="button" data-chip={c.tone || "nt"} aria-expanded={on} onClick={() => toggleChip(i)} style={st}>{inner}</button>
+                : <span key={i} data-chip={c.tone || "nt"} style={{ ...st, alignItems: "baseline" }}>{inner}</span>;
+            })}
+          </div>
+          <Collapse open={sel !== null}><ChipHelp chip={shown !== null ? sec.chips[shown] : null} /></Collapse>
+        </>
       )}
       {sec.list && sec.list.length > 0 && (
         <div data-decisions-list="1" style={{ color: C.sub, fontSize: 12.5, lineHeight: 1.45, marginTop: 10, display: "grid", gap: 4 }}>
@@ -3231,7 +3269,7 @@ function ConseilBlock({ sec, showSquares, onSquares }) {
 }
 
 /* ---------- Bilan d'année + Conseiller ---------- */
-function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSquares, history, ctx = {} }) {
+function YearSummary({ year, indBefore, ind, flags, onNext, onTable, onSquares, history, ctx = {} }) {
   const isMobile = useIsMobile();
   const bilan = useMemo(() => conseiller(indBefore, ind, flags), [indBefore, ind, flags]);
   const sections = useMemo(() => conseillerDetaille(indBefore, ind, flags, { ...ctx, year }), [indBefore, ind, flags, ctx, year]);
@@ -3277,7 +3315,7 @@ function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSq
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 16 }}>
         <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Chiffres année par année</Btn>
         <Btn onClick={() => onSquares("postes")}><Icon n="grid-dots" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Le budget en 1 000 €</Btn>
-        <Btn kind="primary" onClick={onNext}>{chute ? "Fin du mandat" : year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+        <Btn kind="primary" onClick={onNext}>{year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
       </div>
     </div>
   );
@@ -3655,9 +3693,7 @@ export default function App() {
     const cp = t * conseil.ind.dette / 100;
     const indTotal = { ...res.ind, solde: clamp(sp - cp, -18, 8) };
     setConseil({ ind: indTotal, taux: t, marche: m });
-    // Exclure les événements historiques datés : ils reviendront dans la vraie année 1
-    const histIds = (HIST_EVENTS[CURRENT_ERA.id] || []).map((h) => h.id);
-    setConseilEvts(drawEvents(1, histIds, [], null, 2)); setConseilEvtIdx(0);
+    setConseilEvts(drawEvents(1, [], [], null, 2)); setConseilEvtIdx(0);
     setScreen("conseil_events");
   }
   function chooseConseilEvent(choice) {
@@ -3668,13 +3704,7 @@ export default function App() {
   async function resume() {
     const ptr = await storage.get(saveKey("STMG", "__any__")); if (!ptr) return;
     const g = await storage.get(saveKey(ptr.code, ptr.team));
-    if (!g) return;
-    applyEra(g.eraId || "today", g.chain ? g.chain.override : null); setGame(g); setWorkLevels({ ...(g.levels || {}) });
-    // Sauvegarde faite à la fin des événements : l'année en cours est déjà jouée -> reprendre sur son bilan
-    const h = g.history || [];
-    if (h.length && h[h.length - 1].year === g.year) {
-      setIndBefore(h.length > 1 ? h[h.length - 2].ind : { ...START }); setFlags([...(g.pendingFlags || []), ...(g.chute ? ["chute"] : [])]); setScreen("summary");
-    } else setScreen("budget");
+    if (g) { applyEra(g.eraId || "today", g.chain ? g.chain.override : null); setGame(g); setWorkLevels({ ...(g.levels || {}) }); setScreen("budget"); }
   }
 
   function validateBudget() {
@@ -3706,14 +3736,12 @@ export default function App() {
       const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB * ECH;
       const flows = computeFlows(finalInd, game.levels, pibPrev);
       const history = [...game.history, { year: game.year, ind: finalInd, taux: game.taux, marche: game.tauxMarche, charge: game._chargeMd, soldePrimaire: game._soldePrim, ...flows }];
-      const chute = chuteAnticipee(finalInd);
-      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl, ...(chute ? { chute } : {}) };
-      setFlags(chute ? [...fl, "chute"] : fl); setGame(g2); persist(g2); setScreen("summary");
+      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl };
+      setFlags(fl); setGame(g2); persist(g2); setScreen("summary");
     }
   }
 
   function nextYear() {
-    if (game.chute) { reveal(); return; }
     if (game.year >= YEARS) { setScreen("election"); return; }
     const g2 = { ...game, year: game.year + 1 };
     setGame(g2); setWorkLevels({ ...(g2.levels || {}) }); persist(g2); setScreen("budget");
@@ -3721,16 +3749,15 @@ export default function App() {
 
   async function reveal() {
     const score = scoreBreakdown(game.ind);
-    const e = game.chute || ending(game.ind, score);
+    const e = ending(game.ind, score);
     // Une fin catastrophique plafonne le score : impossible de "bien noter" un mandat qui s'effondre.
-    if (["faillite", "chaos", "scandale", "demission"].includes(e.key)) score.total = Math.min(score.total, 35);
+    if (["faillite", "chaos", "scandale"].includes(e.key)) score.total = Math.min(score.total, 35);
     setSc(score); setEnd(e);
     const eraTag = game.eraId && game.eraId !== "today" ? ` · ${eraById(game.eraId).debut}` : "";
     const entry = { team: game.team, score: score.total, eco: score.eco, social: score.social, politique: score.politique, ending: e.title + eraTag, date: Date.now() };
     const existing = (await storage.get(lbKey(game.code), true)) || [];
     const updated = game.chain ? existing : [...existing.filter((x) => x.team !== game.team), entry];   // un mandat enchaîné n'est pas classé
     if (!game.chain) await storage.set(lbKey(game.code), updated, true);
-    await storage.set("quinq:lastcode", game.code);
     // Trophées : calculer les gagnés, repérer les NOUVEAUX, fusionner et persister
     const won = trophiesWon(game, score, e).map((t) => t.id);
     const stored = (await storage.get(TROPHY_KEY)) || [];
@@ -3754,7 +3781,7 @@ export default function App() {
     setSc(null); setEnd(null);
     start(game.code, game.team, game.doctrineId, nextId, { n: (game.chain ? game.chain.n : 1) + 1, from: game.eraId, key: end.key, ...carry });
   }
-  async function openLeaderboard(code) { code = code || (await storage.get("quinq:lastcode")) || "CLASSE"; setBoardCode(code); const e = (await storage.get(lbKey(code), true)) || []; setBoard(e); setScreen("leaderboard"); }
+  async function openLeaderboard(code) { setBoardCode(code); const e = (await storage.get(lbKey(code), true)) || []; setBoard(e); setScreen("leaderboard"); }
   async function openTrophies() { const t = (await storage.get(TROPHY_KEY)) || []; setUnlockedTrophies(t); setScreen("trophies"); }
 
   const progress = game ? ((game.year - 1) / YEARS) * 100 : 0;
@@ -3844,7 +3871,7 @@ export default function App() {
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} chain={game.chain || null} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen key={evts[evtIdx].id} event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
-        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} chute={!!game.chute} onNext={nextYear} onTable={() => setScreen("table")} onSquares={(v, f) => { setSquaresView(v || "postes"); setSquaresFocus(f || null); setScreen("squares"); }} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, marche: game.tauxMarche, marchePrev: game._marchePrev, chargeMd: game._chargeMd, chargePct: game._chargePct, chargePctPrev: game._chargePctPrev }} />}
+        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} onSquares={(v, f) => { setSquaresView(v || "postes"); setSquaresFocus(f || null); setScreen("squares"); }} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, marche: game.tauxMarche, marchePrev: game._marchePrev, chargeMd: game._chargeMd, chargePct: game._chargePct, chargePctPrev: game._chargePctPrev }} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "squares" && game && <BudgetSquares history={game.history} levels={game.levels} year={game.year} view={squaresView} focus0={squaresFocus} onClose={() => setScreen("summary")} />}
         {screen === "election" && game && <Election onReveal={reveal} />}
