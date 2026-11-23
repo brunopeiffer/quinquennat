@@ -1854,9 +1854,12 @@ function IndicatorChip({ m, ind, prev, open, onToggle, mobile }) {
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{m.label}</span>
         <Icon n="help-circle" size={11} color={open ? C.gold : C.dim} />
       </span>
-      <span style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
-        <span style={{ color: col, fontFamily: "monospace", fontSize: 19, fontWeight: 700, lineHeight: 1.1 }}>{m.fmt(v)}<span style={{ fontSize: 11, color: C.dim, fontWeight: 500 }}>{m.unit}</span></span>
-        {dShow && <span style={{ fontSize: 10, fontFamily: "monospace", color: (m.inv ? -d : d) > 0 ? C.mint : C.coral }}>{d > 0 ? "▲" : "▼"}{fmt(Math.abs(d), 1)}</span>}
+      <span style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+        <span style={{ color: col, fontFamily: "monospace", fontSize: mobile ? 24 : 30, fontWeight: 700, lineHeight: 1, letterSpacing: "-.02em" }}>{m.fmt(v)}<span style={{ fontSize: mobile ? 12 : 14, color: C.dim, fontWeight: 500, marginLeft: 1 }}>{m.unit}</span></span>
+        {/* Variation de l'année dans une pastille : verte si amélioration, rouge si dégradation */}
+        {dShow && (() => { const good = (m.inv ? -d : d) > 0, c = good ? C.mint : C.coral; return (
+          <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "monospace", color: c, background: al(c, "1F"), border: `1px solid ${al(c, "66")}`, borderRadius: 20, padding: "1px 6px", lineHeight: 1.3, whiteSpace: "nowrap" }}>{d > 0 ? "▲" : "▼"} {fmt(Math.abs(d), 1)}</span>
+        ); })()}
       </span>
       {m.gauge
         ? <span data-gauge="1" aria-hidden="true" style={{ display: "block", height: 4, borderRadius: 2, background: C.track, overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${pct}%`, background: col, borderRadius: 2, transition: "width .6s ease" }} /></span>
