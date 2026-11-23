@@ -1849,7 +1849,7 @@ function IndicatorChip({ m, ind, prev, open, onToggle, mobile }) {
     <button onClick={onToggle} title="En savoir plus" className={improved ? "qwin" : ""}
       style={{ position: "relative", textAlign: "left", cursor: "pointer", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4, background: C.inset, borderRadius: 10, padding: "8px 8px 8px 12px", overflow: "hidden", border: `1px solid ${open ? C.gold : improved ? C.mint : C.line}`, touchAction: "manipulation" }}>
       <span aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: col }} />
-      <span style={{ display: "flex", alignItems: "center", gap: 4, color: C.dim, fontSize: 10.5, lineHeight: 1.15, minWidth: 0 }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 3, color: C.sub, fontSize: mobile ? 10.5 : 12, lineHeight: 1.15, minWidth: 0 }}>
         <Icon n={m.icon.replace("ti-", "")} size={12} />
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{m.label}</span>
         <Icon n="help-circle" size={11} color={open ? C.gold : C.dim} />
