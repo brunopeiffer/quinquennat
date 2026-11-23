@@ -2224,7 +2224,7 @@ function Mission({ team, doctrine, onGo, chain = null }) {
       <ScreenTitle icon="target-arrow" title="Votre mission" sub={`${team} · doctrine ${doctrine?.label}${chain ? ` · ${chain.n}ᵉ mandat` : ""}`} />
       <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 16, padding: 22, marginBottom: 18 }}>
         <p style={{ color: C.ink, fontSize: 16, lineHeight: 1.65, margin: 0 }}>
-          {chain ? <>Vous êtes <b>réélu·e</b> : votre <b>{chain.n}ᵉ mandat</b> commence en {CURRENT_ERA.debut} et dure <b>{YEARS} ans</b>.</> : <>Vous dirigez la France pendant <b>{YEARS} ans</b>{CURRENT_ERA.id !== "today" && <>, à partir de {CURRENT_ERA.debut}, à la place de {CURRENT_ERA.president}</>}.</>} Chaque année : vous votez un <b>budget</b> (ce que l'État gagne et dépense), puis vous affrontez <b>3 événements</b> imprévus. À la fin, les Français votent.
+          {chain ? <>Vous êtes <b>réélu·e</b> : votre <b>{chain.n}ᵉ mandat</b> commence en {CURRENT_ERA.debut} et dure <b>{YEARS} ans</b>.</> : <>Vous venez d'être élu·e : vous allez diriger la France pendant <b>{YEARS} ans</b>{CURRENT_ERA.id !== "today" && <>, à partir de {CURRENT_ERA.debut}, à la place de {CURRENT_ERA.president}</>}.</>} Chaque année, vous voterez un <b>budget</b> (ce que l'État gagne et dépense), puis vous affronterez <b>3 événements</b> imprévus. À la fin, les Français voteront.
         </p>
         <p style={{ color: C.sub, fontSize: 15, lineHeight: 1.65, margin: "12px 0 0" }}>
           Au départ : un <b style={{ color: C.coral }}>déficit de {fmt(-START.solde, 1)} %</b> (l'État dépense plus qu'il ne gagne) et une <b style={{ color: C.coral }}>dette de {fmt(START.dette, 0)} %</b> du PIB{CURRENT_ERA.id !== "today" && <> ; l'inflation atteint <b style={{ color: C.coral }}>{fmt(START.inflation, 1)} %</b> et l'État emprunte à <b>{fmt(MARCHE0, 1)} %</b></>}. Votre but : redresser les comptes <b>sans casser la société</b>. Attention, tout se tient — aucune décision n'est gratuite.
@@ -2650,9 +2650,9 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const anyRec = changedIn("rec"), anyDep = changedIn("dep");
   const readyToValidate = guided && anyRec && anyDep; // les deux étapes sont faites : le bouton Valider pulse
   const guideSteps = [
-    { id: "rec", short: "Une recette", title: "Augmentez une recette", sub: "Onglet Recettes : touchez + sur un impôt (par exemple la TVA). Une recette qui augmente réduit le déficit.", done: anyRec, go: { tab: "rec", label: "Aller aux recettes" } },
-    { id: "dep", short: "Une dépense", title: "Ajustez une dépense", sub: "Onglet Dépenses : touchez − pour économiser, ou + pour dépenser davantage. Chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
-    { id: "go", short: "Valider", cta: conseil ? "Proposer ce budget" : "Valider le budget", title: "Validez votre budget", sub: `Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
+    { id: "rec", short: "Vos recettes", title: "Réglez vos recettes (impôts)", sub: "Onglet Recettes : touchez + pour augmenter un impôt, − pour le baisser. Modifiez-en autant que vous voulez : chaque impôt relevé réduit le déficit, mais pèse sur quelqu'un.", done: anyRec, go: { tab: "rec", label: "Aller aux recettes" } },
+    { id: "dep", short: "Vos dépenses", title: "Réglez vos dépenses", sub: "Onglet Dépenses : touchez − pour économiser, + pour dépenser davantage. Ajustez autant de postes que vous voulez : chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
+    { id: "go", short: "Valider", cta: conseil ? "Proposer ce budget" : "Valider le budget", title: "Validez votre budget", sub: `Vous pouvez encore modifier recettes et dépenses. Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
   ];
   // Projection : si on garde ce solde total jusqu'à la fin du mandat, où finit la dette ?
   const detteProjetee = useMemo(() => {
