@@ -94,6 +94,8 @@ const START_TODAY = { ...START };
 let CURRENT_ERA = ERAS[ERAS.length - 1];
 let BASE_YEAR = 2026, ECH = 1, DETTE0 = 119, CHOM0 = 8.3, INFL0 = 3.4, INFL_TREND = 2.0, GROWTH_POT = 1.0;
 let ERA_RATES = {}, DISABLED = [], ERA_ZERO = [], INFL_LINK = 0.7, MARCHE_DRIFT = 0, CUR_Y = 1, CHAIN_MODE = false, INFL_REF = 0;
+/* Code de classe imposant l'époque : « NOM-ANNÉE » (ex. TG2-2012). L'année est celle du début du mandat. */
+const parseClassCode = (c) => { const m = /[-_ ](\d{4})\s*$/.exec((c || "").trim()); const e = m && ERAS.find((x) => x.debut === +m[1]); return e ? e.id : null; };
 const eraById = (id) => ERAS.find((e) => e.id === id) || ERAS[ERAS.length - 1];
 const eraLabel = (e) => e.id === "today" ? `Aujourd'hui · ${e.debut}-${e.debut + e.duree}` : `Mandat de ${e.president} · ${e.debut}-${e.debut + e.duree}`;
 function applyEra(id, override = null) {
@@ -857,6 +859,87 @@ const OBJECTIFS = [
   { id: "cohesion", label: "Société apaisée", icon: "users-group", ok: (i) => i.cohesion >= 55, near: (i) => i.cohesion >= 40 },
 ];
 
+
+/* ---------- Lettres de mission : objectifs propres à chaque époque + rappel « économie ouverte » ----------
+   Les cibles sont des seuils de fin de mandat. Le commerce extérieur n'est pas modélisé : il est évoqué
+   dans « rappel d'époque » (contexte pédagogique), sans effet sur le score. */
+const _lt = (key, lab, icon, okV, nearV, dir = "<") => ({ id: key + lab, key, label: lab, icon, ok: (i) => (dir === "<" ? (i[key] ?? 0) < okV : (i[key] ?? 0) > okV), near: (i) => (dir === "<" ? (i[key] ?? 0) < nearV : (i[key] ?? 0) > nearV) });
+const LETTRES = {
+  giscard: { texte: "La guerre du Kippour a quadruplé le prix du pétrole et la France, qui en importe presque tout, s'appauvrit. L'inflation, largement importée, ne dépend guère de vous. Les Français attendent donc d'autres résultats : contenir le chômage, garder des comptes publics sains et préserver la cohésion du pays. Vous ne pourrez pas tout obtenir à la fois.",
+    ouvert: "Le pétrole se paie en dollars : la facture énergétique creuse le déficit commercial et importe de l'inflation. Le franc, sorti du « serpent » européen en 1974, est fragile.",
+    obj: [_lt("chomage", "Chômage < 6 %", "briefcase", 6, 8), _lt("solde", "Déficit < 2 %", "wallet", -2, -3.5, ">"), _lt("cohesion", "Société apaisée (≥ 50)", "users-group", 50, 40, ">")] },
+  mitterrand1: { texte: "Vous arrivez avec un programme de relance et 13 % d'inflation. Les électeurs veulent plus de justice sociale, mais les marchés surveillent chaque franc dépensé. Limitez le chômage, gardez un déficit supportable et préservez la cohésion sociale.",
+    ouvert: "Relancer seul, quand ses voisins restent prudents, creuse les importations : le déficit commercial s'aggrave et le franc est dévalué (1981, 1982, puis 1983). Le « tournant de la rigueur » en découle.",
+    obj: [_lt("chomage", "Chômage < 7,5 %", "briefcase", 7.5, 8.5), _lt("solde", "Déficit < 3 %", "wallet", -3, -4.5, ">"), _lt("cohesion", "Société apaisée (≥ 45)", "users-group", 45, 35, ">")] },
+  mitterrand2: { texte: "La croissance est de retour, mais le chômage reste proche de 9 %. L'Europe s'organise autour du grand marché de 1993. On attend de vous une politique de l'emploi, des finances sous contrôle et une dette qui reste modérée.",
+    ouvert: "Le franc est arrimé au mark (SME) : la Banque de France doit suivre les taux allemands, élevés après la réunification. La monnaie forte protège contre l'inflation importée, mais pèse sur l'activité.",
+    obj: [_lt("chomage", "Chômage < 10 %", "briefcase", 10, 11.5), _lt("solde", "Déficit < 3 %", "wallet", -3, -4.5, ">"), _lt("dette", "Dette < 45 %", "chart-line", 45, 52)] },
+  chirac1: { texte: "Le traité de Maastricht fixe des règles : déficit sous 3 % du PIB et dette sous 60 % pour entrer dans l'euro. Le chômage dépasse 10 %. Qualifiez la France sans sacrifier la cohésion sociale.",
+    ouvert: "Pour entrer dans l'euro, la France doit garder un franc fort et des taux proches de ceux de l'Allemagne : le commerce extérieur, lui, se porte plutôt bien, mais l'ajustement passe par l'emploi.",
+    obj: [_lt("solde", "Déficit < 3 %", "wallet", -3, -4, ">"), _lt("dette", "Dette < 60 %", "chart-line", 60, 66), _lt("chomage", "Chômage < 8,5 %", "briefcase", 8.5, 10)] },
+  chirac2: { texte: "L'euro est dans les poches, la croissance est molle et le chômage reste élevé. Respectez le Pacte de stabilité tout en soutenant l'activité.",
+    ouvert: "Avec la monnaie unique, plus de dévaluation possible : l'économie se juge sur sa compétitivité. L'euro fort et la concurrence des pays à bas coûts pèsent sur l'industrie.",
+    obj: [_lt("solde", "Déficit < 3 %", "wallet", -3, -4, ">"), _lt("dette", "Dette ≤ 60 %", "chart-line", 60.5, 65), _lt("chomage", "Chômage < 8 %", "briefcase", 8, 9)] },
+  sarkozy: { texte: "La croissance est correcte, mais les nuages s'accumulent. Gardez le cap des finances publiques et protégez l'emploi si le ciel s'assombrit.",
+    ouvert: "L'économie est ouverte et la finance mondialisée : un krach américain (subprimes) se propage à tout le système, via les banques et le commerce mondial. Le déficit commercial s'installe depuis 2005.",
+    obj: [_lt("dette", "Dette < 75 %", "chart-line", 75, 85), _lt("chomage", "Chômage < 10,5 %", "briefcase", 10.5, 12), _lt("solde", "Déficit < 4 %", "wallet", -4, -6, ">")] },
+  hollande: { texte: "La zone euro vacille, la dette a bondi et le chômage dépasse 9 %. Ramenez le déficit vers 3 %, inversez la courbe du chômage et ne laissez pas la dette filer.",
+    ouvert: "La France a perdu des parts de marché à l'exportation face à l'Allemagne : la compétitivité-coût est au cœur du débat (CICE, pacte de responsabilité). L'euro fort n'aide pas.",
+    obj: [_lt("solde", "Déficit < 3,5 %", "wallet", -3.5, -4.5, ">"), _lt("chomage", "Chômage < 9,5 %", "briefcase", 9.5, 10.5), _lt("dette", "Dette < 95 %", "chart-line", 95, 100)] },
+  macron1: { texte: "Le pays est sorti de la crise de la zone euro mais reste fracturé. Réformez sans enflammer la société : emploi, déficit, cohésion.",
+    ouvert: "Le déficit commercial est structurel (désindustrialisation) et la guerre commerciale sino-américaine perturbe les échanges. La pandémie révélera la dépendance aux chaînes d'approvisionnement mondiales.",
+    obj: [_lt("chomage", "Chômage < 8 %", "briefcase", 8, 9), _lt("solde", "Déficit < 3 %", "wallet", -3, -4.5, ">"), _lt("cohesion", "Société apaisée (≥ 40)", "users-group", 40, 30, ">")] },
+  macron2: { texte: "L'inflation repart, les taux remontent et la dette est élevée. Protégez le pouvoir d'achat sans laisser filer les comptes publics.",
+    ouvert: "La hausse des prix est largement importée : gaz et pétrole après l'invasion de l'Ukraine, euro faible face au dollar. Le déficit commercial atteint un record en 2022 : la facture énergétique pèse sur l'économie.",
+    obj: [_lt("inflation", "Inflation < 2,5 %", "flame", 2.5, 4), _lt("solde", "Déficit < 4 %", "wallet", -4, -5.5, ">"), _lt("chomage", "Chômage < 7,5 %", "briefcase", 7.5, 8.5)] },
+  today: { texte: "Dette record, déficit au-dessus de 5 %, taux d'emprunt proches de 5 % : la marge de manœuvre est étroite. Stabilisez les comptes, sans laisser le chômage grimper.",
+    ouvert: "La France dépend des marchés pour se financer et de ses partenaires pour exporter : un taux d'intérêt plus élevé ou une guerre commerciale se répercutent vite sur le budget.",
+    obj: [_lt("solde", "Déficit < 4 %", "wallet", -4, -5.5, ">"), _lt("dette", "Dette ≤ 125 %", "chart-line", 125, 133), _lt("chomage", "Chômage < 8,3 %", "briefcase", 8.3, 9.3)] },
+};
+
+/* ---------- Niveaux de jeu : on simplifie les COMMANDES et l'AFFICHAGE, pas la difficulté des objectifs ----------
+   Les leviers masqués restent à leur niveau de départ (aucun effet). Les indicateurs masqués sont toujours
+   calculés et comptent dans le score ; ceux de la lettre de mission sont toujours affichés.
+   Vérifié par simulation : les objectifs restent aussi atteignables qu'en jeu complet (Découverte = 12 leviers). */
+const LEVELS = {
+  decouverte: { label: "Découverte", short: "D", icon: "compass", color: "var(--c-sante)", nLev: 12, nInd: 6,
+    desc: "L'essentiel du budget : 12 leviers et 6 indicateurs. Idéal pour une première partie.",
+    levers: ["tva", "ir", "is", "csg", "retraites", "sante", "education", "aides", "invest", "defense", "fonction", "agences"],
+    inds: ["solde", "dette", "chomage", "croissance", "inflation", "popularite"] },
+  intermediaire: { label: "Intermédiaire", short: "I", icon: "adjustments", color: "var(--c-gold, #f4c64a)", nLev: 16, nInd: 8,
+    desc: "16 leviers et 8 indicateurs : on ajoute les cotisations patronales, la sécurité, les collectivités et les subventions.",
+    levers: ["tva", "ir", "is", "csg", "retraites", "sante", "education", "aides", "invest", "defense", "fonction", "agences", "cotpat", "securite", "collectivites", "subventions"],
+    inds: ["solde", "dette", "chomage", "croissance", "inflation", "popularite", "cohesion", "inegalites"] },
+  complet: { label: "Complet", short: "C", icon: "layout-dashboard", color: "var(--c-crise)", nLev: 20, nInd: 10,
+    desc: "Les 20 leviers et les 10 indicateurs : la simulation entière.", levers: null, inds: null },
+};
+let GAME_LEVEL = "decouverte";
+const applyLevel = (id) => { GAME_LEVEL = LEVELS[id] ? id : "complet"; };
+const levelAllowsLever = (leverId) => { const L = LEVELS[GAME_LEVEL]; return !L.levers || L.levers.includes(leverId); };
+const levelShowsInd = (indId) => {
+  const L = LEVELS[GAME_LEVEL]; if (!L.inds || L.inds.includes(indId)) return true;
+  const lt = LETTRES[CURRENT_ERA.id]; return !!(lt && lt.obj.some((o) => o.key === indId));   // la lettre de mission impose ses indicateurs
+};
+function getObjectifs(eraId) {
+  const id = eraId || CURRENT_ERA.id;
+  return (LETTRES[id] || {}).obj || OBJECTIFS.filter((o) => !o.show || o.show());
+}
+/* Encart « lettre de mission » : texte, 3 objectifs chiffrés, rappel d'époque (économie ouverte) */
+function LettreMission({ eraId, compact = false }) {
+  const L = LETTRES[eraId];
+  if (!L) return null;
+  return (
+    <div data-lettre="1" style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16, marginTop: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 8 }}><Icon n="mail" size={17} /> Votre lettre de mission</div>
+      <p style={{ margin: 0, color: C.ink, fontFamily: "Fraunces,Georgia,serif", fontSize: 14.5, lineHeight: 1.65, fontStyle: "italic" }}>« {L.texte} »</p>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
+        {L.obj.map((o) => <span key={o.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.ink, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 20, padding: "4px 11px" }}><Icon n={o.icon} size={14} color={C.gold} />{o.label}</span>)}
+      </div>
+      {!compact && <div style={{ display: "flex", gap: 8, color: C.sub, fontSize: 12.5, lineHeight: 1.6 }}><Icon n="world" size={16} color={C.dim} style={{ flexShrink: 0, marginTop: 2 }} /><span><b style={{ color: C.ink, fontWeight: 600 }}>Rappel d'époque : l'économie est ouverte.</b> {L.ouvert}</span></div>}
+    </div>
+  );
+}
+
 // Victoires intermédiaires débloquées une année donnée (renforcement positif)
 function victoires(before, after) {
   const v = [];
@@ -1242,14 +1325,12 @@ const EVENTS = [
 /* ============================================================
    STOCKAGE (classement + sauvegarde) via window.storage
    ============================================================ */
-// Stockage local (navigateur). Le classement est propre à chaque poste ;
-// voir le README pour une version partagée entre ordinateurs.
 const storage = {
   async get(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } },
   async set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch { return false; } },
   async del(key) { try { localStorage.removeItem(key); return true; } catch { return false; } },
 };
-const lbKey = (code) => `quinq:lb:${code.toUpperCase()}`;
+const lbKey = (code, level = "complet") => `quinq:lb:${code.toUpperCase()}${level && level !== "complet" ? ":" + level : ""}`;
 const saveKey = (code, team) => `quinq:save:${code.toUpperCase()}:${team}`;
 
 /* ============================================================
@@ -1391,8 +1472,7 @@ function finalizeYear(ind0, taux = TAUX0, marche = MARCHE0, marchePrev = null) {
   const excesPrev = (marchePrev ?? MARCHE0) - (MARCHE0 + MARCHE_DRIFT * pg(CUR_Y - 1));
   if (exces > 0.8 && exces > excesPrev + 0.1) flags.push("taux");
   if (n.dette > 150) { n.croissance = clamp(n.croissance - 0.4, GROWTH_MIN, GROWTH_MAX); flags.push("defiance"); }
-  if (n.cohesion < 25 || n.inegalites > 75) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
-  else if (n.cohesion < 40 || n.inegalites > 62) flags.push("tensions");
+  if (n.cohesion < 25) { n.croissance = clamp(n.croissance - 0.3, GROWTH_MIN, GROWTH_MAX); n.popularite = clamp(n.popularite - 4, 0, 100); flags.push("emeutes"); }
   if (n.popularite < 22) flags.push("censure");
   if (n.integrite < 30) flags.push("scandale");
   return { ind: clampInd(n), flags };
@@ -1421,11 +1501,7 @@ function shuffleChoices(e, seed) {
 function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   const forced = [];
   if (flags?.includes("scandale")) forced.push("ethique_scandale");
-  // Colère sociale : 1 événement imposé sous tension, 2 en cas d'émeutes. Ils peuvent se répéter d'une année à l'autre.
-  const unrest = ["greve", "banlieues", ...(CURRENT_ERA.id === "today" ? ["gilets"] : [])];
-  const nUnrest = flags?.includes("emeutes") ? 2 : flags?.includes("tensions") ? 1 : 0;
-  const unrestPicks = flags?.includes("emeutes") ? ["banlieues", ...unrest.filter((id) => id !== "banlieues")] : unrest;
-  forced.push(...unrestPicks.slice(0, nUnrest));
+  if (flags?.includes("emeutes")) forced.push("banlieues");
   const rnd = seed ? seededRandom(seed + ":evts") : Math.random;
   // Ordre global de la classe, calculé une fois, identique pour tous
   const order = [...EVENTS];
@@ -1436,7 +1512,7 @@ function drawEvents(year, usedIds, flags, seed = null, n = 3) {
   // Scénarios imaginés du mandat prolongé (identiques pour tous), étiquetés « prosp » : ce ne sont pas des faits historiques
   if (CURRENT_ERA.futur) { const cr = crisisFor(seed); if (cr.an === year && !usedIds.includes(cr.c.id) && picks.length < n) picks.push({ ...cr.c, an: cr.an, prosp: true, crise: true }); }
   for (const f of (FUTURE_EVENTS[CURRENT_ERA.futur] || [])) if (f.an === year && !usedIds.includes(f.id) && picks.length < n) picks.push({ ...f, prosp: true });
-  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && (unrest.includes(id) || !usedIds.includes(id)) && !picks.some((p) => p.id === id) && picks.length < n) picks.push(e); }
+  for (const id of forced) { const e = EVENTS.find((x) => x.id === id); if (e && !usedIds.includes(id) && picks.length < n) picks.push(e); }
   for (const e of order) {
     if (picks.length >= n) break;
     // Époques historiques : aucun grand événement inventé (pandémie, guerre…), seulement des situations plausibles à toute époque
@@ -1483,7 +1559,7 @@ function conseiller(before, after, flags, bigEvent) {
   else if (up("environnement", 1)) social += `. Les indicateurs écologiques progressent.`;
   else social += `.`;
   // Alerte
-  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes : attendez-vous à de nouveaux troubles l'an prochain.", tensions: "La société gronde (cohésion faible ou inégalités fortes) : grèves et mouvements sociaux se préparent.", chute: "C'est la fin : vous ne pouvez plus gouverner, votre mandat s'arrête ici.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
+  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
   const alerte = flags.map((f) => alertMap[f]).filter(Boolean);
   return { eco, social, alerte };
 }
@@ -1653,15 +1729,6 @@ function scoreBreakdown(ind) {
   return { eco: courbe(eco), social: courbe(social), politique: courbe(politique), total: courbe(totalRaw) };
 }
 
-// Fin anticipée : un pouvoir sans aucun soutien ou un pays à feu et à sang ne peut pas aller au bout du mandat.
-// Vérifiée à la fin de chaque année ; sinon le joueur continuerait avec 0 de popularité ou de cohésion.
-function chuteAnticipee(ind) {
-  if (ind.popularite <= 5) return { key: "demission", title: "Contraint·e à la démission", icon: "door-exit", color: "var(--c-crise)",
-    text: "Plus personne ne vous soutient : manifestations massives, majorité qui vous lâche, appels à la démission. Vous quittez le pouvoir avant la fin de votre mandat. Sans confiance des citoyens, on ne peut pas gouverner." };
-  if (ind.cohesion <= 5) return { key: "chaos", title: "Le pays ingouvernable", icon: "urgent", color: "var(--c-ethique)",
-    text: "Émeutes, blocages, grève générale : le pays est paralysé et vous devez quitter le pouvoir avant la fin de votre mandat. Sans cohésion sociale, aucune réforme ne tient." };
-  return null;
-}
 function ending(ind, sc) {
   if (ind.integrite < 30) return { key: "scandale", title: "Chute sur scandale", icon: "gavel", color: "var(--c-lobby)",
     text: "Miné par les affaires, votre gouvernement tombe avant l'heure. La probité est le socle de la confiance démocratique." };
@@ -1690,11 +1757,22 @@ function expliquerFin(game) {
   const avgSolde = h.reduce((s, r) => s + r.ind.solde, 0) / h.length;
   const detteDelta = last.dette - DETTE0;
   const p = [];
-  p.push(`${h.length < YEARS ? `Votre mandat s'est arrêté au bout de ${h.length} an${h.length > 1 ? "s" : ""} sur ${YEARS}. Sur cette période` : `Sur ${YEARS} ans`}, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
+  p.push(`Sur ${YEARS} ans, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
   p.push(detteDelta > 2 ? `la dette est passée de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} % (+${fmt(detteDelta, 0)} points)` : detteDelta < -2 ? `la dette a reculé de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} %` : `la dette est restée stable (${fmt(last.dette, 0)} %)`);
   p.push(last.chomage < 7 ? `le chômage a baissé à ${fmt(last.chomage, 1)} %` : last.chomage > 9 ? `le chômage a grimpé à ${fmt(last.chomage, 1)} %` : `le chômage s'établit à ${fmt(last.chomage, 1)} %`);
   if (last.integrite < 40) p.push(`et votre intégrité, entamée (${fmt(last.integrite, 0)}/100), a nourri les scandales`);
   return p.join(", ") + ".";
+}
+
+function lessonFor(ind) {
+  const L = [];
+  if (ind.dette < 118) L.push("tenu la dette"); else if (ind.dette > 135) L.push("laissé filer la dette");
+  if (ind.chomage < 7) L.push("fait reculer le chômage"); else if (ind.chomage > 9) L.push("laissé monter le chômage");
+  if (ind.cohesion > 60) L.push("préservé la cohésion sociale"); else if (ind.cohesion < 35) L.push("fracturé la société");
+  if (ind.integrite < 45) L.push("cédé aux compromissions"); else if (ind.integrite > 75) L.push("gardé les mains propres");
+  if (ind.environnement > 60) L.push("investi pour le climat"); else if (ind.environnement < 35) L.push("négligé l'environnement");
+  if (!L.length) return "Un mandat sans relief, ni grand succès ni échec marquant.";
+  return "Vous avez " + L.slice(0, 3).join(", ") + ".";
 }
 
 // Bilan pédagogique développé : analyse par domaine des conséquences des choix
@@ -1746,7 +1824,7 @@ function leconDetaillee(game) {
    ============================================================ */
 const TROPHIES = [
   { id: "equilibre", label: "Équilibriste", icon: "scale", desc: "Finir avec un budget à l'équilibre ou en excédent.", check: (g) => g.ind.solde >= 0 },
-  { id: "desendet", label: "Désendetteur·se", icon: "trending-down", desc: "Faire reculer la dette d'au moins 6 points de PIB sur le mandat.", check: (g) => g.ind.dette <= DETTE0 - 6 },
+  { id: "desendet", label: "Désendetteur·se", icon: "trending-down", desc: "Faire reculer la dette sous 110 % du PIB.", check: (g) => g.ind.dette < 110 },
   { id: "pleinemploi", label: "Plein emploi", icon: "briefcase", desc: "Ramener le chômage sous 6 %.", check: (g) => g.ind.chomage < 6 },
   { id: "mainspropres", label: "Mains propres", icon: "shield-check", desc: "Garder une intégrité d'au moins 90.", check: (g) => g.ind.integrite >= 90 },
   { id: "vert", label: "Président·e vert·e", icon: "leaf", desc: "Atteindre 70 en environnement.", check: (g) => g.ind.environnement >= 70 },
@@ -1849,17 +1927,14 @@ function IndicatorChip({ m, ind, prev, open, onToggle, mobile }) {
     <button onClick={onToggle} title="En savoir plus" className={improved ? "qwin" : ""}
       style={{ position: "relative", textAlign: "left", cursor: "pointer", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4, background: C.inset, borderRadius: 10, padding: "8px 8px 8px 12px", overflow: "hidden", border: `1px solid ${open ? C.gold : improved ? C.mint : C.line}`, touchAction: "manipulation" }}>
       <span aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: col }} />
-      <span style={{ display: "flex", alignItems: "center", gap: 3, color: C.sub, fontSize: mobile ? 10.5 : 12, lineHeight: 1.15, minWidth: 0 }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 4, color: C.dim, fontSize: 10.5, lineHeight: 1.15, minWidth: 0 }}>
         <Icon n={m.icon.replace("ti-", "")} size={12} />
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{m.label}</span>
         <Icon n="help-circle" size={11} color={open ? C.gold : C.dim} />
       </span>
-      <span style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        <span style={{ color: col, fontFamily: "monospace", fontSize: mobile ? 24 : 30, fontWeight: 700, lineHeight: 1, letterSpacing: "-.02em" }}>{m.fmt(v)}<span style={{ fontSize: mobile ? 12 : 14, color: C.dim, fontWeight: 500, marginLeft: 1 }}>{m.unit}</span></span>
-        {/* Variation de l'année dans une pastille : verte si amélioration, rouge si dégradation */}
-        {dShow && (() => { const good = (m.inv ? -d : d) > 0, c = good ? C.mint : C.coral; return (
-          <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "monospace", color: c, background: al(c, "1F"), border: `1px solid ${al(c, "66")}`, borderRadius: 20, padding: "1px 6px", lineHeight: 1.3, whiteSpace: "nowrap" }}>{d > 0 ? "▲" : "▼"} {fmt(Math.abs(d), 1)}</span>
-        ); })()}
+      <span style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
+        <span style={{ color: col, fontFamily: "monospace", fontSize: 19, fontWeight: 700, lineHeight: 1.1 }}>{m.fmt(v)}<span style={{ fontSize: 11, color: C.dim, fontWeight: 500 }}>{m.unit}</span></span>
+        {dShow && <span style={{ fontSize: 10, fontFamily: "monospace", color: (m.inv ? -d : d) > 0 ? C.mint : C.coral }}>{d > 0 ? "▲" : "▼"}{fmt(Math.abs(d), 1)}</span>}
       </span>
       {m.gauge
         ? <span data-gauge="1" aria-hidden="true" style={{ display: "block", height: 4, borderRadius: 2, background: C.track, overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${pct}%`, background: col, borderRadius: 2, transition: "width .6s ease" }} /></span>
@@ -1879,7 +1954,7 @@ function HUD({ ind, prev }) {
   const [openInd, setOpenInd] = useState(null);
   const mobile = useIsMobile();
   const openMeta = IND_META.find((m) => m.id === openInd);
-  const byGrp = (k) => IND_META.filter((m) => m.grp === k);
+  const byGrp = (k) => IND_META.filter((m) => m.grp === k && levelShowsInd(m.id));
   const grp = (k) => IND_GROUPS.find((g) => g.key === k);
   const chip = (m) => <IndicatorChip key={m.id} m={m} ind={ind} prev={prev} mobile={mobile} open={openInd === m.id} onToggle={() => setOpenInd(openInd === m.id ? null : m.id)} />;
   const info = (keys, span) => (
@@ -1896,7 +1971,7 @@ function HUD({ ind, prev }) {
     // Téléphone : un bloc par groupe, tuiles toutes de même largeur (3 par rangée)
     return (
       <div data-layout="mobile" style={{ display: "grid", gap: 8 }}>
-        {IND_GROUPS.map((g) => (
+        {IND_GROUPS.filter((g) => byGrp(g.key).length > 0).map((g) => (
           <div key={g.key} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
             <GroupHeader g={g} span={3} />
             {byGrp(g.key).map(chip)}
@@ -1912,8 +1987,12 @@ function HUD({ ind, prev }) {
       <GroupHeader g={grp("Économie")} span={5} />
       {byGrp("Économie").map(chip)}
       {info(["Économie"], 5)}
-      <GroupHeader g={grp("Société")} span={3} />
-      <GroupHeader g={grp("Politique")} span={2} />
+      {byGrp("Société").length === 3 && byGrp("Politique").length === 2 ? (<>
+        <GroupHeader g={grp("Société")} span={3} />
+        <GroupHeader g={grp("Politique")} span={2} />
+      </>) : byGrp("Société").length + byGrp("Politique").length > 0 && (
+        <GroupHeader g={byGrp("Société").length === 0 ? grp("Politique") : byGrp("Politique").length === 0 ? grp("Société") : { ...grp("Société"), label: "Société et vie politique" }} span={5} />
+      )}
       {byGrp("Société").map(chip)}
       {byGrp("Politique").map(chip)}
       {info(["Société", "Politique"], 5)}
@@ -1980,6 +2059,8 @@ function Note({ text }) {
 
 /* ---------- Écran d'accueil ---------- */
 function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
+  const [cc, setCc] = useState("");
+  const ccEra = parseClassCode(cc);
   return (
     <div>
       {/* HÉROS : nuit au palais (texte au-dessus du palais, sans chevauchement) */}
@@ -2005,8 +2086,16 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
         </div>
       </div>
 
+      <div style={{ marginTop: 22, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14 }}>
+        <div style={{ color: C.ink, fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>En classe ? Entrez le code donné par votre professeur</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={cc} onChange={(ev) => setCc(ev.target.value.toUpperCase())} placeholder="ex. TG2-2012" style={{ ...inp, maxWidth: 220, marginTop: 0 }} />
+          <Btn kind="primary" disabled={!ccEra} onClick={() => onPickEra(ccEra, cc.trim())}>Rejoindre la classe</Btn>
+        </div>
+        <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6, lineHeight: 1.5 }}>{cc && !ccEra ? "Code non reconnu : il doit finir par l'année du mandat (ex. -2012)." : "Toute la classe joue alors la même époque, avec les mêmes imprévus. Professeur : choisissez NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027)."}</div>
+      </div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, margin: "26px 0 12px" }}>
-        <span style={{ color: C.ink, fontSize: 20, fontWeight: 600, fontFamily: "Fraunces,serif" }}>Choisissez votre époque</span>
+        <span style={{ color: C.ink, fontSize: 20, fontWeight: 600, fontFamily: "Fraunces,serif" }}>Ou choisissez librement votre époque</span>
         <span style={{ color: C.dim, fontSize: 12.5 }}>Prenez la place d'un président, avec la situation et les crises réelles de son mandat.</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 10 }}>
@@ -2023,7 +2112,7 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 22 }}>
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre ma partie</Btn>}
-        <Btn onClick={() => onLeaderboard()}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
+        <Btn onClick={() => onLeaderboard("CLASSE")}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
         <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Trophées</Btn>
       </div>
     </div>
@@ -2031,12 +2120,15 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
 }
 
 /* ---------- Page d'une époque : rappel historique, situation de départ, préparation ---------- */
-function EraSetup({ eraId, onStart, onSkipConseil, onBack }) {
-  const [code, setCode] = useState("CLASSE");
+function EraSetup({ eraId, lockedCode, onStart, onSkipConseil, onBack }) {
+  const [code, setCode] = useState(lockedCode || "CLASSE");
   const [team, setTeam] = useState("");
   const [doc, setDoc] = useState(null);
-  const e = eraById(eraId), info = ERA_INFO[e.id] || {};
+  const [lvl, setLvl] = useState("decouverte");
   const codeOk = (code.trim() || "CLASSE");
+  const imposed = parseClassCode(codeOk);   // le code de classe impose l'époque
+  const e = eraById(imposed || eraId), info = ERA_INFO[e.id] || {};
+  const eraFinal = e.id;
   const canStart = team.trim() && doc;
   const curStep = !team.trim() ? 1 : !doc ? 2 : 3; // étape à faire maintenant : son numéro vibre
   const step = (n, label, done) => (
@@ -2073,6 +2165,8 @@ function EraSetup({ eraId, onStart, onSkipConseil, onBack }) {
         {e.id !== "today" && <p style={{ margin: "10px 0 0", color: C.dim, fontSize: 12.5, lineHeight: 1.5 }}>Pendant votre mandat, vous affronterez les grands événements réels de l'époque. À la fin, vous découvrirez ce qu'a fait le vrai président et comparerez vos résultats aux siens. Les montants sont convertis en euros.</p>}
       </div>
 
+      <LettreMission eraId={e.id} />
+
       {step(1, "Nommez votre équipe", !!team.trim())}
       <input value={team} onChange={(ev) => setTeam(ev.target.value)} placeholder="Les Réformateurs" style={{ ...inp, fontSize: 15, maxWidth: 420 }} autoFocus />
 
@@ -2092,16 +2186,27 @@ function EraSetup({ eraId, onStart, onSkipConseil, onBack }) {
         ))}
       </div>
 
-      <label style={{ fontSize: 12, color: C.dim, display: "block", margin: "22px 0 18px" }}>Classe <span style={{ fontWeight: 400 }}>(facultatif)</span>
-        <input value={code} onChange={(ev) => setCode(ev.target.value.toUpperCase())} placeholder="CLASSE" style={{ ...inp, maxWidth: 240 }} />
-        <span style={{ fontSize: 10.5, color: C.dim }}>Regroupe les scores dans le classement. Les équipes qui ont le même nom de classe et la même époque affrontent les mêmes imprévus. Déjà rempli — à modifier uniquement si votre professeur vous donne un nom précis.</span>
-      </label>
+      {step(3, "Choisissez votre niveau", true)}
+      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>Les objectifs et la difficulté sont les mêmes : seul change le nombre de commandes et d'indicateurs affichés.</div>
+      <div data-levels="1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 10 }}>
+        {Object.entries(LEVELS).map(([id, L]) => (
+          <div key={id} role="radio" aria-checked={lvl === id} tabIndex={0} data-level={id} onClick={() => setLvl(id)} onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setLvl(id); } }} style={{ cursor: "pointer", borderRadius: 12, padding: 13, background: lvl === id ? al(L.color, "18") : C.card, border: `2px solid ${lvl === id ? L.color : C.line}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><Icon n={L.icon} size={19} color={L.color} /><span style={{ color: C.ink, fontWeight: 500, fontSize: 14 }}>{L.label}</span></div>
+            <div style={{ color: L.color, fontSize: 11.5, marginBottom: 4 }}>{L.nLev} leviers · {L.nInd} indicateurs</div>
+            <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{L.desc}</div>
+          </div>
+        ))}
+      </div>
+      {imposed && imposed !== eraId && <div style={{ margin: "18px 0 0", fontSize: 12.5, color: C.gold, display: "flex", gap: 6 }}><Icon n="info-circle" size={14} />Ce code de classe impose l'époque « {e.president} {e.debut} » : c'est celle que vous allez jouer.</div>}
+      {lockedCode
+        ? <div data-class-note="1" style={{ fontSize: 12.5, color: C.dim, margin: "22px 0 18px", display: "flex", alignItems: "center", gap: 6 }}><Icon n="users-group" size={15} color={C.gold} />Classe <b style={{ color: C.sub }}>{lockedCode}</b> : toute la classe joue cette époque avec les mêmes imprévus.</div>
+        : <div style={{ height: 18 }} />}
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <Btn kind="primary" disabled={!canStart} className={canStart ? "qvibe" : ""} onClick={() => onStart(codeOk.toUpperCase(), team.trim(), doc, e.id)} style={{ fontSize: 15, padding: "12px 20px" }}>
+        <Btn kind="primary" disabled={!canStart} className={canStart ? "qvibe" : ""} onClick={() => { applyLevel(lvl); onStart(codeOk.toUpperCase(), team.trim(), doc, eraFinal); }} style={{ fontSize: 15, padding: "12px 20px" }}>
           <Icon n="player-play" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Entrer au palais (avec année conseil)
         </Btn>
-        {canStart && <Btn onClick={() => onSkipConseil(codeOk.toUpperCase(), team.trim(), doc, e.id)}><Icon n="player-skip-forward" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Passer l'année conseil</Btn>}
+        {canStart && <Btn onClick={() => { applyLevel(lvl); onSkipConseil(codeOk.toUpperCase(), team.trim(), doc, eraFinal); }}><Icon n="player-skip-forward" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Passer l'année conseil</Btn>}
       </div>
       {!canStart && (
         <div style={{ marginTop: 10, fontSize: 12, color: C.gold, display: "flex", alignItems: "center", gap: 6 }}>
@@ -2128,8 +2233,8 @@ function ConseilIntro({ team, onGo }) {
           </p>
         </div>
       </div>
-      <div style={{ color: C.ink, fontSize: 20, fontWeight: 500, marginBottom: 20, lineHeight: 1.5, background: C.amberBg, border: `2px solid ${C.gold}`, borderRadius: 14, padding: "16px 20px" }}>
-        Vous allez découvrir le fonctionnement du budget avec <b style={{ color: C.gold }}>quelques leviers simples</b>, puis affronter <b style={{ color: C.gold }}>2 imprévus</b>. Ensuite, vous vous présenterez à l'élection pour votre vrai mandat de {YEARS} ans.
+      <div style={{ color: C.dim, fontSize: 13, marginBottom: 16, lineHeight: 1.55 }}>
+        Vous allez découvrir le fonctionnement du budget avec <b style={{ color: C.sub }}>quelques leviers simples</b>, puis affronter <b style={{ color: C.sub }}>2 imprévus</b>. Ensuite, vous vous présenterez à l'élection pour votre vrai mandat de {YEARS} ans.
       </div>
       <Btn kind="primary" onClick={onGo} style={{ fontSize: 15, padding: "12px 20px" }}><Icon n="arrow-right" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Découvrir le budget</Btn>
     </div>
@@ -2227,7 +2332,7 @@ function Mission({ team, doctrine, onGo, chain = null }) {
       <ScreenTitle icon="target-arrow" title="Votre mission" sub={`${team} · doctrine ${doctrine?.label}${chain ? ` · ${chain.n}ᵉ mandat` : ""}`} />
       <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 16, padding: 22, marginBottom: 18 }}>
         <p style={{ color: C.ink, fontSize: 16, lineHeight: 1.65, margin: 0 }}>
-          {chain ? <>Vous êtes <b>réélu·e</b> : votre <b>{chain.n}ᵉ mandat</b> commence en {CURRENT_ERA.debut} et dure <b>{YEARS} ans</b>.</> : <>Vous venez d'être élu·e : vous allez diriger la France pendant <b>{YEARS} ans</b>{CURRENT_ERA.id !== "today" && <>, à partir de {CURRENT_ERA.debut}, à la place de {CURRENT_ERA.president}</>}.</>} Chaque année, vous voterez un <b>budget</b> (ce que l'État gagne et dépense), puis vous affronterez <b>3 événements</b> imprévus. À la fin, les Français voteront.
+          {chain ? <>Vous êtes <b>réélu·e</b> : votre <b>{chain.n}ᵉ mandat</b> commence en {CURRENT_ERA.debut} et dure <b>{YEARS} ans</b>.</> : <>Vous dirigez la France pendant <b>{YEARS} ans</b>{CURRENT_ERA.id !== "today" && <>, à partir de {CURRENT_ERA.debut}, à la place de {CURRENT_ERA.president}</>}.</>} Chaque année : vous votez un <b>budget</b> (ce que l'État gagne et dépense), puis vous affrontez <b>3 événements</b> imprévus. À la fin, les Français votent.
         </p>
         <p style={{ color: C.sub, fontSize: 15, lineHeight: 1.65, margin: "12px 0 0" }}>
           Au départ : un <b style={{ color: C.coral }}>déficit de {fmt(-START.solde, 1)} %</b> (l'État dépense plus qu'il ne gagne) et une <b style={{ color: C.coral }}>dette de {fmt(START.dette, 0)} %</b> du PIB{CURRENT_ERA.id !== "today" && <> ; l'inflation atteint <b style={{ color: C.coral }}>{fmt(START.inflation, 1)} %</b> et l'État emprunte à <b>{fmt(MARCHE0, 1)} %</b></>}. Votre but : redresser les comptes <b>sans casser la société</b>. Attention, tout se tient — aucune décision n'est gratuite.
@@ -2237,7 +2342,7 @@ function Mission({ team, doctrine, onGo, chain = null }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
         <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 500, marginBottom: 10 }}><Icon n="target" size={18} /> Vos objectifs</div>
-          {OBJECTIFS.filter((o) => !o.show || o.show()).map((o) => (
+          {getObjectifs().map((o) => (
             <div key={o.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: C.sub, padding: "4px 0" }}>
               <Icon n={o.icon} size={15} color={C.dim} /> {o.label}
             </div>
@@ -2291,7 +2396,7 @@ function Mission({ team, doctrine, onGo, chain = null }) {
 function ObjBar({ ind }) {
   return (
     <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-      {OBJECTIFS.filter((o) => !o.show || o.show()).map((o) => {
+      {getObjectifs().map((o) => {
         const ok = o.ok(ind), near = !ok && o.near(ind);
         const col = ok ? C.mint : near ? C.gold : C.coral;
         return (
@@ -2352,25 +2457,15 @@ const shareBorrowed = (S, R) => Math.round((1000 * Math.max(0, S - R)) / Math.ma
 // Couleurs des carrés : jetons « texte » des deux thèmes (≥ 3:1 contre la carte, vérifié) ; le gris neutre est volontairement plus discret
 const WAF = { int: C.gold, fin: al(C.dim, "BF"), cov: C.mint, bor: C.coral, sur: C.mint };
 
-// Découpe un rectangle en blocs d'aire proportionnelle (algorithme « squarified ») : des blocs aussi carrés que possible
-function treemap(items, x, y, w, h) {
-  const out = [], rest = [...items];
-  const worst = (row, side) => { const sum = row.reduce((a, r) => a + r.a, 0), mx = Math.max(...row.map((r) => r.a)), mn = Math.min(...row.map((r) => r.a)); return Math.max((side * side * mx) / (sum * sum), (sum * sum) / (side * side * mn)); };
-  while (rest.length) {
-    const side = Math.min(w, h); let row = [rest.shift()];
-    while (rest.length && worst([...row, rest[0]], side) <= worst(row, side)) row.push(rest.shift());
-    const sum = row.reduce((a, r) => a + r.a, 0);
-    if (w >= h) { const cw = sum / h; let cy = y; row.forEach((r) => { const ch = r.a / cw; out.push({ ...r, x, y: cy, w: cw, h: ch }); cy += ch; }); x += cw; w -= cw; }
-    else { const rh = sum / w; let cx = x; row.forEach((r) => { const rw = r.a / rh; out.push({ ...r, x: cx, y, w: rw, h: rh }); cx += rw; }); y += rh; h -= rh; }
-  }
-  return out;
-}
-const BLOC_SHORT = { interets: "intérêts de la dette", autres: "autres dépenses", autresrec: "autres recettes", emprunt: "emprunt" };
-// Nombre de colonnes qui donne les plus gros carrés possibles pour n carrés dans un bloc w × h
-function bestCols(n, w, h) {
-  let best = 1, bs = 0;
-  for (let c = 1; c <= n; c++) { const s = Math.min(w / c, h / Math.ceil(n / c)); if (s > bs) { bs = s; best = c; } }
-  return best;
+function WaffleGrid({ colors, sig, label, data = {} }) {
+  const mobile = useIsMobile();
+  const cols = mobile ? 40 : 50;
+  const grid = useMemo(() => colors.map((bg, i) => <i key={i} style={{ display: "block", aspectRatio: "1", borderRadius: 1.5, background: bg, transition: "background .25s" }} />), [sig]); // eslint-disable-line react-hooks/exhaustive-deps
+  const attrs = Object.fromEntries(Object.entries(data).map(([k2, v]) => ["data-" + k2, v]));
+  return (
+    <div role="img" aria-label={label} data-waffle="1" data-cols={cols} {...attrs}
+      style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: mobile ? 1 : 2, maxWidth: 620 }}>{grid}</div>
+  );
 }
 const WAF_FRAME = { background: C.card, border: `1px solid ${al(C.gold, "55")}`, borderRadius: 16, padding: "16px 16px 14px" };
 
@@ -2429,38 +2524,19 @@ function revenueBreakdown({ levels = {}, S, R, k = 1 }) {
   const autres = Math.max(0, R - fam.reduce((a, f) => a + f.md, 0));
   return allocSquares([...fam, { id: "autresrec", label: "Autres recettes (non modifiables dans le jeu)", md: autres }, { id: "emprunt", label: "Emprunt (le déficit)", md: Math.max(0, S - R) }], "autresrec");
 }
-function PosteWaffle({ rows, focus, label, view = "postes", onFocus }) {
-  const mobile = useIsMobile();
-  const W = 1000, H = mobile ? 1250 : 620;   // proportions du cadre (plus haut sur téléphone)
-  const blocks = useMemo(() => {
-    const items = rows.filter((r) => r.sq > 0).sort((p, q) => q.sq - p.sq).map((r) => ({ ...r, a: (r.sq / 1000) * W * H }));
-    return treemap(items, 0, 0, W, H).map((b) => ({ ...b, cols: bestCols(b.sq, b.w, b.h * 0.9) }));
-  }, [rows, H]);
-  return (
-    <div role="img" aria-label={label || "Graphique en blocs : à quoi servent 1 000 € de dépenses de l'État"} data-waffle="1" data-view={view} data-focus={focus || ""}
-      style={{ position: "relative", width: "100%", maxWidth: 680, aspectRatio: `${W} / ${H}` }}>
-      {blocks.map((b) => {
-        const base = posteColor(b.id), dim = focus && focus !== b.id;
-        const col = dim ? (b.id === "autres" || b.id === "autresrec" ? al(C.dim, "30") : al(base, "38")) : base;
-        const big = (b.w / W) * (b.h / H) > (mobile ? 0.09 : 0.035);   // assez de place pour écrire le nom du poste
-        const t0 = (POSTES.find((p) => p.id === b.id) || REVENUES.find((p) => p.id === b.id) || {}).short || BLOC_SHORT[b.id] || b.label;
-        const title = t0.charAt(0).toUpperCase() + t0.slice(1);
-        return (
-          <div key={b.id} data-bloc={b.id} data-sq={b.sq} onClick={onFocus ? () => onFocus(focus === b.id ? null : b.id) : undefined}
-            style={{ position: "absolute", left: `${(b.x / W) * 100}%`, top: `${(b.y / H) * 100}%`, width: `${(b.w / W) * 100}%`, height: `${(b.h / H) * 100}%`, padding: 2, boxSizing: "border-box", cursor: onFocus ? "pointer" : "default" }}>
-            <div style={{ position: "relative", width: "100%", height: "100%", border: `1.5px solid ${focus === b.id ? C.gold : al(base, dim ? "40" : "AA")}`, borderRadius: 6, padding: 3, boxSizing: "border-box", overflow: "hidden", background: al(base, dim ? "08" : "14") }}>
-              <div style={{ display: "grid", gridTemplateColumns: `repeat(${b.cols}, minmax(0, 1fr))`, width: `${Math.min(100, (b.cols * Math.min(b.w / b.cols, (b.h * 0.9) / Math.ceil(b.sq / b.cols)) / b.w) * 100)}%` }}>
-                {Array.from({ length: b.sq }, (_, i) => <i key={i} style={{ display: "block", aspectRatio: "1", margin: "9%", borderRadius: 1.5, background: col, transition: "background .25s" }} />)}
-              </div>
-              <span style={{ position: "absolute", left: 4, top: 4, maxWidth: "calc(100% - 8px)", background: C.card, border: `1px solid ${al(base, "AA")}`, borderRadius: 6, padding: big ? "3px 7px" : "1px 5px", lineHeight: 1.2, fontSize: big ? 12 : 10.5, color: C.ink, opacity: dim ? 0.55 : 1, pointerEvents: "none", overflow: "hidden" }}>
-                {big && <span>{title} </span>}<b style={{ fontFamily: "monospace" }}>{b.sq} €</b>
-              </span>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
+function PosteWaffle({ rows, focus, label, view = "postes" }) {
+  const sig = rows.map((r) => r.sq).join("-") + "|" + (focus || "") + "|" + view;
+  const colors = useMemo(() => {
+    const out = [];
+    rows.forEach((r) => {
+      const base = posteColor(r.id);
+      const c = focus && focus !== r.id ? (r.id === "autres" || r.id === "autresrec" ? al(C.dim, "30") : al(base, "38")) : base;
+      for (let i = 0; i < r.sq; i++) out.push(c);
+    });
+    while (out.length < 1000) out.push(WAF.fin);
+    return out.slice(0, 1000);
+  }, [sig]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <WaffleGrid colors={colors} sig={sig} label={label || "Graphique en carrés : à quoi servent 1 000 € de dépenses de l'État"} data={{ view, focus: focus || "" }} />;
 }
 // En-tête : le poste isolé, ou, par défaut, le message d'accueil de la vue (« idle »)
 function PosteHeadline({ rows, focus, idle }) {
@@ -2501,7 +2577,7 @@ function PosteNotes({ rows }) {
       <div>Les trois plus gros postes ({top.map((r) => shortOf(r.id)).join(", ")}) représentent <b style={{ color: C.ink }}>{topSq} €</b> sur 1 000 €.</div>
       {it && it.sq > 0 && <div>Les intérêts de la dette absorbent <b style={{ color: C.ink }}>{it.sq} €</b> : de l'argent qui ne finance aucun service public.</div>}
       {au && au.sq > 0 && <div>Les <b style={{ color: C.ink }}>{au.sq} €</b> restants regroupent des dépenses que le jeu ne vous laisse pas modifier.</div>}
-      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>Comment lire :</b> chaque petit carré vaut 1 € sur 1 000 € dépensés. Chaque bloc regroupe un poste : plus il est grand, plus il pèse. Touchez un bloc pour l'isoler.</div>
+      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>Comment lire :</b> chaque carré vaut 1 € sur 1 000 € dépensés. Les couleurs suivent l'ordre de la liste, de gauche à droite et de haut en bas.</div>
     </div>
   );
 }
@@ -2518,7 +2594,7 @@ function SourceNotes({ rows, model, levels, before, d }) {
       {tva && <div>Combler ce déficit avec la seule TVA demanderait environ <b style={{ color: C.ink }}>{tva.n} crans</b> : la TVA passerait de {tva.a} à {tva.b} Md€ (+{tva.pct} %).</div>}
       {model.surplusMd >= 1 && <div>Les recettes dépassent les dépenses de <b style={{ color: C.ink }}>{Math.round(model.surplusMd)} Md€</b> : c'est un excédent.</div>}
       {au && au.sq > 0 && <div>Les <b style={{ color: C.ink }}>{au.sq} €</b> d'« autres recettes » regroupent des recettes que le jeu ne vous laisse pas modifier.</div>}
-      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>Comment lire :</b> chaque petit carré vaut 1 € sur 1 000 € dépensés. Chaque bloc regroupe un poste : plus il est grand, plus il pèse. Touchez un bloc pour l'isoler.</div>
+      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>Comment lire :</b> chaque carré vaut 1 € sur 1 000 € dépensés. Les couleurs suivent l'ordre de la liste, de gauche à droite et de haut en bas.</div>
     </div>
   );
 }
@@ -2556,14 +2632,14 @@ function BudgetSquares({ history, levels, year, view: initialView = "postes", fo
         {view === "postes" ? (
           <>
             <PosteHeadline rows={spendRows} focus={focus} />
-            <PosteWaffle rows={spendRows} focus={focus} onFocus={setFocus} />
+            <PosteWaffle rows={spendRows} focus={focus} />
             <PosteLegend rows={spendRows} focus={focus} onFocus={setFocus} />
             <PosteNotes rows={spendRows} />
           </>
         ) : (
           <>
             <PosteHeadline rows={srcRows} focus={focus} idle={idleSrc} />
-            <PosteWaffle rows={srcRows} focus={focus} onFocus={setFocus} view="sources" label="Graphique en blocs : d'où vient l'argent que dépense l'État (impôts, cotisations, emprunt)" />
+            <PosteWaffle rows={srcRows} focus={focus} view="sources" label="Graphique en carrés : d'où vient l'argent que dépense l'État (impôts, cotisations, emprunt)" />
             <PosteLegend rows={srcRows} focus={focus} onFocus={setFocus} />
             <SourceNotes rows={srcRows} model={model} levels={levels} before={before} d={d} />
           </>
@@ -2575,41 +2651,37 @@ function BudgetSquares({ history, levels, year, view: initialView = "postes", fo
 }
 
 /* ---------- Guidage pas à pas (année conseil et 1re année de mandat) ---------- */
-function BudgetGuide({ steps, tab, setTab, note, onValidate }) {
+function BudgetGuide({ steps, tab, setTab, note }) {
   const [open, setOpen] = useState(true);
   const done = steps.filter((s) => s.done).length;
-  const cur = Math.max(0, steps.findIndex((s) => !s.done));
-  const st = steps[cur];
+  const cur = steps.findIndex((s) => !s.done);
   return (
-    <div style={{ background: C.card2, border: `2px solid ${C.gold}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12, boxShadow: `0 0 0 4px ${al(C.gold, "1A")}` }}>
+    <div style={{ background: C.card2, border: `1px solid ${al(C.gold, "66")}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
       <button onClick={() => setOpen(!open)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: 0, minHeight: 32, touchAction: "manipulation" }}>
-        <span style={{ color: C.gold, fontSize: 18, fontWeight: 600, fontFamily: "Fraunces,serif" }}>🧭 Votre mission, pas à pas</span>
+        <span style={{ color: C.gold, fontSize: 15, fontWeight: 600, fontFamily: "Fraunces,serif" }}>🧭 Votre mission, pas à pas</span>
         <span style={{ color: C.dim, fontSize: 12 }}>{done}/{steps.length} {open ? "▴" : "▾"}</span>
       </button>
       <Collapse open={open}>
         <>
-          {note && <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>{note}</div>}
-          {/* L'étape en cours, seule et en grand : c'est la seule chose à faire maintenant */}
-          <div style={{ marginTop: 12, background: al(C.gold, "1A"), border: `1px solid ${C.gold}`, borderRadius: 12, padding: "14px 16px" }}>
-            <div style={{ color: C.gold, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em" }}>Étape {cur + 1} sur {steps.length}</div>
-            <div style={{ color: C.ink, fontSize: 21, fontWeight: 700, margin: "4px 0 4px", fontFamily: "Fraunces,serif" }}>{st.title}</div>
-            <div style={{ color: C.sub, fontSize: 14.5, lineHeight: 1.55 }}>{st.sub}</div>
-            {st.go && st.go.tab !== tab && (
-              <button onClick={() => setTab(st.go.tab)} style={{ marginTop: 10, background: C.goldFill, color: "var(--on-accent)", border: "none", borderRadius: 9, padding: "10px 16px", fontSize: 14, fontWeight: 700, cursor: "pointer", minHeight: 42, touchAction: "manipulation" }}>{st.go.label} →</button>
-            )}
-            {st.go && st.go.tab === tab && <div style={{ marginTop: 8, color: C.gold, fontSize: 13.5, fontWeight: 600 }}>👇 Les leviers sont juste en dessous.</div>}
-            {!st.go && onValidate && (
-              <button onClick={onValidate} className="qhint" style={{ marginTop: 10, background: C.goldFill, color: "var(--on-accent)", border: "none", borderRadius: 9, padding: "10px 16px", fontSize: 14, fontWeight: 700, cursor: "pointer", minHeight: 42, touchAction: "manipulation" }}>{st.cta} →</button>
-            )}
-          </div>
-          {/* Les autres étapes, en petit */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
-            {steps.map((s, i) => (
-              <span key={s.id} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: s.done ? C.mint : i === cur ? C.gold : C.dim, fontWeight: i === cur ? 700 : 500 }}>
-                <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, background: s.done ? C.mintFill : "transparent", color: s.done ? "var(--on-accent)" : "inherit", border: `2px solid ${s.done ? C.mint : i === cur ? C.gold : C.line}` }}>{s.done ? "✓" : i + 1}</span>
-                {s.short}
-              </span>
-            ))}
+          {note && <div style={{ color: C.dim, fontSize: 12, lineHeight: 1.5, marginTop: 6 }}>{note}</div>}
+          <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
+            {steps.map((s, i) => {
+              const now = i === cur;
+              return (
+                <div key={s.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "9px 10px", borderRadius: 10, background: now ? al(C.gold, "1A") : "transparent", border: `1px solid ${now ? C.gold : "transparent"}` }}>
+                  <span aria-hidden="true" style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, background: s.done ? C.mintFill : "transparent", color: s.done ? "var(--on-accent)" : now ? C.gold : C.dim, border: `2px solid ${s.done ? C.mint : now ? C.gold : C.line}` }}>{s.done ? "✓" : i + 1}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: s.done ? C.mint : C.ink, fontSize: 13.5, fontWeight: 600 }}>
+                      {s.title}{now && <span style={{ marginLeft: 8, fontSize: 10.5, color: C.gold, fontWeight: 700, whiteSpace: "nowrap" }}>▶ MAINTENANT</span>}
+                    </div>
+                    <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{s.sub}</div>
+                    {s.go && !s.done && s.go.tab !== tab && (
+                      <button onClick={() => setTab(s.go.tab)} style={{ marginTop: 7, background: C.goldFill, color: "var(--on-accent)", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer", minHeight: 38, touchAction: "manipulation" }}>{s.go.label} →</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </>
       </Collapse>
@@ -2618,7 +2690,7 @@ function BudgetGuide({ steps, tab, setTab, note, onValidate }) {
 }
 
 function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, taux = TAUX0, marche = MARCHE0, onValidate, leverFilter = null, conseil = false }) {
-  const inFilter = (l) => (!leverFilter || leverFilter.includes(l.id)) && !DISABLED.includes(l.id);
+  const inFilter = (l) => (!leverFilter || leverFilter.includes(l.id)) && !DISABLED.includes(l.id) && levelAllowsLever(l.id);
   const [tab, setTabState] = useState("rec");
   const [visited, setVisited] = useState({ rec: true, dep: false }); // "rec" affiché par défaut
   const [confirm, setConfirm] = useState(false);
@@ -2653,11 +2725,11 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const anyRec = changedIn("rec"), anyDep = changedIn("dep");
   const readyToValidate = guided && anyRec && anyDep; // les deux étapes sont faites : le bouton Valider pulse
   const guideSteps = [
-    { id: "rec", short: "Vos recettes", title: "Réglez vos recettes (impôts)", sub: "Onglet Recettes : touchez + pour augmenter un impôt, − pour le baisser. Modifiez-en autant que vous voulez : chaque impôt relevé réduit le déficit, mais pèse sur quelqu'un.", done: anyRec, go: { tab: "rec", label: "Aller aux recettes" } },
-    { id: "dep", short: "Vos dépenses", title: "Réglez vos dépenses", sub: "Onglet Dépenses : touchez − pour économiser, + pour dépenser davantage. Ajustez autant de postes que vous voulez : chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
-    { id: "go", short: "Valider", cta: conseil ? "Proposer ce budget" : "Valider le budget", title: "Validez votre budget", sub: `Vous pouvez encore modifier recettes et dépenses. Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
+    { id: "rec", title: "Augmentez une recette", sub: "Onglet Recettes : touchez + sur un impôt (par exemple la TVA). Une recette qui augmente réduit le déficit.", done: anyRec, go: { tab: "rec", label: "Aller aux recettes" } },
+    { id: "dep", title: "Ajustez une dépense", sub: "Onglet Dépenses : touchez − pour économiser, ou + pour dépenser davantage. Chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
+    { id: "go", title: "Validez votre budget", sub: `Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
   ];
-  // Projection : si on garde ce solde total jusqu'à la fin du mandat, où finit la dette ?
+  // Projection : si on garde ce solde total jusqu'en 2031, où finit la dette ?
   const detteProjetee = useMemo(() => {
     let d = indPrev.dette; const g = (preview.ind.croissance + (indPrev.inflation ?? INFL_TREND)) / 100;
     for (let i = year; i <= YEARS; i++) d = d + (-soldeTotal) - d * g;
@@ -2669,14 +2741,11 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   return (
     <div>
       <ScreenTitle icon="wallet" title={conseil ? "Le dernier budget du président" : `Budget ${BASE_YEAR + year}`} sub={conseil ? "Année conseil (ne compte pas) — aidez le président sortant avec quelques leviers clés." : `Année ${year}/${YEARS} — ajustez par crans. Les taux se conservent d'une année sur l'autre.`} />
-      {guided && <BudgetGuide steps={guideSteps} tab={tab} setTab={setTab} onValidate={handleValider} note={conseil
+      {guided && <BudgetGuide steps={guideSteps} tab={tab} setTab={setTab} note={conseil
         ? <>Le budget part avec <b style={{ color: C.coral }}>{fmt(-START.solde, 1)} % de déficit</b>. Essayez de le réduire — mais attention, tout choix a un coût social.</>
-        : "Tous les leviers sont disponibles, et un cadre jaune explique l'effet de chaque décision. Dès la 2ᵉ année, vous jouez sans filet !"} />}
+        : "Les leviers sont tous ici, et un cadre jaune explique l'effet de chaque décision. Dès la 2ᵉ année, vous jouez sans filet !"} />}
       {/* Barre de résultat en direct : reste visible pendant le défilement */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, marginBottom: 10, padding: "8px 10px", background: C.card2, border: `1px solid ${C.line}`, borderRadius: 10, boxShadow: "0 6px 16px rgba(0,0,0,.28)" }}>
-        {guided && (() => { const i = Math.max(0, guideSteps.findIndex((g) => !g.done)); return (
-          <div style={{ marginBottom: 6, paddingBottom: 6, borderBottom: `1px solid ${C.line}`, color: C.gold, fontSize: 13.5, fontWeight: 700 }}>👉 Étape {i + 1}/{guideSteps.length} : {guideSteps[i].title}</div>
-        ); })()}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 160px", minWidth: 0 }}>
             <div style={{ fontSize: 10, color: C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>Solde prévu cette année</div>
@@ -2744,7 +2813,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         {/* Aperçu complet des conséquences prévues */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 10 }}>
           <PreviewChip label="Solde total" value={`${fmt(soldeTotal, 1)} %`} tone={soldeTotal < -6 ? "bad" : soldeTotal > -1 ? "good" : "mid"} />
-          <PreviewChip label={`Dette en ${BASE_YEAR + YEARS}`} value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
+          <PreviewChip label="Dette en 2031" value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
           <PreviewChip label="Croissance" value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
           <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
         </div>
@@ -2757,7 +2826,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         {(alerteDeficit || alerteDette) && (
           <div style={{ marginTop: 10, background: C.coralBg, border: `1px solid ${al(C.coral, "66")}`, borderRadius: 9, padding: "9px 12px", color: C.coral, fontSize: 12.5, display: "flex", alignItems: "flex-start", gap: 8 }}>
             <Icon n="alert-triangle" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-            <span>{alerteDeficit && `Déficit très élevé (${fmt(soldeTotal, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
+            <span>{alerteDeficit && `Déficit très élevé (${fmt(preview.ind.solde, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
           </div>
         )}
         <div style={{ color: C.dim, fontSize: 11, marginTop: 8, textAlign: "center" }}>Prévision avant événements — les 3 cartes de l'année viendront tout bousculer.</div>
@@ -2861,14 +2930,7 @@ function useInView(threshold = 0.3) {
 }
 
 // Cadre « Votre tableau de bord » : les indicateurs, avec un titre clair et la façon de les lire.
-function Dashboard({ ind, prev, badge, sub, how, children, fold = false }) {
-  const [folded, setFolded] = useState(fold);
-  if (folded) return (
-    <button onClick={() => setFolded(false)} style={{ width: "100%", marginBottom: 14, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 52px 10px 14px", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, color: C.sub, fontSize: 13.5, minHeight: 44, touchAction: "manipulation" }}>
-      <Icon n="dashboard" size={16} color={C.gold} /> Voir le tableau de bord (les chiffres de départ)
-      <span style={{ marginLeft: "auto", color: C.dim }}>▾</span>
-    </button>
-  );
+function Dashboard({ ind, prev, badge, sub, how, children }) {
   return (
     <div style={{ marginBottom: 18, background: C.card, border: `1px solid ${al(C.gold, "55")}`, borderRadius: 16, padding: "16px 16px 14px" }}>
       {badge}
@@ -3005,12 +3067,6 @@ const stepBtn = { width: 40, height: 40, borderRadius: 8, border: `1px solid ${C
 /* ---------- Écran Événements ---------- */
 function EventScreen({ event, index, total, onChoose }) {
   const t = TYPES[event.type];
-  // Choisir PUIS confirmer : un seul bouton de validation, pour que l'élève comprenne qu'il tranche entre les propositions
-  const [sel, setSel] = useState(null);
-  const [nudge, setNudge] = useState(false);
-  const confirmRef = React.useRef(null);
-  const pick = (i) => { setSel(i); setNudge(false); setTimeout(() => confirmRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 60); };
-  const letter = (i) => "ABCDEF"[i];
   return (
     <div>
       {/* En-tête : numéro d'événement bien visible + progression */}
@@ -3029,32 +3085,17 @@ function EventScreen({ event, index, total, onChoose }) {
         <p style={{ margin: "0 0 14px", color: C.sub, fontSize: 13.5, lineHeight: 1.6 }}>{event.desc}</p>
         {event.contexte && <HistContext text={event.contexte} label={event.prosp ? (event.crise ? "Pourquoi cette crise ?" : "Pourquoi ce scénario ?") : undefined} />}
         {/* Consigne claire */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.gold, fontSize: 17, fontWeight: 700, marginBottom: 2 }}>
-          <Icon n="help-circle" size={20} /> Que décidez-vous ?
+        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 13, fontWeight: 500, marginBottom: 10 }}>
+          <Icon n="hand-click" size={16} /> Sélectionnez l'un des {event.choices.length} choix ci-dessous :
         </div>
-        <div style={{ color: C.sub, fontSize: 13, marginBottom: 12 }}>Une seule réponse possible : touchez une proposition, puis validez.</div>
-        <div role="radiogroup" aria-label="Propositions" style={{ display: "grid", gap: 6 }}>
-          {event.choices.map((ch, i) => (
-            <React.Fragment key={i}>
-              {i > 0 && <span aria-hidden="true" style={{ justifySelf: "center", fontSize: 11.5, fontWeight: 800, letterSpacing: ".08em", color: C.gold, background: al(C.gold, "22"), border: `1px solid ${al(C.gold, "55")}`, borderRadius: 20, padding: "2px 12px" }}>OU</span>}
-              <ChoiceRow choice={ch} letter={letter(i)} selected={sel === i} onSelect={() => pick(i)} />
-            </React.Fragment>
-          ))}
-        </div>
-        <div ref={confirmRef} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.line}` }}>
-          <span style={{ fontSize: 13, fontWeight: sel != null || nudge ? 600 : 400, color: nudge ? C.coral : sel != null ? C.gold : C.dim }}>
-            {sel != null ? `Votre choix : ${letter(sel)}. Vous pouvez encore changer d'avis.` : nudge ? "Touchez d'abord une proposition ci-dessus." : "Aucune proposition choisie pour l'instant."}
-          </span>
-          <button onClick={() => (sel == null ? setNudge(true) : onChoose(event.choices[sel]))} className={sel != null ? "qhint" : ""}
-            style={{ background: C.goldFill, color: C.onAccent, border: "none", borderRadius: 10, padding: "12px 20px", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 7, minHeight: 46, opacity: sel != null ? 1 : 0.5, touchAction: "manipulation" }}>
-            Valider mon choix <Icon n="arrow-right" size={16} />
-          </button>
+        <div style={{ display: "grid", gap: 9 }}>
+          {event.choices.map((ch, i) => <ChoiceRow key={i} choice={ch} num={i + 1} onClick={() => onChoose(ch)} />)}
         </div>
       </div>
     </div>
   );
 }
-function ChoiceRow({ choice, letter, selected, onSelect }) {
+function ChoiceRow({ choice, num, onClick }) {
   const fxChips = Object.entries(choice.fx).filter(([, v]) => Math.abs(v) >= 0.05).map(([k, v]) => {   // un effet nul ou quasi nul (« 0,0 », « −0,0 ») n'est pas affiché
     const m = k === "soldeDur" ? { label: "Solde (chaque année)" } : IND_META.find((x) => x.id === k); if (!m) return null;
     const vv = k === "inegalites" ? -v : v; // l'indicateur affiché est l'ÉGALITÉ : sens inversé
@@ -3062,19 +3103,24 @@ function ChoiceRow({ choice, letter, selected, onSelect }) {
     return <span key={k} style={{ fontSize: 10.5, fontFamily: "monospace", color: good ? C.mint : C.coral, background: C.inset, padding: "1px 6px", borderRadius: 5, border: `1px solid ${C.line}` }}>{m.label} {vv > 0 ? "+" : ""}{fmt(vv, 1)}</span>;
   }).filter(Boolean);
   return (
-    <div role="radio" aria-checked={selected} tabIndex={0} onClick={onSelect} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }}
-      style={{ cursor: "pointer", background: selected ? al(C.gold, "1A") : C.inset, border: `2px solid ${selected ? C.gold : C.line}`, borderRadius: 12, padding: "12px 13px", touchAction: "manipulation", transition: "border-color .15s, background .15s" }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-        <span aria-hidden="true" style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, background: selected ? C.goldFill : "transparent", border: `2px solid ${selected ? C.gold : C.dim}`, color: selected ? C.onAccent : C.ink, fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{selected ? "✓" : letter}</span>
-        <span style={{ color: C.ink, fontSize: 15, flex: 1, lineHeight: 1.4, fontWeight: selected ? 600 : 400 }}>{choice.label}</span>
+    <div style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 13px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
+        <span style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: C.line, color: C.ink, fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}>{num}</span>
+        <span style={{ color: C.ink, fontSize: 14, flex: 1, lineHeight: 1.4 }}>{choice.label}</span>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8, paddingLeft: 36 }}>{fxChips}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8, paddingLeft: 31 }}>{fxChips}</div>
       {(choice.fx.integrite || 0) <= -5 && (
-        <div style={{ marginTop: 7, paddingLeft: 36, fontSize: 11, color: "var(--c-ethique)", display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ marginTop: 7, paddingLeft: 31, fontSize: 11, color: "var(--c-ethique)", display: "flex", alignItems: "center", gap: 5 }}>
           <Icon n="alert-triangle" size={13} /> Entame fortement votre intégrité — risque de scandale plus tard.
         </div>
       )}
-      <div style={{ paddingLeft: 36 }} onClick={(e) => e.stopPropagation()}>{choice.note && <Note text={choice.note} />}</div>
+      <div style={{ paddingLeft: 31 }}>{choice.note && <Note text={choice.note} />}</div>
+      {/* Bouton d'action bien visible */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+        <button onClick={onClick} style={{ background: C.goldFill, color: C.onAccent, border: "none", borderRadius: 9, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+          Faire ce choix <Icon n="arrow-right" size={15} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -3334,7 +3380,7 @@ function ConseilBlock({ sec, showSquares, onSquares }) {
 }
 
 /* ---------- Bilan d'année + Conseiller ---------- */
-function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSquares, history, ctx = {} }) {
+function YearSummary({ year, indBefore, ind, flags, onNext, onTable, onSquares, history, ctx = {} }) {
   const isMobile = useIsMobile();
   const bilan = useMemo(() => conseiller(indBefore, ind, flags), [indBefore, ind, flags]);
   const sections = useMemo(() => conseillerDetaille(indBefore, ind, flags, { ...ctx, year }), [indBefore, ind, flags, ctx, year]);
@@ -3380,7 +3426,7 @@ function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSq
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 16 }}>
         <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Chiffres année par année</Btn>
         <Btn onClick={() => onSquares("postes")}><Icon n="grid-dots" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Le budget en 1 000 €</Btn>
-        <Btn kind="primary" onClick={onNext}>{chute ? "Fin du mandat" : year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+        <Btn kind="primary" onClick={onNext}>{year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
       </div>
     </div>
   );
@@ -3459,18 +3505,93 @@ function ResultsTable({ history, onClose }) {
 const thc = { padding: "9px 10px", textAlign: "left", fontWeight: 500, whiteSpace: "nowrap" };
 const tdc = { padding: "7px 10px", whiteSpace: "nowrap" };
 
-/* ---------- Élection finale ---------- */
-function Election({ onReveal }) {
-  const [phase, setPhase] = useState(0);
-  useEffect(() => { const t = setTimeout(() => setPhase(1), 1400); return () => clearTimeout(t); }, []);
+/* ---------- Élection finale : témoignages d'électeurs, compte à rebours de 20 h, deux estimations, puis le verdict ----------
+   Les témoignages sont tirés des VRAIS changements d'indicateurs du joueur (début → fin de mandat).
+   Les estimations ne sont qu'un effet de mise en scène : elles ne contredisent jamais le résultat calculé
+   (1re estimation « trop serré », 2e estimation du côté du vrai résultat). */
+const VOTER_QUOTES = {
+  chomage: { good: ["J'ai retrouvé un emploi après deux ans de recherche. On respire enfin.", "Karim, 34 ans, ouvrier"], bad: ["Mon usine a fermé et je cherche toujours. Qu'a-t-on fait pour nous ?", "Sophie, 45 ans, ex-opératrice"] },
+  inflation: { good: ["Les prix se calment : à la caisse, ça se sent.", "Marie, 67 ans, retraitée"], bad: ["Mes courses coûtent de plus en plus cher. Les fins de mois sont dures.", "Nadia, 38 ans, mère de famille"] },
+  solde: { good: ["L'État a repris la main sur ses comptes : c'est rassurant.", "Pierre, 52 ans, chef d'entreprise"], bad: ["Le déficit se creuse : on laisse l'addition à nos enfants.", "Claire, 41 ans, enseignante"] },
+  dette: { good: ["La dette recule : ça veut dire moins d'impôts demain.", "Louis, 29 ans, ingénieur"], bad: ["La dette explose et personne ne dit comment on la rembourse.", "Hélène, 58 ans, comptable"] },
+  cohesion: { good: ["Le pays semble apaisé : on arrive de nouveau à se parler.", "Yasmine, 31 ans, infirmière"], bad: ["Tout le monde est en colère : on ne se comprend plus.", "Michel, 49 ans, artisan"] },
+};
+function voterQuotes(ind0, ind1) {
+  const cand = [["chomage", ind1.chomage - ind0.chomage, 1.0, true], ["inflation", (ind1.inflation ?? 0) - (ind0.inflation ?? 0), 1.0, true], ["solde", ind1.solde - ind0.solde, 1.0, false], ["dette", ind1.dette - ind0.dette, 8, true], ["cohesion", ind1.cohesion - ind0.cohesion, 6, false]]
+    .map(([k, d, sc, inv]) => ({ k, mag: Math.abs(d) / sc, good: inv ? d < 0 : d > 0 })).sort((a, b) => b.mag - a.mag);
+  const out = []; const seenSolde = new Set();
+  for (const c of cand) { if ((c.k === "dette" && out.some((o) => o.k === "solde")) || (c.k === "solde" && out.some((o) => o.k === "dette"))) continue; out.push(c); if (out.length === 2) break; }
+  return out.map((c) => ({ k: c.k, good: c.good, text: VOTER_QUOTES[c.k][c.good ? "good" : "bad"][0], who: VOTER_QUOTES[c.k][c.good ? "good" : "bad"][1] }));
+}
+const ELECTION_ANNONCE = {
+  triomphe: "Vous êtes réélu·e triomphalement", reelu: "Vous êtes réélu·e", battu: "Vous êtes battu·e", desavoue: "Vous êtes battu·e",
+  faillite: "Vous n'êtes pas réélu·e", chaos: "Vous n'êtes pas réélu·e", scandale: "Vous quittez le pouvoir",
+};
+// Score de l'élection, identique à l'estimation affichée la veille du verdict : cohérent avec le résultat calculé
+function electionShare(ind, sc) {
+  const e = ending(ind, sc), win = ["triomphe", "reelu"].includes(e.key);
+  const raw = 50 + (ind.popularite - 38) * 0.15 + (sc.total - 40) * 0.15;
+  return { e, win, share: +(win ? Math.min(60, Math.max(50.6, raw)) : Math.min(49.4, Math.max(41, raw))).toFixed(1) };
+}
+function Election({ game, onReveal }) {
+  const [phase, setPhase] = useState(0);   // 0-1 témoignages · 2 compte à rebours · 3 estimation 1 · 4 estimation 2 + bouton
+  const [sec, setSec] = useState(45);
+  const { share } = electionShare(game.ind, scoreBreakdown(game.ind));
+  const quotes = voterQuotes(START, game.ind);
+  useEffect(() => {
+    const dur = [3200, 3200, 3600, 2800][phase]; if (dur == null) return;
+    const t = setTimeout(() => setPhase(phase + 1), dur); return () => clearTimeout(t);
+  }, [phase]);
+  useEffect(() => {
+    if (phase !== 2) return;
+    const iv = setInterval(() => setSec((x) => Math.min(60, x + 1)), 220); return () => clearInterval(iv);
+  }, [phase]);
+  const bar = (a) => (
+    <div style={{ width: "100%", maxWidth: 360, margin: "0 auto" }}>
+      <div style={{ display: "flex", height: 16, borderRadius: 8, overflow: "hidden", background: C.inset }}>
+        <div style={{ width: `${a}%`, background: C.mint, transition: "width .9s ease" }} /><div style={{ width: `${100 - a}%`, background: C.coral, transition: "width .9s ease" }} />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.dim, marginTop: 4 }}><span>Vous : {fmt(a, 1)} %</span><span>Adversaire : {fmt(100 - a, 1)} %</span></div>
+    </div>
+  );
+  const box = { minHeight: 190, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, animation: "qElecIn .6s ease both" };
   return (
-    <div style={{ textAlign: "center", padding: "30px 10px" }}>
+    <div data-election="1" style={{ textAlign: "center", padding: "30px 10px" }} aria-live="polite">
+      <style>{`@keyframes qElecIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}} @keyframes qElecBlink{0%,100%{opacity:1}50%{opacity:.3}}`}</style>
       <Icon n="ballpen" size={44} color={C.gold} />
       <h2 style={{ color: C.ink, fontFamily: "Fraunces,serif", fontSize: 26, margin: "12px 0 6px" }}>Le jour du vote</h2>
-      <p style={{ color: C.dim, fontSize: 14 }}>Après {YEARS} ans, les Français jugent votre bilan…</p>
-      {phase === 0
-        ? <div style={{ color: C.gold, marginTop: 20, fontSize: 14 }}><Icon n="loader" size={18} /> Dépouillement en cours…</div>
-        : <div style={{ marginTop: 20 }}><Btn kind="primary" onClick={onReveal}>Découvrir le verdict <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn></div>}
+      <p style={{ color: C.dim, fontSize: 14, margin: "0 0 14px" }}>Après {YEARS} ans, les Français jugent votre bilan…</p>
+      <div style={{ maxWidth: 460, margin: "0 auto" }}>
+        {phase <= 1 && quotes[phase] && (
+          <div key={"q" + phase} data-step="quote" style={box}>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>Ils s'expriment · {phase + 1}/2</div>
+            <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: "16px 18px", fontFamily: "Fraunces,Georgia,serif", fontSize: 17, lineHeight: 1.5, color: C.ink, fontStyle: "italic" }}>« {quotes[phase].text} »</div>
+            <div style={{ color: C.dim, fontSize: 12.5 }}>{quotes[phase].who}</div>
+          </div>
+        )}
+        {phase === 2 && (
+          <div key="clock" data-step="clock" style={box}>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>{sec >= 60 ? "20 h : les premières estimations" : "Les bureaux de vote ferment"}</div>
+            <div style={{ fontFamily: "monospace", fontSize: 44, color: C.gold, letterSpacing: ".05em" }}>{sec >= 60 ? "20:00:00" : "19:59:" + String(sec).padStart(2, "0")}</div>
+          </div>
+        )}
+        {phase === 3 && (
+          <div key="e1" data-step="est1" style={box}>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>1re estimation</div>
+            {bar(50)}
+            <div style={{ color: C.sub, fontSize: 14 }}>Trop serré pour conclure…</div>
+          </div>
+        )}
+        {phase >= 4 && (
+          <div key="e2" data-step="est2" style={box}>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>2e estimation</div>
+            {bar(share)}
+            <div style={{ color: C.sub, fontSize: 14 }}>Le résultat officiel est attendu…</div>
+            <Btn kind="primary" onClick={onReveal}>Découvrir le verdict <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+          </div>
+        )}
+      </div>
+      {phase < 4 && <div style={{ marginTop: 14 }}><button data-skip="1" onClick={() => setPhase(4)} style={{ background: "none", border: "none", color: C.dim, fontSize: 12.5, cursor: "pointer", textDecoration: "underline" }}>Passer</button></div>}
     </div>
   );
 }
@@ -3482,6 +3603,12 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
   return (
     <div>
       {end.key === "triomphe" && <Confetti />}
+      {(() => { const { win, share } = electionShare(game.ind, sc); const col = win ? C.mint : C.coral; const catastrophe = ["faillite", "chaos", "scandale"].includes(end.key); return (
+        <div data-annonce="1" style={{ textAlign: "center", padding: "18px 14px", marginBottom: 14, borderRadius: 16, background: al(col, "18"), border: `2px solid ${al(col, "88")}` }}>
+          <div style={{ fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: C.dim, marginBottom: 4 }}>Résultat de l'élection</div>
+          <div style={{ fontFamily: "Fraunces,Georgia,serif", fontSize: "clamp(24px, 6.2vw, 34px)", fontWeight: 600, color: col, lineHeight: 1.2 }}>{ELECTION_ANNONCE[end.key] || (win ? "Vous êtes réélu·e" : "Vous êtes battu·e")}</div>
+          {!catastrophe && <div style={{ color: C.sub, fontSize: 14, marginTop: 6 }}>avec {fmt(share, 1)} % des voix</div>}
+        </div>); })()}
       <div style={{ textAlign: "center", background: al(end.color, "1A"), border: `1px solid ${al(end.color, "66")}`, borderRadius: 16, padding: 22, marginBottom: 16 }}>
         <Icon n={end.icon} size={46} color={end.color} />
         <h2 style={{ color: end.color, fontFamily: "Fraunces,serif", fontSize: 26, margin: "10px 0 6px" }}>{end.title}</h2>
@@ -3507,6 +3634,11 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
           </div>
         ))}
       </div>
+      {(() => { const L = LETTRES[game.eraId || "today"]; if (!L || game.chain) return null; const res = L.obj.map((o) => ({ o, ok: o.ok(game.ind), near: !o.ok(game.ind) && o.near(game.ind) })); const n = res.filter((r) => r.ok).length; return (
+        <div data-lettre-bilan="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 14.5, fontWeight: 500, marginBottom: 10 }}><Icon n="mail-check" size={17} color={C.gold} /> Lettre de mission : {n} objectif{n > 1 ? "s" : ""} sur {res.length} atteint{n > 1 ? "s" : ""}</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{res.map(({ o, ok, near }) => { const col = ok ? C.mint : near ? C.gold : C.coral; return <span key={o.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: col, background: al(col, "18"), border: `1px solid ${al(col, "44")}`, borderRadius: 20, padding: "4px 11px" }}><Icon n={ok ? "circle-check" : near ? "circle-dot" : "circle-x"} size={14} />{o.label}</span>; })}</div>
+        </div>); })()}
       {wonNew.length > 0 && (
         <div style={{ background: al(C.gold, "14"), border: `1px solid ${al(C.gold, "66")}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 10 }}><Icon n="trophy" size={18} /> {wonNew.length === 1 ? "Nouveau trophée débloqué !" : `${wonNew.length} nouveaux trophées débloqués !`}</div>
@@ -3676,11 +3808,12 @@ function TrophiesView({ unlocked, onBack }) {
     </div>
   );
 }
-function LeaderboardView({ code, entries, onBack }) {
+function LeaderboardView({ code, level = "complet", onLevel, entries, onBack }) {
   const podium = [...(entries || [])].sort((a, b) => b.score - a.score);
   return (
     <div>
-      <ScreenTitle icon="trophy" title={`Classement — ${code}`} sub={`${podium.length} partie(s) enregistrée(s)`} />
+      <ScreenTitle icon="trophy" title={`Classement — ${code}`} sub={`${podium.length} partie(s) enregistrée(s) · niveau ${LEVELS[level].label}`} />
+      {onLevel && <div data-lb-levels="1" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>{Object.entries(LEVELS).map(([id, L]) => <button key={id} onClick={() => onLevel(id)} style={{ cursor: "pointer", fontSize: 12.5, padding: "6px 12px", borderRadius: 20, border: `1px solid ${id === level ? C.gold : C.line}`, background: id === level ? al(C.gold, "22") : "transparent", color: id === level ? C.gold : C.sub }}>{L.label}</button>)}</div>}
       {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13, marginBottom: 12 }}>Aucune partie enregistrée sous ce code.</div>}
       <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
         {podium.map((e, i) => (
@@ -3715,19 +3848,19 @@ export default function App() {
   const [board, setBoard] = useState([]);
   const [newTrophies, setNewTrophies] = useState([]);
   const [pickedEra, setPickedEra] = useState("today");
+  const [lockedCode, setLockedCode] = useState(null);
   const [setup, setSetup] = useState(null);                 // code/team/doctrine retenus pour la vraie partie
   const [conseil, setConseil] = useState(null);             // état de l'année conseil (ne compte pas)
   const [conseilWork, setConseilWork] = useState({});
   const [conseilEvts, setConseilEvts] = useState([]);
   const [conseilEvtIdx, setConseilEvtIdx] = useState(0);
-  // Chaque nouvel écran (ou nouvel événement) s'ouvre en haut de page, sur le tableau de bord
-  useEffect(() => { window.scrollTo(0, 0); }, [screen, evtIdx, conseilEvtIdx]);
   const [theme, setTheme] = useState("dark");
   useEffect(() => { (async () => { const t = await storage.get("quinq:theme"); if (t === "light" || t === "dark") setTheme(t); })(); }, []);
   useEffect(() => { try { document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : ""); } catch {} storage.set("quinq:theme", theme); }, [theme]);
   const [unlockedTrophies, setUnlockedTrophies] = useState([]);
   const [hasSave, setHasSave] = useState(false);
   const [boardCode, setBoardCode] = useState("STMG");
+  const [boardLevel, setBoardLevel] = useState("complet");
 
   const doctrineOf = (g) => DOCTRINES.find((d) => d.id === g.doctrineId);
 
@@ -3741,7 +3874,7 @@ export default function App() {
 
   function start(code, team, doctrineId, eraId = "today", chain = null) {
     applyEra(eraId, chain ? chain.override : null);
-    const g = { code, team, doctrineId, eraId, year: 1, ind: { ...START }, levels: chain && chain.levels ? { ...chain.levels } : {}, taux: TAUX0, tauxMarche: MARCHE0, history: [], usedIds: chain && chain.usedIds ? [...chain.usedIds] : [], pendingFlags: [], ...(chain ? { chain: { n: chain.n, from: chain.from, key: chain.key, override: chain.override, gaps: chain.gaps, futur: !!chain.futur, fromDebut: chain.fromDebut } } : {}) };
+    const g = { code, team, doctrineId, eraId, level: GAME_LEVEL, year: 1, ind: { ...START }, levels: chain && chain.levels ? { ...chain.levels } : {}, taux: TAUX0, tauxMarche: MARCHE0, history: [], usedIds: chain && chain.usedIds ? [...chain.usedIds] : [], pendingFlags: [], ...(chain ? { chain: { n: chain.n, from: chain.from, key: chain.key, override: chain.override, gaps: chain.gaps, futur: !!chain.futur, fromDebut: chain.fromDebut } } : {}) };
     setGame(g); setWorkLevels({ ...(g.levels || {}) }); setScreen("mission"); persist(g);   // mandat prolongé : on repart des leviers repris (TVA à 25 %, etc.), pas de zéro
   }
   // --- Année conseil (guidée, ne compte pas) ---
@@ -3760,9 +3893,7 @@ export default function App() {
     const cp = t * conseil.ind.dette / 100;
     const indTotal = { ...res.ind, solde: clamp(sp - cp, -18, 8) };
     setConseil({ ind: indTotal, taux: t, marche: m });
-    // Exclure les événements historiques datés : ils reviendront dans la vraie année 1
-    const histIds = (HIST_EVENTS[CURRENT_ERA.id] || []).map((h) => h.id);
-    setConseilEvts(drawEvents(1, histIds, [], null, 2)); setConseilEvtIdx(0);
+    setConseilEvts(drawEvents(1, [], [], null, 2)); setConseilEvtIdx(0);
     setScreen("conseil_events");
   }
   function chooseConseilEvent(choice) {
@@ -3773,13 +3904,7 @@ export default function App() {
   async function resume() {
     const ptr = await storage.get(saveKey("STMG", "__any__")); if (!ptr) return;
     const g = await storage.get(saveKey(ptr.code, ptr.team));
-    if (!g) return;
-    applyEra(g.eraId || "today", g.chain ? g.chain.override : null); setGame(g); setWorkLevels({ ...(g.levels || {}) });
-    // Sauvegarde faite à la fin des événements : l'année en cours est déjà jouée -> reprendre sur son bilan
-    const h = g.history || [];
-    if (h.length && h[h.length - 1].year === g.year) {
-      setIndBefore(h.length > 1 ? h[h.length - 2].ind : { ...START }); setFlags([...(g.pendingFlags || []), ...(g.chute ? ["chute"] : [])]); setScreen("summary");
-    } else setScreen("budget");
+    if (g) { applyEra(g.eraId || "today", g.chain ? g.chain.override : null); applyLevel(g.level || "complet"); setGame(g); setWorkLevels({ ...(g.levels || {}) }); setScreen("budget"); }
   }
 
   function validateBudget() {
@@ -3811,14 +3936,12 @@ export default function App() {
       const pibPrev = game.history.length ? game.history[game.history.length - 1].pib : PIB * ECH;
       const flows = computeFlows(finalInd, game.levels, pibPrev);
       const history = [...game.history, { year: game.year, ind: finalInd, taux: game.taux, marche: game.tauxMarche, charge: game._chargeMd, soldePrimaire: game._soldePrim, ...flows }];
-      const chute = chuteAnticipee(finalInd);
-      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl, ...(chute ? { chute } : {}) };
-      setFlags(chute ? [...fl, "chute"] : fl); setGame(g2); persist(g2); setScreen("summary");
+      const g2 = { ...game, ind: finalInd, usedIds, decisions, history, pendingFlags: fl };
+      setFlags(fl); setGame(g2); persist(g2); setScreen("summary");
     }
   }
 
   function nextYear() {
-    if (game.chute) { reveal(); return; }
     if (game.year >= YEARS) { setScreen("election"); return; }
     const g2 = { ...game, year: game.year + 1 };
     setGame(g2); setWorkLevels({ ...(g2.levels || {}) }); persist(g2); setScreen("budget");
@@ -3826,16 +3949,15 @@ export default function App() {
 
   async function reveal() {
     const score = scoreBreakdown(game.ind);
-    const e = game.chute || ending(game.ind, score);
+    const e = ending(game.ind, score);
     // Une fin catastrophique plafonne le score : impossible de "bien noter" un mandat qui s'effondre.
-    if (["faillite", "chaos", "scandale", "demission"].includes(e.key)) score.total = Math.min(score.total, 35);
+    if (["faillite", "chaos", "scandale"].includes(e.key)) score.total = Math.min(score.total, 35);
     setSc(score); setEnd(e);
     const eraTag = game.eraId && game.eraId !== "today" ? ` · ${eraById(game.eraId).debut}` : "";
     const entry = { team: game.team, score: score.total, eco: score.eco, social: score.social, politique: score.politique, ending: e.title + eraTag, date: Date.now() };
-    const existing = (await storage.get(lbKey(game.code), true)) || [];
+    const existing = (await storage.get(lbKey(game.code, game.level), true)) || [];
     const updated = game.chain ? existing : [...existing.filter((x) => x.team !== game.team), entry];   // un mandat enchaîné n'est pas classé
-    if (!game.chain) await storage.set(lbKey(game.code), updated, true);
-    await storage.set("quinq:lastcode", game.code);
+    if (!game.chain) await storage.set(lbKey(game.code, game.level), updated, true);
     // Trophées : calculer les gagnés, repérer les NOUVEAUX, fusionner et persister
     const won = trophiesWon(game, score, e).map((t) => t.id);
     const stored = (await storage.get(TROPHY_KEY)) || [];
@@ -3859,7 +3981,7 @@ export default function App() {
     setSc(null); setEnd(null);
     start(game.code, game.team, game.doctrineId, nextId, { n: (game.chain ? game.chain.n : 1) + 1, from: game.eraId, key: end.key, ...carry });
   }
-  async function openLeaderboard(code) { code = code || (await storage.get("quinq:lastcode")) || "CLASSE"; setBoardCode(code); const e = (await storage.get(lbKey(code), true)) || []; setBoard(e); setScreen("leaderboard"); }
+  async function openLeaderboard(code, level = "complet") { setBoardCode(code); setBoardLevel(level); const e = (await storage.get(lbKey(code, level), true)) || []; setBoard(e); setScreen("leaderboard"); }
   async function openTrophies() { const t = (await storage.get(TROPHY_KEY)) || []; setUnlockedTrophies(t); setScreen("trophies"); }
 
   const progress = game ? ((game.year - 1) / YEARS) * 100 : 0;
@@ -3913,7 +4035,7 @@ export default function App() {
       </button>
       <div style={{ maxWidth: ["home", "mission", "era"].includes(screen) ? 1040 : 760, margin: "0 auto", padding: ["home", "mission", "era"].includes(screen) ? "40px 24px 48px" : "18px 16px 40px" }}>
         {conseil && ["conseil_budget", "conseil_events"].includes(screen) && (
-          <Dashboard key={screen} fold={screen === "conseil_budget"} ind={conseil.ind} sub="Les chiffres clés de la France au début de l'année : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure."
+          <Dashboard ind={conseil.ind} sub="Les chiffres clés de la France au début de l'année : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure."
             badge={<div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: al(C.gold, "22"), color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="user-star" size={13} /> Année conseil — ne compte pas</div>} />
         )}
         {game && screen !== "home" && (
@@ -3938,8 +4060,8 @@ export default function App() {
           </Dashboard>
         )}
 
-        {screen === "home" && <Home hasSave={hasSave} onPickEra={(id) => { setPickedEra(id); setScreen("era"); }} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
-        {screen === "era" && <EraSetup eraId={pickedEra} onStart={startConseil} onSkipConseil={start} onBack={() => setScreen("home")} />}
+        {screen === "home" && <Home hasSave={hasSave} onPickEra={(id, cc) => { setPickedEra(id); setLockedCode(cc || null); setScreen("era"); }} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
+        {screen === "era" && <EraSetup eraId={pickedEra} lockedCode={lockedCode} onStart={startConseil} onSkipConseil={start} onBack={() => setScreen("home")} />}
         {screen === "conseil_intro" && setup && <ConseilIntro team={setup.team} onGo={() => setScreen("conseil_budget")} />}
         {screen === "conseil_budget" && conseil && <BudgetScreen year={1} indPrev={conseil.ind} baseLevels={{}} levels={conseilWork} setLevels={setConseilWork} doctrine={null} taux={TAUX0} marche={MARCHE0} onValidate={validateConseil} leverFilter={ESSENTIAL} conseil={true} />}
         {screen === "conseil_events" && conseil && conseilEvts[conseilEvtIdx] && <EventScreen key={conseilEvts[conseilEvtIdx].id} event={conseilEvts[conseilEvtIdx]} index={conseilEvtIdx} total={conseilEvts.length} onChoose={chooseConseilEvent} />}
@@ -3949,12 +4071,12 @@ export default function App() {
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} chain={game.chain || null} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} onValidate={validateBudget} />}
         {screen === "events" && game && evts[evtIdx] && <EventScreen key={evts[evtIdx].id} event={evts[evtIdx]} index={evtIdx} total={evts.length} onChoose={chooseEvent} />}
-        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} chute={!!game.chute} onNext={nextYear} onTable={() => setScreen("table")} onSquares={(v, f) => { setSquaresView(v || "postes"); setSquaresFocus(f || null); setScreen("squares"); }} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, marche: game.tauxMarche, marchePrev: game._marchePrev, chargeMd: game._chargeMd, chargePct: game._chargePct, chargePctPrev: game._chargePctPrev }} />}
+        {screen === "summary" && game && <YearSummary year={game.year} indBefore={indBefore} ind={game.ind} flags={flags} onNext={nextYear} onTable={() => setScreen("table")} onSquares={(v, f) => { setSquaresView(v || "postes"); setSquaresFocus(f || null); setScreen("squares"); }} history={game.history} ctx={{ levels: game.levels, prevLevels: game._prevLevels || {}, decisions: (game.decisions || []).filter((d) => d.year === game.year), taux: game.taux, tauxPrev: game._tauxPrev, marche: game.tauxMarche, marchePrev: game._marchePrev, chargeMd: game._chargeMd, chargePct: game._chargePct, chargePctPrev: game._chargePctPrev }} />}
         {screen === "table" && game && <ResultsTable history={game.history} onClose={() => setScreen("summary")} />}
         {screen === "squares" && game && <BudgetSquares history={game.history} levels={game.levels} year={game.year} view={squaresView} focus0={squaresFocus} onClose={() => setScreen("summary")} />}
-        {screen === "election" && game && <Election onReveal={reveal} />}
+        {screen === "election" && game && <Election game={game} onReveal={reveal} />}
         {screen === "debrief" && game && sc && end && <Debrief game={game} sc={sc} end={end} leaderboard={board} newTrophies={newTrophies} chainNext={["triomphe", "reelu"].includes(end.key) && !game.chain ? (CHAIN_NEXT[game.eraId] || null) : null} onContinue={continueCampaign} onReplay={() => start(game.code, game.team, game.doctrineId, game.eraId)} onHome={() => { setGame(null); setScreen("home"); }} />}
-        {screen === "leaderboard" && <LeaderboardView code={boardCode} entries={board} onBack={() => setScreen("home")} />}
+        {screen === "leaderboard" && <LeaderboardView code={boardCode} level={boardLevel} onLevel={(lv) => openLeaderboard(boardCode, lv)} entries={board} onBack={() => setScreen("home")} />}
       </div>
     </div>
   );
