@@ -97,7 +97,7 @@ let ERA_RATES = {}, DISABLED = [], ERA_ZERO = [], INFL_LINK = 0.7, MARCHE_DRIFT 
 /* Code de classe imposant l'époque : « NOM-ANNÉE » (ex. TG2-2012). L'année est celle du début du mandat. */
 const parseClassCode = (c) => { const m = /[-_ ](\d{4})\s*$/.exec((c || "").trim()); const e = m && ERAS.find((x) => x.debut === +m[1]); return e ? e.id : null; };
 const eraById = (id) => ERAS.find((e) => e.id === id) || ERAS[ERAS.length - 1];
-const eraLabel = (e) => e.id === "today" ? `Aujourd'hui · ${e.debut}-${e.debut + e.duree}` : `Mandat de ${e.president} · ${e.debut}-${e.debut + e.duree}`;
+const eraLabel = (e) => e.id === "today" ? tr("Aujourd'hui · {a}-{b}", { a: e.debut, b: e.debut + e.duree }) : tr("Mandat de {a} · {b}-{c}", { a: e.president, b: e.debut, c: e.debut + e.duree });
 function applyEra(id, override = null) {
   const e = override ? { ...eraById(id), ...override } : eraById(id);   // « override » : départ hérité d'un mandat précédent
   CHAIN_MODE = !!override;
@@ -725,10 +725,10 @@ const AMBIANCE = {
     [ "La France compte environ 54 millions d'habitants. François Mitterrand devient le premier président socialiste de la Ve République, dix ans après la fondation du Parti socialiste à Épinay (1971).",
       "Quelques semaines plus tôt, à peine un mois après son investiture, Ronald Reagan a survécu à une tentative d'assassinat (mars 1981).",
       "Le sida n'a pas encore de nom : les premiers cas sont décrits aux États-Unis en juin 1981.",
-      "MTV, la première chaîne consacrée aux clips musicaux, vient de être lancée aux États-Unis (août 1981).",
+      "MTV, la première chaîne consacrée aux clips musicaux, vient d'être lancée aux États-Unis (août 1981).",
       "En Pologne, le syndicat Solidarność, né l'année précédente, défie le pouvoir communiste.",
       "La guerre Iran-Irak, commencée en 1980, fait rage et pèse sur le prix du pétrole.",
-      "Le minitel est testé depuis peu en Île-et-Vilaine ; il ne se généralisera qu'à partir de 1982.",
+      "Le minitel est testé depuis peu en Ille-et-Vilaine ; il ne se généralisera qu'à partir de 1982.",
       "Le service militaire dure un an et reste obligatoire pour les jeunes hommes." ] ] },
   mitterrand2: { date: "Nous sommes le 8 mai 1988.", variants: [
     [ "La France compte environ 56 millions d'habitants et reste l'une des cinq premières puissances économiques du monde.",
@@ -792,7 +792,7 @@ const AMBIANCE = {
       "Le traité de Lisbonne, qui doit simplifier le fonctionnement de l'Union européenne après le « non » français de 2005, est en cours de négociation.",
       "YouTube, racheté par Google l'année précédente, change la manière de regarder des vidéos ; Twitter vient tout juste d'être lancé (2006).",
       "Le prix du baril de pétrole s'envole, en route vers un record historique l'année suivante (2008).",
-      "La Fourme de Montbrison... plus sérieusement, le film « La Môme », sur Édith Piaf, triomphe au cinéma et vaudra un Oscar à Marion Cotillard.",
+      "Le film « La Môme », sur Édith Piaf, triomphe au cinéma et vaudra un Oscar à Marion Cotillard.",
       "Le Kindle d'Amazon, premier lecteur de livres numériques à succès, vient d'être lancé aux États-Unis." ] ] },
   hollande: { date: "Nous sommes le 6 mai 2012.", variants: [
     [ "La France compte environ 65 millions d'habitants et fait partie des six premières puissances économiques du monde.",
@@ -818,7 +818,7 @@ const AMBIANCE = {
       "Personne n'a encore entendu parler du Covid-19, ni de ChatGPT.",
       "Aux États-Unis, Donald Trump vient de prendre ses fonctions de président, en janvier 2017." ],
     [ "La France compte environ 67 millions d'habitants. À 39 ans, Emmanuel Macron devient le plus jeune président de la Ve République, face à Marine Le Pen, avec un mouvement politique créé un an plus tôt.",
-      "Son parti, La République en Marche, n'a pas encore de député : les élections législatives suivront en juin 1917.",
+      "Son parti, La République en Marche, n'a pas encore de député : les élections législatives suivront en juin 2017.",
       "Donald Trump, élu en novembre 2016, vient de prendre ses fonctions de président des États-Unis, suscitant de vives inquiétudes en Europe.",
       "La série « Game of Thrones » touche à sa fin de diffusion ; le monde entier en discute chaque semaine.",
       "Les attentats de 2015 et 2016 (Bataclan, Nice) restent dans toutes les mémoires ; l'état d'urgence est toujours en vigueur en France.",
@@ -844,7 +844,48 @@ const AMBIANCE = {
 };
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-const fmt = (n, d = 0) => (n ?? 0).toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d });
+/* ============================================================
+   LANGUES — le français est la langue source : il sert de clé dans les fichiers src/i18n/<langue>.js
+   ============================================================ */
+const LANGS = { fr: "Français", en: "English" };   // ajouter de / it / es quand leur dictionnaire est prêt
+const LOCALES = { fr: "fr-FR", en: "en-GB", de: "de-DE", it: "it-IT", es: "es-ES" };
+const DICT_LOADERS = { en: () => import("./i18n/en.js"), de: () => import("./i18n/de.js"), it: () => import("./i18n/it.js"), es: () => import("./i18n/es.js") };
+let LANG = "fr", DICT = {};
+// tr("phrase en français {x}", { x }) : la phrase dans la langue choisie (ou en français si elle n'est pas traduite)
+function tr(fr, vars) {
+  const s = (LANG !== "fr" && DICT[fr]) || fr;
+  return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)) : s;
+}
+// tx : comme tr, pour le JSX : {x} peut être un élément React, et <b>…</b> (ou <b1>…</b1>, avec styles[1]) passe en gras
+function tx(fr, vars = {}, styles = {}) {
+  const s = (LANG !== "fr" && DICT[fr]) || fr;
+  const parse = (str, kp) => str.split(/(<b\d*>[\s\S]*?<\/b\d*>|\{\w+\})/).filter(Boolean).map((p, i) => {
+    const b = /^<b(\d*)>([\s\S]*)<\/b\d*>$/.exec(p);
+    if (b) return <b key={kp + i} style={styles[b[1]]}>{parse(b[2], kp + i + ".")}</b>;
+    const v = /^\{(\w+)\}$/.exec(p);
+    return v && v[1] in vars ? <React.Fragment key={kp + i}>{vars[v[1]]}</React.Fragment> : p;
+  });
+  return parse(s, "");
+}
+// Textes des données (événements, époques, leviers…) : on garde le français d'origine et on le remplace au changement de langue
+const I18N_SKIP = new Set(["id", "type", "icon", "color", "tok", "cat", "key", "eid", "couleurs", "grp"]);
+const I18N_ORIG = [];
+function collectI18n(o, seen = new Set()) {
+  if (!o || typeof o !== "object" || seen.has(o)) return; seen.add(o);
+  for (const k of Object.keys(o)) {
+    const v = o[k];
+    if (typeof v === "string") { if (!I18N_SKIP.has(k) && /[A-Za-zÀ-ÿ]{2}/.test(v) && !/^[a-z0-9_]+$/.test(v)) I18N_ORIG.push([o, k, v]); }   // un identifiant (« tva », « sante ») n'est pas un texte
+    else if (v && typeof v === "object") collectI18n(v, seen);
+  }
+}
+async function setLanguage(l) {
+  const lang = LANGS[l] ? l : "fr";
+  DICT = lang === "fr" ? {} : ((await DICT_LOADERS[lang]().catch(() => ({ default: {} }))).default || {});
+  LANG = lang;
+  for (const [o, k, fr] of I18N_ORIG) o[k] = (lang !== "fr" && DICT[fr]) || fr;
+  try { document.documentElement.lang = lang; } catch {}
+}
+const fmt = (n, d = 0) => (n ?? 0).toLocaleString(LOCALES[LANG] || "fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d });
 
 // Équivalence concrète d'un montant en Md€ : euros par habitant et par an
 const parHabitant = (md) => (md * 1000) / POP_FR;   // €/habitant/an
@@ -930,12 +971,12 @@ function LettreMission({ eraId, compact = false }) {
   if (!L) return null;
   return (
     <div data-lettre="1" style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16, marginTop: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 8 }}><Icon n="mail" size={17} /> Votre lettre de mission</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 8 }}><Icon n="mail" size={17} /> {tr("Votre lettre de mission")}</div>
       <p style={{ margin: 0, color: C.ink, fontFamily: "Fraunces,Georgia,serif", fontSize: 14.5, lineHeight: 1.65, fontStyle: "italic" }}>« {L.texte} »</p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
         {L.obj.map((o) => <span key={o.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.ink, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 20, padding: "4px 11px" }}><Icon n={o.icon} size={14} color={C.gold} />{o.label}</span>)}
       </div>
-      {!compact && <div style={{ display: "flex", gap: 8, color: C.sub, fontSize: 12.5, lineHeight: 1.6 }}><Icon n="world" size={16} color={C.dim} style={{ flexShrink: 0, marginTop: 2 }} /><span><b style={{ color: C.ink, fontWeight: 600 }}>Rappel d'époque : l'économie est ouverte.</b> {L.ouvert}</span></div>}
+      {!compact && <div style={{ display: "flex", gap: 8, color: C.sub, fontSize: 12.5, lineHeight: 1.6 }}><Icon n="world" size={16} color={C.dim} style={{ flexShrink: 0, marginTop: 2 }} /><span><b style={{ color: C.ink, fontWeight: 600 }}>{tr("Rappel d'époque : l'économie est ouverte.")}</b> {L.ouvert}</span></div>}
     </div>
   );
 }
@@ -943,14 +984,14 @@ function LettreMission({ eraId, compact = false }) {
 // Victoires intermédiaires débloquées une année donnée (renforcement positif)
 function victoires(before, after) {
   const v = [];
-  if (after.solde >= 0 && before.solde < 0) v.push({ icon: "award", label: "Budget à l'équilibre, voire en excédent — exploit historique !" });
-  else if (after.solde > -3 && before.solde <= -3) v.push({ icon: "trophy", label: "Déficit sous les 3 % — critère européen respecté !" });
-  if (after.dette < before.dette) v.push({ icon: "trending-down", label: "La dette recule cette année." });
-  if (after.chomage < 7 && before.chomage >= 7) v.push({ icon: "briefcase", label: "Chômage repassé sous 7 % !" });
-  if (after.croissance > 2) v.push({ icon: "rocket", label: `Forte croissance (${fmt(after.croissance, 1)} %) !` });
-  if (after.cohesion >= 70 && before.cohesion < 70) v.push({ icon: "heart", label: "Société très apaisée." });
-  if (after.integrite >= 80 && before.integrite < 80) v.push({ icon: "shield-check", label: "Exemplarité : mains propres." });
-  if (after.environnement >= 65 && before.environnement < 65) v.push({ icon: "leaf", label: "Belle avancée écologique." });
+  if (after.solde >= 0 && before.solde < 0) v.push({ icon: "award", label: tr("Budget à l'équilibre, voire en excédent — exploit historique !") });
+  else if (after.solde > -3 && before.solde <= -3) v.push({ icon: "trophy", label: tr("Déficit sous les 3 % — critère européen respecté !") });
+  if (after.dette < before.dette) v.push({ icon: "trending-down", label: tr("La dette recule cette année.") });
+  if (after.chomage < 7 && before.chomage >= 7) v.push({ icon: "briefcase", label: tr("Chômage repassé sous 7 % !") });
+  if (after.croissance > 2) v.push({ icon: "rocket", label: tr("Forte croissance ({a} %) !", { a: fmt(after.croissance, 1) }) });
+  if (after.cohesion >= 70 && before.cohesion < 70) v.push({ icon: "heart", label: tr("Société très apaisée.") });
+  if (after.integrite >= 80 && before.integrite < 80) v.push({ icon: "shield-check", label: tr("Exemplarité : mains propres.") });
+  if (after.environnement >= 65 && before.environnement < 65) v.push({ icon: "leaf", label: tr("Belle avancée écologique.") });
   return v;
 }
 
@@ -1244,7 +1285,7 @@ const EVENTS = [
   { id: "lobby_agro", type: "lobby", title: "Lobby agro-industriel",
     desc: "La filière demande de réautoriser un pesticide interdit pour « sauver les récoltes ». Elle finance de nombreux emplois ruraux.",
     choices: [
-      { label: "Réautoriser le pesticide", fx: { solde: 0.2, chomage: -0.1, environnement: -7, integrite: -6, popularite: 1 }, note: "Céder à un lobble contre l'avis scientifique : un classique du conflit intérêt/santé publique." },
+      { label: "Réautoriser le pesticide", fx: { solde: 0.2, chomage: -0.1, environnement: -7, integrite: -6, popularite: 1 }, note: "Céder à un lobby contre l'avis scientifique : un classique du conflit intérêt/santé publique." },
       { label: "Aider la filière à se convertir au bio", fx: { solde: -0.4, environnement: 5, integrite: 3, croissance: 0.05 }, note: "Transition agro-écologique : coûteuse mais durable." },
       { label: "Maintenir l'interdiction sans aide", fx: { chomage: 0.1, cohesion: -2, popularite: -2 }, note: "Défendre l'environnement sans accompagnement social crée des perdants." },
     ] },
@@ -1545,26 +1586,26 @@ function conseiller(before, after, flags, bigEvent) {
   // Économie
   let eco;
   const croiss = after.croissance;
-  if (croiss > 1.5) eco = `L'économie accélère (croissance ${fmt(croiss, 1)} %)`;
-  else if (croiss < 0.3) eco = `L'activité ralentit (croissance ${fmt(croiss, 1)} %)`;
-  else eco = `La croissance reste modérée (${fmt(croiss, 1)} %)`;
-  if (down("chomage", 0.1)) eco += `, le chômage recule à ${fmt(after.chomage, 1)} %`;
-  else if (up("chomage", 0.1)) eco += `, mais le chômage monte à ${fmt(after.chomage, 1)} %`;
-  eco += after.solde < -6 ? `. Le déficit se creuse (${fmt(after.solde, 1)} % du PIB)` : after.solde > -3 ? `. Le déficit est maîtrisé (${fmt(after.solde, 1)} %)` : `. Le déficit reste élevé (${fmt(after.solde, 1)} %)`;
-  eco += after.dette > before.dette ? `, la dette grimpe à ${fmt(after.dette, 0)} %.` : `, la dette reflue à ${fmt(after.dette, 0)} %.`;
+  if (croiss > 1.5) eco = tr("L'économie accélère (croissance {a} %)", { a: fmt(croiss, 1) });
+  else if (croiss < 0.3) eco = tr("L'activité ralentit (croissance {a} %)", { a: fmt(croiss, 1) });
+  else eco = tr("La croissance reste modérée ({a} %)", { a: fmt(croiss, 1) });
+  if (down("chomage", 0.1)) eco += tr(", le chômage recule à {a} %", { a: fmt(after.chomage, 1) });
+  else if (up("chomage", 0.1)) eco += tr(", mais le chômage monte à {a} %", { a: fmt(after.chomage, 1) });
+  eco += after.solde < -6 ? tr(". Le déficit se creuse ({a} % du PIB)", { a: fmt(after.solde, 1) }) : after.solde > -3 ? tr(". Le déficit est maîtrisé ({a} %)", { a: fmt(after.solde, 1) }) : tr(". Le déficit reste élevé ({a} %)", { a: fmt(after.solde, 1) });
+  eco += after.dette > before.dette ? tr(", la dette grimpe à {a} %.", { a: fmt(after.dette, 0) }) : tr(", la dette reflue à {a} %.", { a: fmt(after.dette, 0) });
   // Social
   let social;
-  if (up("cohesion", 1)) social = `Côté société, la cohésion se renforce`;
-  else if (down("cohesion", 1)) social = `Côté société, les tensions montent`;
-  else social = `Le climat social est stable`;
-  if (down("popularite", 2)) social += ` et votre popularité s'érode (${fmt(after.popularite, 0)})`;
-  else if (up("popularite", 1)) social += ` et l'opinion vous soutient davantage (${fmt(after.popularite, 0)})`;
-  else social += ` (popularité ${fmt(after.popularite, 0)})`;
-  if (down("environnement", 2)) social += `. L'empreinte écologique se dégrade.`;
-  else if (up("environnement", 1)) social += `. Les indicateurs écologiques progressent.`;
+  if (up("cohesion", 1)) social = tr("Côté société, la cohésion se renforce");
+  else if (down("cohesion", 1)) social = tr("Côté société, les tensions montent");
+  else social = tr("Le climat social est stable");
+  if (down("popularite", 2)) social += tr(" et votre popularité s'érode ({a})", { a: fmt(after.popularite, 0) });
+  else if (up("popularite", 1)) social += tr(" et l'opinion vous soutient davantage ({a})", { a: fmt(after.popularite, 0) });
+  else social += tr(" (popularité {a})", { a: fmt(after.popularite, 0) });
+  if (down("environnement", 2)) social += tr(". L'empreinte écologique se dégrade.");
+  else if (up("environnement", 1)) social += tr(". Les indicateurs écologiques progressent.");
   else social += `.`;
   // Alerte
-  const alertMap = { taux: "Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige.", marches: "Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent.", defiance: "Défiance des créanciers : la croissance est bridée par la charge de la dette.", emeutes: "La fracture sociale a dégénéré en émeutes : attendez-vous à de nouveaux troubles l'an prochain.", tensions: "La société gronde (cohésion faible ou inégalités fortes) : grèves et mouvements sociaux se préparent.", chute: "C'est la fin : vous ne pouvez plus gouverner, votre mandat s'arrête ici.", censure: "Attention : une motion de censure menace votre gouvernement.", scandale: "Un parfum de scandale entoure votre équipe : l'intégrité est en jeu." };
+  const alertMap = { taux: tr("Les marchés s'inquiètent de vos comptes : l'État emprunte plus cher qu'il ne le devrait, et la charge de la dette s'alourdit — c'est l'effet boule de neige."), marches: tr("Les marchés financiers s'inquiètent de la dette : les taux d'intérêt montent."), defiance: tr("Défiance des créanciers : la croissance est bridée par la charge de la dette."), emeutes: tr("La fracture sociale a dégénéré en émeutes : attendez-vous à de nouveaux troubles l'an prochain."), tensions: tr("La société gronde (cohésion faible ou inégalités fortes) : grèves et mouvements sociaux se préparent."), chute: tr("C'est la fin : vous ne pouvez plus gouverner, votre mandat s'arrête ici."), censure: tr("Attention : une motion de censure menace votre gouvernement."), scandale: tr("Un parfum de scandale entoure votre équipe : l'intégrité est en jeu.") };
   const alerte = flags.map((f) => alertMap[f]).filter(Boolean);
   return { eco, social, alerte };
 }
@@ -1587,24 +1628,24 @@ function conseillerDetaille(before, after, flags, ctx) {
     .filter((c) => c.d).map((c) => ({ ...c, eur: c.d * c.l.eurStep }))
     .sort((a, b) => Math.abs(b.eur) - Math.abs(a.eur));
   let dec;
-  if (!changes.length) dec = "Vous n'avez modifié aucun levier : le budget a été reconduit à l'identique.";
+  if (!changes.length) dec = tr("Vous n'avez modifié aucun levier : le budget a été reconduit à l'identique.");
   else {
     const parts = changes.slice(0, 3).map((c) => c.l.cat === "rec"
-      ? `${c.d > 0 ? "augmenté" : "baissé"} l'impôt « ${shortLabel(c.l)} » (${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} milliards d'euros de recettes)`
-      : `${c.d > 0 ? "augmenté" : "réduit"} le budget « ${shortLabel(c.l)} » (${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} milliards d'euros de dépenses)`);
-    dec = `Cette année, vous avez ${parts.join(", ")}${changes.length > 3 ? `, et ${changes.length - 3} autre(s) changement(s)` : ""}.`;
+      ? tr("{a} l'impôt « {b} » ({c}{d} milliards d'euros de recettes)", { a: c.d > 0 ? tr("augmenté") : tr("baissé"), b: shortLabel(c.l), c: c.eur > 0 ? "+" : "−", d: fmt(Math.abs(c.eur) * ECH, 0) })
+      : tr("{a} le budget « {b} » ({c}{d} milliards d'euros de dépenses)", { a: c.d > 0 ? tr("augmenté") : tr("réduit"), b: shortLabel(c.l), c: c.eur > 0 ? "+" : "−", d: fmt(Math.abs(c.eur) * ECH, 0) }));
+    dec = tr("Cette année, vous avez {a}{b}.", { a: parts.join(", "), b: changes.length > 3 ? tr(", et {a} autre(s) changement(s)", { a: changes.length - 3 }) : "" });
   }
-  if (decisions.length) dec += ` Face aux imprévus, vous avez choisi : ${decisions.map((x) => `« ${x.choice} » (${x.event.toLowerCase()})`).join(" ; ")}.`;
+  if (decisions.length) dec += tr(" Face aux imprévus, vous avez choisi : {a}.", { a: decisions.map((x) => `« ${x.choice} » (${x.event.toLowerCase()})`).join(tr(" ; ")) });
   const decChips = changes.length
     ? [...changes.slice(0, 3).map((c) => {
-         const amt = `${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} Md€`;
+         const amt = tr("{a}{b} Md€", { a: c.eur > 0 ? "+" : "−", b: fmt(Math.abs(c.eur) * ECH, 0) });
          return { k: shortLabel(c.l), v: amt, tone: "nt", dir: c.eur > 0 ? "▲" : "▼", lever: c.l.id, hint: c.l.hint,
-           read: c.l.cat === "dep" ? `Vous avez ${c.eur > 0 ? "augmenté" : "réduit"} cette dépense : ${amt} par an.` : `Vous avez ${c.eur > 0 ? "alourdi" : "allégé"} ce prélèvement : ${amt} de recettes par an.` };
+           read: c.l.cat === "dep" ? tr("Vous avez {a} cette dépense : {b} par an.", { a: c.eur > 0 ? tr("augmenté") : tr("réduit"), b: amt }) : tr("Vous avez {a} ce prélèvement : {b} de recettes par an.", { a: c.eur > 0 ? tr("alourdi") : tr("allégé"), b: amt }) };
        }),
-       ...(changes.length > 3 ? [{ k: "", v: `+${changes.length - 3} autre${changes.length - 3 > 1 ? "s" : ""}`, tone: "nt",
-         more: changes.slice(3).map((c) => ({ k: shortLabel(c.l), v: `${c.eur > 0 ? "+" : "−"}${fmt(Math.abs(c.eur) * ECH, 0)} Md€`, dir: c.eur > 0 ? "▲" : "▼", cat: c.l.cat })) }] : [])]
-    : [{ k: "Budget", v: "reconduit à l'identique", tone: "nt" }];
-  S.push({ icon: "list-check", color: C.gold, t: "Ce que vous avez décidé", c: dec, chips: decChips, list: decisions.map((x) => ({ ev: x.event, choice: x.choice })) });
+       ...(changes.length > 3 ? [{ k: "", v: tr("+{a} autre{b}", { a: changes.length - 3, b: changes.length - 3 > 1 ? "s" : "" }), tone: "nt",
+         more: changes.slice(3).map((c) => ({ k: shortLabel(c.l), v: tr("{a}{b} Md€", { a: c.eur > 0 ? "+" : "−", b: fmt(Math.abs(c.eur) * ECH, 0) }), dir: c.eur > 0 ? "▲" : "▼", cat: c.l.cat })) }] : [])]
+    : [{ k: tr("Budget"), v: tr("reconduit à l'identique"), tone: "nt" }];
+  S.push({ icon: "list-check", color: C.gold, t: tr("Ce que vous avez décidé"), c: dec, chips: decChips, list: decisions.map((x) => ({ ev: x.event, choice: x.choice })) });
 
   // 2. Vos comptes publics — chaque composante est exprimée en évolution (points de PIB),
   // afin que la somme colle toujours à la variation réelle du solde (avant -> après).
@@ -1616,99 +1657,99 @@ function conseillerDetaille(before, after, flags, ctx) {
   const dCharge = (chargePct != null && chargePctPrev != null) ? chargePctPrev - chargePct : 0;
   const explained = dBudget + dEvents + dCharge;
   const residu = dTotal - explained; // stabilisateurs automatiques, effets reportés des années passées…
-  let cpt = `Votre solde public passe de ${fmt(before.solde, 1)} % à ${fmt(after.solde, 1)} % du PIB${after.solde >= 0 ? " (un excédent !)" : ""}. `;
-  if (pedago) cpt += `Rappel : un solde négatif (déficit), c'est ce que l'État dépense en plus de ce qu'il gagne dans l'année ; il doit l'emprunter. `;
+  let cpt = tr("Votre solde public passe de {a} % à {b} % du PIB{c}. ", { a: fmt(before.solde, 1), b: fmt(after.solde, 1), c: after.solde >= 0 ? tr(" (un excédent !)") : "" });
+  if (pedago) cpt += tr("Rappel : un solde négatif (déficit), c'est ce que l'État dépense en plus de ce qu'il gagne dans l'année ; il doit l'emprunter. ");
   const why = [];
-  if (Math.abs(dBudget) >= 0.1) why.push(`vos décisions budgétaires l'ont ${dBudget > 0 ? "amélioré" : "dégradé"} d'environ ${fmt(Math.abs(dBudget), 1)} point${Math.abs(dBudget) >= 2 ? "s" : ""}`);
-  else if (changes.length) why.push(`vos décisions budgétaires se compensent presque : vos hausses de recettes financent vos nouvelles dépenses (ou l'inverse)`);
-  if (Math.abs(dEvents) >= 0.1) why.push(`les imprévus l'ont ${dEvents > 0 ? "amélioré" : "dégradé"} d'environ ${fmt(Math.abs(dEvents), 1)} point${Math.abs(dEvents) >= 2 ? "s" : ""}`);
-  if (chargePct != null && Math.abs(dCharge) >= 0.05) why.push(`les intérêts de la dette (${fmt(chargePctPrev, 1)} % → ${fmt(chargePct, 1)} % du PIB) l'ont ${dCharge > 0 ? "amélioré" : "dégradé"} d'environ ${fmt(Math.abs(dCharge), 1)} point${Math.abs(dCharge) >= 2 ? "s" : ""}`);
-  if (Math.abs(residu) >= 0.15) why.push(`l'ajustement automatique de l'économie (l'activité a été ${residu > 0 ? "meilleure" : "moins bonne"} que prévu, ce qui change recettes et dépenses sans décision de votre part) l'a ${residu > 0 ? "amélioré" : "dégradé"} d'environ ${fmt(Math.abs(residu), 1)} point${Math.abs(residu) >= 2 ? "s" : ""}`);
+  if (Math.abs(dBudget) >= 0.1) why.push(tr("vos décisions budgétaires l'ont {a} d'environ {b} point{c}", { a: dBudget > 0 ? tr("amélioré") : tr("dégradé"), b: fmt(Math.abs(dBudget), 1), c: Math.abs(dBudget) >= 2 ? "s" : "" }));
+  else if (changes.length) why.push(tr("vos décisions budgétaires se compensent presque : vos hausses de recettes financent vos nouvelles dépenses (ou l'inverse)"));
+  if (Math.abs(dEvents) >= 0.1) why.push(tr("les imprévus l'ont {a} d'environ {b} point{c}", { a: dEvents > 0 ? tr("amélioré") : tr("dégradé"), b: fmt(Math.abs(dEvents), 1), c: Math.abs(dEvents) >= 2 ? "s" : "" }));
+  if (chargePct != null && Math.abs(dCharge) >= 0.05) why.push(tr("les intérêts de la dette ({a} % → {b} % du PIB) l'ont {c} d'environ {d} point{e}", { a: fmt(chargePctPrev, 1), b: fmt(chargePct, 1), c: dCharge > 0 ? tr("amélioré") : tr("dégradé"), d: fmt(Math.abs(dCharge), 1), e: Math.abs(dCharge) >= 2 ? "s" : "" }));
+  if (Math.abs(residu) >= 0.15) why.push(tr("l'ajustement automatique de l'économie (l'activité a été {a} que prévu, ce qui change recettes et dépenses sans décision de votre part) l'a {b} d'environ {c} point{d}", { a: residu > 0 ? tr("meilleure") : tr("moins bonne"), b: residu > 0 ? tr("amélioré") : tr("dégradé"), c: fmt(Math.abs(residu), 1), d: Math.abs(residu) >= 2 ? "s" : "" }));
   if (why.length) {
-    const txt = why.length > 1 ? why.slice(0, -1).join(" ; ") + " ; et " + why[why.length - 1] : why[0];
-    cpt += `Pourquoi ? ${txt.charAt(0).toUpperCase() + txt.slice(1)}. `;
+    const txt = why.length > 1 ? why.slice(0, -1).join(tr(" ; ")) + tr(" ; et ") + why[why.length - 1] : why[0];
+    cpt += tr("Pourquoi ? {a}. ", { a: txt.charAt(0).toUpperCase() + txt.slice(1) });
   }
-  if (after.dette > before.dette + 0.3) cpt += `La dette monte de ${fmt(before.dette, 0)} % à ${fmt(after.dette, 0)} % du PIB : tant que l'État est en déficit, il emprunte, et ces emprunts s'ajoutent à la dette.`;
-  else if (after.dette < before.dette - 0.3) cpt += `La dette recule de ${fmt(before.dette, 0)} % à ${fmt(after.dette, 0)} % du PIB : votre déficit est assez faible pour que la croissance « dilue » la dette. Bravo, c'est difficile !`;
-  else cpt += `La dette reste stable autour de ${fmt(after.dette, 0)} % du PIB.`;
-  if (pedago) cpt += ` Retenez bien : le déficit est un flux (ce qui manque cette année), la dette est un stock (l'accumulation de tous les déficits passés).`;
+  if (after.dette > before.dette + 0.3) cpt += tr("La dette monte de {a} % à {b} % du PIB : tant que l'État est en déficit, il emprunte, et ces emprunts s'ajoutent à la dette.", { a: fmt(before.dette, 0), b: fmt(after.dette, 0) });
+  else if (after.dette < before.dette - 0.3) cpt += tr("La dette recule de {a} % à {b} % du PIB : votre déficit est assez faible pour que la croissance « dilue » la dette. Bravo, c'est difficile !", { a: fmt(before.dette, 0), b: fmt(after.dette, 0) });
+  else cpt += tr("La dette reste stable autour de {a} % du PIB.", { a: fmt(after.dette, 0) });
+  if (pedago) cpt += tr(" Retenez bien : le déficit est un flux (ce qui manque cette année), la dette est un stock (l'accumulation de tous les déficits passés).");
   if (marche != null && marchePrev != null) {
-    if (marche > marchePrev + 0.1) cpt += ` Attention : les marchés financiers s'inquiètent et vous prêtent plus cher (nouveaux emprunts : ${fmt(marchePrev, 1)} % → ${fmt(marche, 1)} %).`;
-    else if (marche < marchePrev - 0.1) cpt += ` Bonne nouvelle : les marchés sont rassurés et vous prêtent moins cher (nouveaux emprunts : ${fmt(marchePrev, 1)} % → ${fmt(marche, 1)} %).`;
+    if (marche > marchePrev + 0.1) cpt += tr(" Attention : les marchés financiers s'inquiètent et vous prêtent plus cher (nouveaux emprunts : {a} % → {b} %).", { a: fmt(marchePrev, 1), b: fmt(marche, 1) });
+    else if (marche < marchePrev - 0.1) cpt += tr(" Bonne nouvelle : les marchés sont rassurés et vous prêtent moins cher (nouveaux emprunts : {a} % → {b} %).", { a: fmt(marchePrev, 1), b: fmt(marche, 1) });
   }
   if (taux != null && tauxPrev != null && taux > tauxPrev + 0.05) {
-    cpt += ` Le taux moyen de votre dette passe de ${fmt(tauxPrev, 2)} % à ${fmt(taux, 2)} % : chaque année, de vieux emprunts à taux bas arrivent à échéance et doivent être remplacés par de nouveaux, plus chers. C'est pour cela que la charge de la dette augmente, même sans nouvelle erreur de gestion.`;
-    if (pedago && CURRENT_ERA.id === "today") cpt += ` Aujourd'hui, la France emprunte autour de 4,9 % sur 10 ans, alors qu'une partie de sa dette a été empruntée à 0-1 % il y a quelques années.`;
+    cpt += tr(" Le taux moyen de votre dette passe de {a} % à {b} % : chaque année, de vieux emprunts à taux bas arrivent à échéance et doivent être remplacés par de nouveaux, plus chers. C'est pour cela que la charge de la dette augmente, même sans nouvelle erreur de gestion.", { a: fmt(tauxPrev, 2), b: fmt(taux, 2) });
+    if (pedago && CURRENT_ERA.id === "today") cpt += tr(" Aujourd'hui, la France emprunte autour de 4,9 % sur 10 ans, alors qu'une partie de sa dette a été empruntée à 0-1 % il y a quelques années.");
   }
   const dSol = after.solde - before.solde, detDown = after.dette < before.dette - 0.3, detUp = after.dette > before.dette + 0.3;
-  const solTxt = after.solde >= 0 ? "Vos comptes sont à l'équilibre ou excédentaires" : dSol > 0.15 ? "Le déficit se réduit" : dSol < -0.15 ? "Le déficit se creuse" : "Le déficit est stable";
-  const conj = (dSol < -0.15 && detDown) || (dSol > 0.15 && detUp) ? "mais" : "et";
-  const cptVerdict = `${solTxt}, ${conj} ${detDown ? "la dette recule" : detUp ? "la dette augmente" : "la dette est stable"}${detDown && after.solde < 0 ? " : la croissance la dilue" : ""}.`;
-  const cptChips = [chip("Solde", before.solde, after.solde, 1, " % du PIB", "up", 0.15, "solde"), chip("Dette", before.dette, after.dette, 0, " %", "down", 0.3, "dette")];
-  if (marche != null && marchePrev != null) cptChips.push(chip("Nouveaux emprunts", marchePrev, marche, 1, " %", "down", 0.1, "marche"));
-  if (taux != null && tauxPrev != null) { const tc = chip("Taux moyen", tauxPrev, taux, 2, " %", "down", 0.05, "taux"); if (taux > tauxPrev + 0.05) tc.tone = "mid"; cptChips.push(tc); }
-  S.push({ icon: "wallet", color: C.coral, t: "Vos comptes publics", c: cpt, verdict: cptVerdict, chips: cptChips,
-    bars: [{ k: "Vos décisions", v: dBudget }, { k: "Imprévus", v: dEvents }, { k: "Intérêts de la dette", v: dCharge }, { k: "Ajustement automatique", v: residu }], total: dTotal });
+  const solTxt = after.solde >= 0 ? tr("Vos comptes sont à l'équilibre ou excédentaires") : dSol > 0.15 ? tr("Le déficit se réduit") : dSol < -0.15 ? tr("Le déficit se creuse") : tr("Le déficit est stable");
+  const conj = (dSol < -0.15 && detDown) || (dSol > 0.15 && detUp) ? tr("mais") : tr("et");
+  const cptVerdict = `${solTxt}, ${conj} ${detDown ? tr("la dette recule") : detUp ? tr("la dette augmente") : tr("la dette est stable")}${detDown && after.solde < 0 ? tr(" : la croissance la dilue") : ""}.`;
+  const cptChips = [chip(tr("Solde"), before.solde, after.solde, 1, tr(" % du PIB"), "up", 0.15, "solde"), chip(tr("Dette"), before.dette, after.dette, 0, " %", "down", 0.3, "dette")];
+  if (marche != null && marchePrev != null) cptChips.push(chip(tr("Nouveaux emprunts"), marchePrev, marche, 1, " %", "down", 0.1, "marche"));
+  if (taux != null && tauxPrev != null) { const tc = chip(tr("Taux moyen"), tauxPrev, taux, 2, " %", "down", 0.05, "taux"); if (taux > tauxPrev + 0.05) tc.tone = "mid"; cptChips.push(tc); }
+  S.push({ icon: "wallet", color: C.coral, t: tr("Vos comptes publics"), c: cpt, verdict: cptVerdict, chips: cptChips,
+    bars: [{ k: tr("Vos décisions"), v: dBudget }, { k: tr("Imprévus"), v: dEvents }, { k: tr("Intérêts de la dette"), v: dCharge }, { k: tr("Ajustement automatique"), v: residu }], total: dTotal });
 
   // Le front de l'inflation (époques où elle est au cœur de la bataille économique)
   if (CURRENT_ERA.inflation >= 4 || (before.inflation ?? 0) >= 4 || (after.inflation ?? 0) >= 4) {
     const bi = before.inflation ?? INFL0, ai = after.inflation ?? INFL0;
-    let inf = `L'inflation passe de ${fmt(bi, 1)} % à ${fmt(ai, 1)} %. `;
-    inf += ai < bi - 0.3 ? "Les prix ralentissent : bonne nouvelle pour le pouvoir d'achat, et les taux d'intérêt pourront baisser. " : ai > bi + 0.3 ? "Les prix s'emballent : les salaires et l'épargne perdent de leur valeur, et les taux d'intérêt restent élevés. " : "L'inflation est stable. ";
-    if (pedago || year <= 2) inf += "C'est le cœur de la bataille économique de l'époque : quand les prix montent de 10 % par an, un salaire qui ne suit pas perd 10 % de pouvoir d'achat. Pour faire baisser l'inflation, on peut freiner la demande (rigueur), contenir les prix et les salaires, ou défendre la monnaie, au risque d'augmenter le chômage à court terme.";
-    S.push({ icon: "flame", color: "var(--c-ethique)", t: "Le front de l'inflation", c: inf, verdict: ai < bi - 0.3 ? "Les prix ralentissent." : ai > bi + 0.3 ? "Les prix s'emballent." : "L'inflation est stable.", chips: [chip("Inflation", bi, ai, 1, " %", "down", 0.3, "inflation")] });
+    let inf = tr("L'inflation passe de {a} % à {b} %. ", { a: fmt(bi, 1), b: fmt(ai, 1) });
+    inf += ai < bi - 0.3 ? tr("Les prix ralentissent : bonne nouvelle pour le pouvoir d'achat, et les taux d'intérêt pourront baisser. ") : ai > bi + 0.3 ? tr("Les prix s'emballent : les salaires et l'épargne perdent de leur valeur, et les taux d'intérêt restent élevés. ") : tr("L'inflation est stable. ");
+    if (pedago || year <= 2) inf += tr("C'est le cœur de la bataille économique de l'époque : quand les prix montent de 10 % par an, un salaire qui ne suit pas perd 10 % de pouvoir d'achat. Pour faire baisser l'inflation, on peut freiner la demande (rigueur), contenir les prix et les salaires, ou défendre la monnaie, au risque d'augmenter le chômage à court terme.");
+    S.push({ icon: "flame", color: "var(--c-ethique)", t: tr("Le front de l'inflation"), c: inf, verdict: ai < bi - 0.3 ? tr("Les prix ralentissent.") : ai > bi + 0.3 ? tr("Les prix s'emballent.") : tr("L'inflation est stable."), chips: [chip(tr("Inflation"), bi, ai, 1, " %", "down", 0.3, "inflation")] });
   }
 
   // 3. Croissance et emploi
   let impulse = 0;
   for (const c of changes) impulse += (c.l.cat === "dep" ? 1 : -1) * c.eur * c.l.mult;
-  let emp = `La croissance atteint ${fmt(after.croissance, 1)} % et le chômage passe de ${fmt(before.chomage, 1)} % à ${fmt(after.chomage, 1)} %. `;
-  if (impulse > 3) emp += `Globalement, votre budget a soutenu l'activité : plus de dépenses ou moins d'impôts, c'est une politique de relance. Elle crée de l'activité, mais elle creuse le déficit. `;
-  else if (impulse < -3) emp += `Globalement, votre budget a freiné l'activité : moins de dépenses ou plus d'impôts, c'est une politique de rigueur. C'est souvent le prix à payer, à court terme, pour réduire le déficit. `;
-  if (changes.some((c) => ["invest", "education"].includes(c.l.id) && c.d > 0)) emp += `Vos investissements (éducation, recherche, infrastructures) préparent l'avenir : leur effet sur la croissance grandira les années suivantes. `;
-  if (changes.some((c) => c.l.id === "cotpat" && c.d > 0)) emp += `La hausse des cotisations patronales rend l'embauche plus chère : les entreprises recrutent moins. `;
-  if (pedago) emp += `À retenir : quand l'activité accélère, les entreprises embauchent et le chômage baisse ; quand elle ralentit, il monte (c'est la loi d'Okun).`;
-  S.push({ icon: "trending-up", color: C.mint, t: "Croissance et emploi", c: emp.trim(),
-    verdict: impulse > 3 ? "Votre budget a soutenu l'activité, au prix d'un déficit plus lourd." : impulse < -3 ? "Votre budget a freiné l'activité : c'est le prix à payer, à court terme, pour réduire le déficit." : "Votre budget est resté neutre pour l'activité.",
-    chips: [{ k: "Croissance", id: "croissance", v: `${fmt(after.croissance, 1)} %`, tone: after.croissance >= 1.5 ? "ok" : after.croissance < 0.5 ? "ko" : "mid", dir: before.croissance != null && Math.abs(after.croissance - before.croissance) >= 0.1 ? (after.croissance > before.croissance ? "▲" : "▼") : undefined }, chip("Chômage", before.chomage, after.chomage, 1, " %", "down", 0.1, "chomage")] });
+  let emp = tr("La croissance atteint {a} % et le chômage passe de {b} % à {c} %. ", { a: fmt(after.croissance, 1), b: fmt(before.chomage, 1), c: fmt(after.chomage, 1) });
+  if (impulse > 3) emp += tr("Globalement, votre budget a soutenu l'activité : plus de dépenses ou moins d'impôts, c'est une politique de relance. Elle crée de l'activité, mais elle creuse le déficit. ");
+  else if (impulse < -3) emp += tr("Globalement, votre budget a freiné l'activité : moins de dépenses ou plus d'impôts, c'est une politique de rigueur. C'est souvent le prix à payer, à court terme, pour réduire le déficit. ");
+  if (changes.some((c) => ["invest", "education"].includes(c.l.id) && c.d > 0)) emp += tr("Vos investissements (éducation, recherche, infrastructures) préparent l'avenir : leur effet sur la croissance grandira les années suivantes. ");
+  if (changes.some((c) => c.l.id === "cotpat" && c.d > 0)) emp += tr("La hausse des cotisations patronales rend l'embauche plus chère : les entreprises recrutent moins. ");
+  if (pedago) emp += tr("À retenir : quand l'activité accélère, les entreprises embauchent et le chômage baisse ; quand elle ralentit, il monte (c'est la loi d'Okun).");
+  S.push({ icon: "trending-up", color: C.mint, t: tr("Croissance et emploi"), c: emp.trim(),
+    verdict: impulse > 3 ? tr("Votre budget a soutenu l'activité, au prix d'un déficit plus lourd.") : impulse < -3 ? tr("Votre budget a freiné l'activité : c'est le prix à payer, à court terme, pour réduire le déficit.") : tr("Votre budget est resté neutre pour l'activité."),
+    chips: [{ k: tr("Croissance"), id: "croissance", v: `${fmt(after.croissance, 1)} %`, tone: after.croissance >= 1.5 ? "ok" : after.croissance < 0.5 ? "ko" : "mid", dir: before.croissance != null && Math.abs(after.croissance - before.croissance) >= 0.1 ? (after.croissance > before.croissance ? "▲" : "▼") : undefined }, chip(tr("Chômage"), before.chomage, after.chomage, 1, " %", "down", 0.1, "chomage")] });
 
   // 4. Société et opinion
   let soc = "";
   const dI = (after.inegalites ?? 45) - (before.inegalites ?? 45);
-  const nomme = (c) => `${c.d > 0 ? "la hausse" : "la baisse"} de « ${shortLabel(c.l)} »`;
+  const nomme = (c) => tr("{a} de « {b} »", { a: c.d > 0 ? tr("la hausse") : tr("la baisse"), b: shortLabel(c.l) });
   const reduc = changes.filter((c) => (INEG[c.l.id] || 0) * c.d < 0), aggr = changes.filter((c) => (INEG[c.l.id] || 0) * c.d > 0);
-  const iTxt = `(indice d'égalité ${fmt(100 - (before.inegalites ?? 45), 0)} → ${fmt(100 - (after.inegalites ?? 45), 0)})`;
+  const iTxt = tr("(indice d'égalité {a} → {b})", { a: fmt(100 - (before.inegalites ?? 45), 0), b: fmt(100 - (after.inegalites ?? 45), 0) });
   if (dI <= -1) soc += reduc.length
-    ? `Les inégalités reculent ${iTxt} grâce à ${reduc.slice(0, 2).map(nomme).join(" et ")}${aggr.length ? `, qui compense${reduc.slice(0, 2).length > 1 ? "nt" : ""} l'effet de ${aggr.slice(0, 2).map(nomme).join(" et ")} (qui pèse surtout sur les ménages modestes)` : ""}. Redistribuer, c'est prendre davantage aux plus aisés ou donner davantage aux plus modestes. `
-    : `Les inégalités reculent ${iTxt}. `;
+    ? tr("Les inégalités reculent {a} grâce à {b}{c}. Redistribuer, c'est prendre davantage aux plus aisés ou donner davantage aux plus modestes. ", { a: iTxt, b: reduc.slice(0, 2).map(nomme).join(tr(" et ")), c: aggr.length ? tr(", qui compense{a} l'effet de {b} (qui pèse surtout sur les ménages modestes)", { a: reduc.slice(0, 2).length > 1 ? "nt" : "", b: aggr.slice(0, 2).map(nomme).join(tr(" et ")) }) : "" })
+    : tr("Les inégalités reculent {a}. ", { a: iTxt });
   else if (dI >= 1) soc += aggr.length
-    ? `Les inégalités augmentent ${iTxt} à cause de ${aggr.slice(0, 2).map(nomme).join(" et ")} : ces choix pèsent proportionnellement plus sur les ménages modestes. `
-    : `Les inégalités augmentent ${iTxt}. `;
+    ? tr("Les inégalités augmentent {a} à cause de {b} : ces choix pèsent proportionnellement plus sur les ménages modestes. ", { a: iTxt, b: aggr.slice(0, 2).map(nomme).join(tr(" et ")) })
+    : tr("Les inégalités augmentent {a}. ", { a: iTxt });
   const dC = after.cohesion - before.cohesion;
-  if (dC <= -2) soc += `La société se tend (cohésion ${fmt(before.cohesion, 0)} → ${fmt(after.cohesion, 0)}) : les Français sentent les efforts demandés. `;
-  else if (dC >= 2) soc += `La société est plus unie (cohésion ${fmt(before.cohesion, 0)} → ${fmt(after.cohesion, 0)}). `;
+  if (dC <= -2) soc += tr("La société se tend (cohésion {a} → {b}) : les Français sentent les efforts demandés. ", { a: fmt(before.cohesion, 0), b: fmt(after.cohesion, 0) });
+  else if (dC >= 2) soc += tr("La société est plus unie (cohésion {a} → {b}). ", { a: fmt(before.cohesion, 0), b: fmt(after.cohesion, 0) });
   const dP = after.popularite - before.popularite;
-  soc += dP <= -1 ? `Votre popularité baisse (${fmt(before.popularite, 0)} → ${fmt(after.popularite, 0)}) : les hausses d'impôts et les économies sont impopulaires, même quand elles sont nécessaires.` : dP >= 1 ? `Votre popularité progresse (${fmt(before.popularite, 0)} → ${fmt(after.popularite, 0)}).` : `Votre popularité est stable (${fmt(after.popularite, 0)}).`;
-  if (pedago) soc += ` Sachez aussi que le pouvoir « s'use » : la popularité baisse un peu chaque année, quoi qu'on fasse.`;
+  soc += dP <= -1 ? tr("Votre popularité baisse ({a} → {b}) : les hausses d'impôts et les économies sont impopulaires, même quand elles sont nécessaires.", { a: fmt(before.popularite, 0), b: fmt(after.popularite, 0) }) : dP >= 1 ? tr("Votre popularité progresse ({a} → {b}).", { a: fmt(before.popularite, 0), b: fmt(after.popularite, 0) }) : tr("Votre popularité est stable ({a}).", { a: fmt(after.popularite, 0) });
+  if (pedago) soc += tr(" Sachez aussi que le pouvoir « s'use » : la popularité baisse un peu chaque année, quoi qu'on fasse.");
   const frag = [];
-  if (dI <= -1) frag.push("inégalités en recul"); else if (dI >= 1) frag.push("inégalités en hausse");
-  if (dC >= 2) frag.push("société plus unie"); else if (dC <= -2) frag.push("société plus tendue");
-  if (dP >= 1) frag.push("popularité en hausse"); else if (dP <= -1) frag.push("popularité en baisse");
-  S.push({ icon: "users-group", color: "var(--c-sante)", t: "Société et opinion", c: soc,
-    verdict: frag.length ? frag.slice(0, 2).join(", ").replace(/^./, (m) => m.toUpperCase()) + "." : "Peu de changement dans la société et l'opinion.",
-    chips: [chip("Égalité", 100 - (before.inegalites ?? 45), 100 - (after.inegalites ?? 45), 0, "", "up", 1, "inegalites"), chip("Cohésion", before.cohesion, after.cohesion, 0, "", "up", 2, "cohesion"), chip("Popularité", before.popularite, after.popularite, 0, "", "up", 1, "popularite")] });
+  if (dI <= -1) frag.push(tr("inégalités en recul")); else if (dI >= 1) frag.push(tr("inégalités en hausse"));
+  if (dC >= 2) frag.push(tr("société plus unie")); else if (dC <= -2) frag.push(tr("société plus tendue"));
+  if (dP >= 1) frag.push(tr("popularité en hausse")); else if (dP <= -1) frag.push(tr("popularité en baisse"));
+  S.push({ icon: "users-group", color: "var(--c-sante)", t: tr("Société et opinion"), c: soc,
+    verdict: frag.length ? frag.slice(0, 2).join(", ").replace(/^./, (m) => m.toUpperCase()) + "." : tr("Peu de changement dans la société et l'opinion."),
+    chips: [chip(tr("Égalité"), 100 - (before.inegalites ?? 45), 100 - (after.inegalites ?? 45), 0, "", "up", 1, "inegalites"), chip(tr("Cohésion"), before.cohesion, after.cohesion, 0, "", "up", 2, "cohesion"), chip(tr("Popularité"), before.popularite, after.popularite, 0, "", "up", 1, "popularite")] });
 
   // 5. Conseil pour l'an prochain
   const tips = [];
-  if (after.solde < -4) tips.push("Le déficit reste élevé. Pour le réduire, deux voies : augmenter des recettes ou baisser des dépenses. Cherchez celles qui pèsent le moins sur les ménages modestes et sur la croissance.");
-  else if (after.solde >= -1) tips.push("Vos comptes sont sains : vous avez de la marge pour investir dans l'avenir (éducation, recherche, transition écologique).");
-  if (after.chomage > before.chomage + 0.2) tips.push("Le chômage monte : évitez d'alourdir le coût du travail et pensez à l'investissement, qui crée des emplois.");
-  if ((after.inegalites ?? 45) > 55) tips.push("Les inégalités sont fortes : les impôts progressifs (revenu, patrimoine) et les aides aux modestes permettent de les réduire.");
-  if (after.cohesion < 40) tips.push("La société est tendue : des coupes trop brutales pourraient déclencher grèves ou émeutes.");
-  if (marche != null && marche > 5.2) tips.push("Surveillez le taux de vos nouveaux emprunts : s'il continue de monter, les intérêts mangeront une part croissante de votre budget.");
-  else if (after.solde < -3) tips.push("Rappelez-vous : chaque année, votre dette se refinance plus cher. Plus le déficit est réduit tôt, moins la charge d'intérêts s'envolera.");
-  if (!tips.length) tips.push("Votre situation est équilibrée : gardez le cap, et restez attentif aux imprévus.");
-  S.push({ icon: "bulb", color: C.gold, t: "Mon conseil pour l'an prochain", c: tips.slice(0, 2).join(" "), tip: true });
+  if (after.solde < -4) tips.push(tr("Le déficit reste élevé. Pour le réduire, deux voies : augmenter des recettes ou baisser des dépenses. Cherchez celles qui pèsent le moins sur les ménages modestes et sur la croissance."));
+  else if (after.solde >= -1) tips.push(tr("Vos comptes sont sains : vous avez de la marge pour investir dans l'avenir (éducation, recherche, transition écologique)."));
+  if (after.chomage > before.chomage + 0.2) tips.push(tr("Le chômage monte : évitez d'alourdir le coût du travail et pensez à l'investissement, qui crée des emplois."));
+  if ((after.inegalites ?? 45) > 55) tips.push(tr("Les inégalités sont fortes : les impôts progressifs (revenu, patrimoine) et les aides aux modestes permettent de les réduire."));
+  if (after.cohesion < 40) tips.push(tr("La société est tendue : des coupes trop brutales pourraient déclencher grèves ou émeutes."));
+  if (marche != null && marche > 5.2) tips.push(tr("Surveillez le taux de vos nouveaux emprunts : s'il continue de monter, les intérêts mangeront une part croissante de votre budget."));
+  else if (after.solde < -3) tips.push(tr("Rappelez-vous : chaque année, votre dette se refinance plus cher. Plus le déficit est réduit tôt, moins la charge d'intérêts s'envolera."));
+  if (!tips.length) tips.push(tr("Votre situation est équilibrée : gardez le cap, et restez attentif aux imprévus."));
+  S.push({ icon: "bulb", color: C.gold, t: tr("Mon conseil pour l'an prochain"), c: tips.slice(0, 2).join(" "), tip: true });
 
   return S;
 }
@@ -1737,30 +1778,30 @@ function scoreBreakdown(ind) {
 // Fin anticipée : un pouvoir sans aucun soutien ou un pays à feu et à sang ne peut pas aller au bout du mandat.
 // Vérifiée à la fin de chaque année ; sinon le joueur continuerait avec 0 de popularité ou de cohésion.
 function chuteAnticipee(ind) {
-  if (ind.popularite <= 5) return { key: "demission", title: "Contraint·e à la démission", icon: "door-exit", color: "var(--c-crise)",
-    text: "Plus personne ne vous soutient : manifestations massives, majorité qui vous lâche, appels à la démission. Vous quittez le pouvoir avant la fin de votre mandat. Sans confiance des citoyens, on ne peut pas gouverner." };
-  if (ind.cohesion <= 5 && levelShowsInd("cohesion")) return { key: "chaos", title: "Le pays ingouvernable", icon: "urgent", color: "var(--c-ethique)",
-    text: "Émeutes, blocages, grève générale : le pays est paralysé et vous devez quitter le pouvoir avant la fin de votre mandat. Sans cohésion sociale, aucune réforme ne tient." };
+  if (ind.popularite <= 5) return { key: "demission", title: tr("Contraint·e à la démission"), icon: "door-exit", color: "var(--c-crise)",
+    text: tr("Plus personne ne vous soutient : manifestations massives, majorité qui vous lâche, appels à la démission. Vous quittez le pouvoir avant la fin de votre mandat. Sans confiance des citoyens, on ne peut pas gouverner.") };
+  if (ind.cohesion <= 5 && levelShowsInd("cohesion")) return { key: "chaos", title: tr("Le pays ingouvernable"), icon: "urgent", color: "var(--c-ethique)",
+    text: tr("Émeutes, blocages, grève générale : le pays est paralysé et vous devez quitter le pouvoir avant la fin de votre mandat. Sans cohésion sociale, aucune réforme ne tient.") };
   return null;
 }
 function ending(ind, sc) {
-  if (ind.integrite < 30) return { key: "scandale", title: "Chute sur scandale", icon: "gavel", color: "var(--c-lobby)",
-    text: "Miné par les affaires, votre gouvernement tombe avant l'heure. La probité est le socle de la confiance démocratique." };
-  if (ind.dette > 150 || ind.solde < -9) return { key: "faillite", title: "Crise budgétaire majeure", icon: "flame", color: "var(--c-crise)",
-    text: "La dette a filé, les marchés ont lâché. Le pays passe sous tutelle budgétaire. Gouverner, c'est d'abord tenir les comptes." };
-  if (ind.cohesion < 25) return { key: "chaos", title: "Le pays ingouvernable", icon: "urgent", color: "var(--c-ethique)",
-    text: "La fracture sociale a eu raison de votre mandat. Sans cohésion, aucune réforme ne tient." };
-  if (ind.popularite >= 48 && sc.total >= 62) return { key: "triomphe", title: "Réélu·e triomphalement", icon: "crown", color: "var(--c-social)",
-    text: "Comptes tenus, pays apaisé : les électeurs vous renouvellent largement leur confiance. Un quinquennat de référence." };
+  if (ind.integrite < 30) return { key: "scandale", title: tr("Chute sur scandale"), icon: "gavel", color: "var(--c-lobby)",
+    text: tr("Miné par les affaires, votre gouvernement tombe avant l'heure. La probité est le socle de la confiance démocratique.") };
+  if (ind.dette > 150 || ind.solde < -9) return { key: "faillite", title: tr("Crise budgétaire majeure"), icon: "flame", color: "var(--c-crise)",
+    text: tr("La dette a filé, les marchés ont lâché. Le pays passe sous tutelle budgétaire. Gouverner, c'est d'abord tenir les comptes.") };
+  if (ind.cohesion < 25) return { key: "chaos", title: tr("Le pays ingouvernable"), icon: "urgent", color: "var(--c-ethique)",
+    text: tr("La fracture sociale a eu raison de votre mandat. Sans cohésion, aucune réforme ne tient.") };
+  if (ind.popularite >= 48 && sc.total >= 62) return { key: "triomphe", title: tr("Réélu·e triomphalement"), icon: "crown", color: "var(--c-social)",
+    text: tr("Comptes tenus, pays apaisé : les électeurs vous renouvellent largement leur confiance. Un quinquennat de référence.") };
   // La réélection exige AUSSI un bilan minimal : la seule popularité ne suffit pas.
-  if (ind.popularite >= 38 && sc.total >= 40) return { key: "reelu", title: "Réélu·e", icon: "confetti", color: "var(--c-opport)",
-    text: "Un bilan contrasté, mais suffisant pour l'emporter au second tour. Gouverner, c'est arbitrer." };
-  if (sc.total < 40 && ind.popularite >= 38) return { key: "battu", title: "Battu·e malgré votre popularité", icon: "mood-sad", color: "var(--c-intl)",
-    text: "Vous étiez apprécié·e, mais votre bilan (dette, déficit, emploi) était trop faible : les électeurs ont voulu du concret. L'immobilisme ne paie pas." };
-  if (ind.popularite >= 28) return { key: "battu", title: "Battu·e au second tour", icon: "mood-sad", color: "var(--c-intl)",
-    text: "Malgré des réformes, l'opinion a préféré tourner la page. Les efforts budgétaires paient rarement à court terme." };
-  return { key: "desavoue", title: "Désavoué·e par les urnes", icon: "thumb-down", color: "var(--c-crise)",
-    text: "Le pays a sanctionné votre mandat. L'impopularité des choix a eu le dernier mot." };
+  if (ind.popularite >= 38 && sc.total >= 40) return { key: "reelu", title: tr("Réélu·e"), icon: "confetti", color: "var(--c-opport)",
+    text: tr("Un bilan contrasté, mais suffisant pour l'emporter au second tour. Gouverner, c'est arbitrer.") };
+  if (sc.total < 40 && ind.popularite >= 38) return { key: "battu", title: tr("Battu·e malgré votre popularité"), icon: "mood-sad", color: "var(--c-intl)",
+    text: tr("Vous étiez apprécié·e, mais votre bilan (dette, déficit, emploi) était trop faible : les électeurs ont voulu du concret. L'immobilisme ne paie pas.") };
+  if (ind.popularite >= 28) return { key: "battu", title: tr("Battu·e au second tour"), icon: "mood-sad", color: "var(--c-intl)",
+    text: tr("Malgré des réformes, l'opinion a préféré tourner la page. Les efforts budgétaires paient rarement à court terme.") };
+  return { key: "desavoue", title: tr("Désavoué·e par les urnes"), icon: "thumb-down", color: "var(--c-crise)",
+    text: tr("Le pays a sanctionné votre mandat. L'impopularité des choix a eu le dernier mot.") };
 }
 
 // Explication dynamique du résultat, à partir du bilan chiffré du mandat
@@ -1771,10 +1812,10 @@ function expliquerFin(game) {
   const avgSolde = h.reduce((s, r) => s + r.ind.solde, 0) / h.length;
   const detteDelta = last.dette - DETTE0;
   const p = [];
-  p.push(`${h.length < YEARS ? `Votre mandat s'est arrêté au bout de ${h.length} an${h.length > 1 ? "s" : ""} sur ${YEARS}. Sur cette période` : `Sur ${YEARS} ans`}, votre déficit moyen a été de ${fmt(avgSolde, 1)} % du PIB`);
-  p.push(detteDelta > 2 ? `la dette est passée de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} % (+${fmt(detteDelta, 0)} points)` : detteDelta < -2 ? `la dette a reculé de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} %` : `la dette est restée stable (${fmt(last.dette, 0)} %)`);
-  p.push(last.chomage < 7 ? `le chômage a baissé à ${fmt(last.chomage, 1)} %` : last.chomage > 9 ? `le chômage a grimpé à ${fmt(last.chomage, 1)} %` : `le chômage s'établit à ${fmt(last.chomage, 1)} %`);
-  if (last.integrite < 40) p.push(`et votre intégrité, entamée (${fmt(last.integrite, 0)}/100), a nourri les scandales`);
+  p.push(tr("{a}, votre déficit moyen a été de {b} % du PIB", { a: h.length < YEARS ? tr("Votre mandat s'est arrêté au bout de {a} an{b} sur {c}. Sur cette période", { a: h.length, b: h.length > 1 ? "s" : "", c: YEARS }) : tr("Sur {a} ans", { a: YEARS }), b: fmt(avgSolde, 1) }));
+  p.push(detteDelta > 2 ? tr("la dette est passée de {a} % à {b} % (+{c} points)", { a: fmt(DETTE0, 0), b: fmt(last.dette, 0), c: fmt(detteDelta, 0) }) : detteDelta < -2 ? tr("la dette a reculé de {a} % à {b} %", { a: fmt(DETTE0, 0), b: fmt(last.dette, 0) }) : tr("la dette est restée stable ({a} %)", { a: fmt(last.dette, 0) }));
+  p.push(last.chomage < 7 ? tr("le chômage a baissé à {a} %", { a: fmt(last.chomage, 1) }) : last.chomage > 9 ? tr("le chômage a grimpé à {a} %", { a: fmt(last.chomage, 1) }) : tr("le chômage s'établit à {a} %", { a: fmt(last.chomage, 1) }));
+  if (last.integrite < 40) p.push(tr("et votre intégrité, entamée ({a}/100), a nourri les scandales", { a: fmt(last.integrite, 0) }));
   return p.join(", ") + ".";
 }
 
@@ -1789,35 +1830,35 @@ function leconDetaillee(game) {
   // 1. Finances publiques
   let fin;
   if (detteDelta > 5)
-    fin = `Votre dette publique est passée de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} % du PIB. Le mécanisme est simple : chaque année où l'État dépense plus qu'il ne gagne (votre déficit moyen : ${fmt(avgSolde, 1)} % du PIB), le manque s'ajoute à la dette. Et plus la dette est élevée, plus les intérêts à rembourser sont lourds — c'est « l'effet boule de neige », qui rend le redressement de plus en plus difficile. Pour mémoire, les règles européennes (critères de Maastricht) visent un déficit sous 3 % du PIB et une dette sous 60 %.`;
+    fin = tr("Votre dette publique est passée de {a} % à {b} % du PIB. Le mécanisme est simple : chaque année où l'État dépense plus qu'il ne gagne (votre déficit moyen : {c} % du PIB), le manque s'ajoute à la dette. Et plus la dette est élevée, plus les intérêts à rembourser sont lourds — c'est « l'effet boule de neige », qui rend le redressement de plus en plus difficile. Pour mémoire, les règles européennes (critères de Maastricht) visent un déficit sous 3 % du PIB et une dette sous 60 %.", { a: fmt(DETTE0, 0), b: fmt(last.dette, 0), c: fmt(avgSolde, 1) });
   else if (detteDelta < -2)
-    fin = `Vous avez fait reculer la dette, de ${fmt(DETTE0, 0)} % à ${fmt(last.dette, 0)} % du PIB — c'est rare et difficile. Cela suppose un déficit maîtrisé (le vôtre : ${fmt(avgSolde, 1)} % en moyenne) et une croissance qui « dilue » la dette dans un PIB plus grand. Règle clé : dès que le déficit passe sous ~3 % du PIB, la dette tend à se stabiliser, puis à baisser, quand l'économie croît.`;
+    fin = tr("Vous avez fait reculer la dette, de {a} % à {b} % du PIB — c'est rare et difficile. Cela suppose un déficit maîtrisé (le vôtre : {c} % en moyenne) et une croissance qui « dilue » la dette dans un PIB plus grand. Règle clé : dès que le déficit passe sous ~3 % du PIB, la dette tend à se stabiliser, puis à baisser, quand l'économie croît.", { a: fmt(DETTE0, 0), b: fmt(last.dette, 0), c: fmt(avgSolde, 1) });
   else
-    fin = `Votre dette est restée globalement stable autour de ${fmt(last.dette, 0)} % du PIB, avec un déficit moyen de ${fmt(avgSolde, 1)} %. Stabiliser la dette sans la réduire, c'est déjà éviter l'effet boule de neige — mais la France reste nettement au-dessus des seuils européens (déficit 3 %, dette 60 %).`;
-  S.push({ t: "Vos finances publiques", c: fin });
+    fin = tr("Votre dette est restée globalement stable autour de {a} % du PIB, avec un déficit moyen de {b} %. Stabiliser la dette sans la réduire, c'est déjà éviter l'effet boule de neige — mais la France reste nettement au-dessus des seuils européens (déficit 3 %, dette 60 %).", { a: fmt(last.dette, 0), b: fmt(avgSolde, 1) });
+  S.push({ t: tr("Vos finances publiques"), c: fin });
 
   // 2. Croissance et emploi
-  let emp = last.chomage < 7 ? `Le chômage a baissé à ${fmt(last.chomage, 1)} %. ` : last.chomage > 9 ? `Le chômage a grimpé à ${fmt(last.chomage, 1)} %. ` : `Le chômage s'établit à ${fmt(last.chomage, 1)} %. `;
-  emp += `Emploi et croissance vont de pair (c'est la loi d'Okun) : quand l'activité accélère, les entreprises embauchent ; quand elle ralentit, le chômage monte. Mais tous les leviers n'agissent pas de la même façon : l'investissement et l'éducation nourrissent la croissance de demain (effet d'offre), tandis qu'une forte hausse d'impôts freine la demande à court terme, et qu'alourdir les cotisations renchérit le coût du travail.`;
-  S.push({ t: "Croissance et emploi", c: emp });
+  let emp = last.chomage < 7 ? tr("Le chômage a baissé à {a} %. ", { a: fmt(last.chomage, 1) }) : last.chomage > 9 ? tr("Le chômage a grimpé à {a} %. ", { a: fmt(last.chomage, 1) }) : tr("Le chômage s'établit à {a} %. ", { a: fmt(last.chomage, 1) });
+  emp += tr("Emploi et croissance vont de pair (c'est la loi d'Okun) : quand l'activité accélère, les entreprises embauchent ; quand elle ralentit, le chômage monte. Mais tous les leviers n'agissent pas de la même façon : l'investissement et l'éducation nourrissent la croissance de demain (effet d'offre), tandis qu'une forte hausse d'impôts freine la demande à court terme, et qu'alourdir les cotisations renchérit le coût du travail.");
+  S.push({ t: tr("Croissance et emploi"), c: emp });
 
   // 3. Cohésion / société
-  let soc = last.cohesion > 60 ? `La société est restée apaisée (cohésion ${fmt(last.cohesion, 0)}/100). Dépenses sociales, services publics et redistribution y contribuent : ils réduisent les inégalités et amortissent les crises. ` : last.cohesion < 35 ? `La cohésion sociale s'est dégradée (${fmt(last.cohesion, 0)}/100). Des coupes trop fortes dans les aides, les services publics ou les dotations aux collectivités fracturent la société et peuvent déclencher grèves et émeutes. ` : `La cohésion sociale est moyenne (${fmt(last.cohesion, 0)}/100). `;
-  soc += `C'est l'arbitrage central du gouvernant : réduire la dépense assainit les comptes, mais chaque euro économisé a un coût social pour quelqu'un.`;
-  S.push({ t: "Vos choix de société", c: soc });
+  let soc = last.cohesion > 60 ? tr("La société est restée apaisée (cohésion {a}/100). Dépenses sociales, services publics et redistribution y contribuent : ils réduisent les inégalités et amortissent les crises. ", { a: fmt(last.cohesion, 0) }) : last.cohesion < 35 ? tr("La cohésion sociale s'est dégradée ({a}/100). Des coupes trop fortes dans les aides, les services publics ou les dotations aux collectivités fracturent la société et peuvent déclencher grèves et émeutes. ", { a: fmt(last.cohesion, 0) }) : tr("La cohésion sociale est moyenne ({a}/100). ", { a: fmt(last.cohesion, 0) });
+  soc += tr("C'est l'arbitrage central du gouvernant : réduire la dépense assainit les comptes, mais chaque euro économisé a un coût social pour quelqu'un.");
+  S.push({ t: tr("Vos choix de société"), c: soc });
 
   // 4. Éthique (conditionnel)
   if (last.integrite < 55)
-    S.push({ t: "Éthique et confiance", c: `Votre intégrité a souffert (${fmt(last.integrite, 0)}/100). Céder aux lobbies ou étouffer une affaire rapporte à court terme, mais mine la confiance démocratique : la transparence protège mieux que le secret, et les scandales finissent par éclater — souvent au pire moment.` });
+    S.push({ t: tr("Éthique et confiance"), c: tr("Votre intégrité a souffert ({a}/100). Céder aux lobbies ou étouffer une affaire rapporte à court terme, mais mine la confiance démocratique : la transparence protège mieux que le secret, et les scandales finissent par éclater — souvent au pire moment.", { a: fmt(last.integrite, 0) }) });
 
   // 5. Environnement (conditionnel)
   if (last.environnement > 62)
-    S.push({ t: "Transition écologique", c: `Vous avez investi pour le climat (${fmt(last.environnement, 0)}/100) : un coût immédiat, mais un bénéfice de long terme — moins de dépendance énergétique et une transition engagée.` });
+    S.push({ t: tr("Transition écologique"), c: tr("Vous avez investi pour le climat ({a}/100) : un coût immédiat, mais un bénéfice de long terme — moins de dépendance énergétique et une transition engagée.", { a: fmt(last.environnement, 0) }) });
   else if (last.environnement < 40)
-    S.push({ t: "Transition écologique", c: `L'environnement a été négligé (${fmt(last.environnement, 0)}/100) : des économies à court terme, mais une facture écologique et sanitaire reportée sur les générations suivantes.` });
+    S.push({ t: tr("Transition écologique"), c: tr("L'environnement a été négligé ({a}/100) : des économies à court terme, mais une facture écologique et sanitaire reportée sur les générations suivantes.", { a: fmt(last.environnement, 0) }) });
 
   // 6. Leçon essentielle (toujours)
-  S.push({ t: "Ce qu'il faut retenir", c: `Gouverner, c'est arbitrer. Un budget n'est jamais un simple tableur : toute dépense doit être financée, toute économie a un coût social, toute hausse d'impôt pèse sur l'activité. Il n'existe pas de choix parfait, seulement des équilibres à trouver. Le bon gouvernant n'est pas celui qui fait plaisir à tout le monde, mais celui qui concilie des comptes tenables, l'emploi et la cohésion du pays.` });
+  S.push({ t: tr("Ce qu'il faut retenir"), c: tr("Gouverner, c'est arbitrer. Un budget n'est jamais un simple tableur : toute dépense doit être financée, toute économie a un coût social, toute hausse d'impôt pèse sur l'activité. Il n'existe pas de choix parfait, seulement des équilibres à trouver. Le bon gouvernant n'est pas celui qui fait plaisir à tout le monde, mais celui qui concilie des comptes tenables, l'emploi et la cohésion du pays.") });
 
   return S;
 }
@@ -1927,7 +1968,7 @@ function IndicatorChip({ m, ind, prev, open, onToggle, mobile }) {
   const improved = prev && (m.inv ? -d : d) >= 1;
   const pct = clamp(vw(v), 0, 100);
   return (
-    <button onClick={onToggle} title="En savoir plus" className={improved ? "qwin" : ""}
+    <button onClick={onToggle} title={tr("En savoir plus")} className={improved ? "qwin" : ""}
       style={{ position: "relative", textAlign: "left", cursor: "pointer", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4, background: C.inset, borderRadius: 10, padding: "8px 8px 8px 12px", overflow: "hidden", border: `1px solid ${open ? C.gold : improved ? C.mint : C.line}`, touchAction: "manipulation" }}>
       <span aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: col }} />
       <span style={{ display: "flex", alignItems: "center", gap: 3, color: C.sub, fontSize: mobile ? 10.5 : 12, lineHeight: 1.15, minWidth: 0 }}>
@@ -1997,7 +2038,7 @@ function HUD({ ind, prev }) {
         <GroupHeader g={grp("Société")} span={3} />
         <GroupHeader g={grp("Politique")} span={2} />
       </>) : byGrp("Société").length + byGrp("Politique").length > 0 && (
-        <GroupHeader g={byGrp("Société").length === 0 ? grp("Politique") : byGrp("Politique").length === 0 ? grp("Société") : { ...grp("Société"), label: "Société et vie politique" }} span={5} />
+        <GroupHeader g={byGrp("Société").length === 0 ? grp("Politique") : byGrp("Politique").length === 0 ? grp("Société") : { ...grp("Société"), label: tr("Société et vie politique") }} span={5} />
       )}
       {byGrp("Société").map(chip)}
       {byGrp("Politique").map(chip)}
@@ -2045,7 +2086,7 @@ function HistContext({ text, label }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <button onClick={() => setOpen(!open)} style={{ width: "100%", background: C.inset, border: `1px solid ${al(C.gold, "55")}`, borderRadius: 10, padding: "9px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 12.5, fontWeight: 600 }}>
-        <Icon n="history" size={15} /> {label || (CHAIN_MODE ? "Dans la réalité" : "Le contexte historique")} {open ? "▲" : "▼"}
+        <Icon n="history" size={15} /> {label || (CHAIN_MODE ? tr("Dans la réalité") : tr("Le contexte historique"))} {open ? "▲" : "▼"}
       </button>
       <Collapse open={open}><div style={{ marginTop: 6, fontSize: 13, color: C.sub, lineHeight: 1.6, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px" }}>{text}</div></Collapse>
     </div>
@@ -2056,7 +2097,7 @@ function Note({ text }) {
   return (
     <div style={{ marginTop: 6 }}>
       <button onClick={() => setOpen(!open)} style={{ background: "transparent", border: "none", color: C.gold, fontSize: 11.5, cursor: "pointer", padding: "10px 0", margin: "-10px 0", minHeight: 40, touchAction: "manipulation", display: "flex", alignItems: "center", gap: 4 }}>
-        <Icon n="bulb" size={13} /> Le saviez-vous ? {open ? "▲" : "▼"}
+        <Icon n="bulb" size={13} /> {tr("Le saviez-vous ?")} {open ? "▲" : "▼"}
       </button>
       <Collapse open={open}><div style={{ marginTop: 5, fontSize: 12, color: C.sub, lineHeight: 1.55, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 10px" }}>{text}</div></Collapse>
     </div>
@@ -2069,9 +2110,9 @@ function SoutienLink({ style }) {
   return (
     <div data-soutien="1" style={{ textAlign: "center", ...style }}>
       <a href={KOFI_URL} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 999, border: `1px solid ${C.gold}`, color: C.gold, fontSize: 13.5, fontWeight: 500, textDecoration: "none" }}>
-        <span aria-hidden="true">☕</span>Soutenir Quinquennat
+        <span aria-hidden="true">☕</span>{tr("Soutenir Quinquennat")}
       </a>
-      <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6 }}>Jeu gratuit, sans publicité. Un don aide à le faire vivre.</div>
+      <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6 }}>{tr("Jeu gratuit, sans publicité. Un don aide à le faire vivre.")}</div>
     </div>
   );
 }
@@ -2097,31 +2138,31 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
         </svg>
         <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 120px #000" }} />
         <div style={{ position: "absolute", top: 30, width: "100%", textAlign: "center", textShadow: "0 2px 14px rgba(0,0,0,.6)" }}>
-          <div style={{ fontSize: "clamp(20px, 7.4vw, 38px)", letterSpacing: ".3em", paddingLeft: ".3em", whiteSpace: "nowrap", color: "#fff", fontWeight: 300 }}>QUINQUENNAT</div>
+          <div style={{ fontSize: "clamp(20px, 7.4vw, 38px)", letterSpacing: ".3em", paddingLeft: ".3em", whiteSpace: "nowrap", color: "#fff", fontWeight: 300 }}>{tr("QUINQUENNAT")}</div>
           <div style={{ width: 54, height: 1, background: "#f4c64a", margin: "12px auto" }} />
-          <div style={{ fontSize: 15, color: "#cfd6e6" }}>Une lumière reste allumée. C'est la vôtre.</div>
-          <div style={{ fontSize: 14, color: "#f4c64a", marginTop: 8, fontFamily: "Fraunces,serif", fontStyle: "italic" }}>Auriez-vous fait mieux qu'eux ?</div>
+          <div style={{ fontSize: 15, color: "#cfd6e6" }}>{tr("Une lumière reste allumée. C'est la vôtre.")}</div>
+          <div style={{ fontSize: 14, color: "#f4c64a", marginTop: 8, fontFamily: "Fraunces,serif", fontStyle: "italic" }}>{tr("Auriez-vous fait mieux qu'eux ?")}</div>
         </div>
       </div>
 
       <div style={{ marginTop: 22, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14 }}>
-        <div style={{ color: C.ink, fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>En classe ? Entrez le code donné par votre professeur</div>
+        <div style={{ color: C.ink, fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>{tr("En classe ? Entrez le code donné par votre professeur")}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <input value={cc} onChange={(ev) => setCc(ev.target.value.toUpperCase())} placeholder="ex. TG2-2012" style={{ ...inp, maxWidth: 220, marginTop: 0 }} />
-          <Btn kind="primary" disabled={!ccEra} onClick={() => onPickEra(ccEra, cc.trim())}>Rejoindre la classe</Btn>
+          <input value={cc} onChange={(ev) => setCc(ev.target.value.toUpperCase())} placeholder={tr("ex. TG2-2012")} style={{ ...inp, maxWidth: 220, marginTop: 0 }} />
+          <Btn kind="primary" disabled={!ccEra} onClick={() => onPickEra(ccEra, cc.trim())}>{tr("Rejoindre la classe")}</Btn>
         </div>
-        <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6, lineHeight: 1.5 }}>{cc && !ccEra ? "Code non reconnu : il doit finir par l'année du mandat (ex. -2012)." : "Toute la classe joue alors la même époque, avec les mêmes imprévus. Professeur : choisissez NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027)."}</div>
+        <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6, lineHeight: 1.5 }}>{cc && !ccEra ? tr("Code non reconnu : il doit finir par l'année du mandat (ex. -2012).") : tr("Toute la classe joue alors la même époque, avec les mêmes imprévus. Professeur : choisissez NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027).")}</div>
       </div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, margin: "26px 0 12px" }}>
-        <span style={{ color: C.ink, fontSize: 20, fontWeight: 600, fontFamily: "Fraunces,serif" }}>Ou choisissez librement votre époque</span>
-        <span style={{ color: C.dim, fontSize: 12.5 }}>Prenez la place d'un président, avec la situation et les crises réelles de son mandat.</span>
+        <span style={{ color: C.ink, fontSize: 20, fontWeight: 600, fontFamily: "Fraunces,serif" }}>{tr("Ou choisissez librement votre époque")}</span>
+        <span style={{ color: C.dim, fontSize: 12.5 }}>{tr("Prenez la place d'un président, avec la situation et les crises réelles de son mandat.")}</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 10 }}>
         {ERAS.map((e) => (
           <button key={e.id} onClick={() => onPickEra(e.id)} className="qposter" style={{ position: "relative", textAlign: "left", cursor: "pointer", height: 172, borderRadius: 12, overflow: "hidden", padding: 12, display: "flex", flexDirection: "column", justifyContent: "flex-end", background: `linear-gradient(180deg, ${e.couleurs[0]} 0%, ${e.couleurs[1]} 100%)`, border: e.id === "today" ? "2px solid #f4c64a" : "2px solid transparent" }}>
             <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 50px rgba(0,0,0,.55)" }} />
-            <div style={{ position: "absolute", top: 9, left: 10, fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(255,255,255,.75)" }}>{e.duree === 7 ? "Septennat" : "Quinquennat"}</div>
-            <div style={{ position: "relative", fontFamily: "Fraunces,Georgia,serif", fontSize: e.id === "today" ? 21 : 28, fontWeight: 600, lineHeight: 1.05, color: e.id === "today" ? "#f4c64a" : "#fff" }}>{e.id === "today" ? "Aujourd'hui" : e.debut}</div>
+            <div style={{ position: "absolute", top: 9, left: 10, fontSize: 9.5, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(255,255,255,.75)" }}>{e.duree === 7 ? tr("Septennat") : tr("Quinquennat")}</div>
+            <div style={{ position: "relative", fontFamily: "Fraunces,Georgia,serif", fontSize: e.id === "today" ? 21 : 28, fontWeight: 600, lineHeight: 1.05, color: e.id === "today" ? "#f4c64a" : "#fff" }}>{e.id === "today" ? tr("Aujourd'hui") : e.debut}</div>
             <div style={{ position: "relative", fontSize: 11.5, color: "#fff", marginTop: 4, fontWeight: 500 }}>{e.id === "today" ? `${e.debut}-${e.debut + e.duree}` : e.president}</div>
             <div style={{ position: "relative", fontSize: 10.5, color: "rgba(255,255,255,.8)", marginTop: 3, lineHeight: 1.3 }}>{e.tagline}</div>
           </button>
@@ -2129,9 +2170,9 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 22 }}>
-        {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Reprendre ma partie</Btn>}
-        <Btn onClick={() => onLeaderboard()}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
-        <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Trophées</Btn>
+        {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Reprendre ma partie")}</Btn>}
+        <Btn onClick={() => onLeaderboard()}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Classement")}</Btn>
+        <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Trophées")}</Btn>
       </div>
       {!cc.trim() && <SoutienLink style={{ marginTop: 34 }} />}
     </div>
@@ -2164,33 +2205,33 @@ function EraSetup({ eraId, lockedCode, onStart, onSkipConseil, onBack }) {
   );
   return (
     <div>
-      <button onClick={onBack} style={{ background: "none", border: "none", color: C.dim, cursor: "pointer", fontSize: 13, padding: 0, marginBottom: 12 }}>← Changer d'époque</button>
+      <button onClick={onBack} style={{ background: "none", border: "none", color: C.dim, cursor: "pointer", fontSize: 13, padding: 0, marginBottom: 12 }}>{tr("← Changer d'époque")}</button>
       {/* Bandeau d'époque */}
       <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", padding: "22px 22px 18px", background: `linear-gradient(135deg, ${e.couleurs[0]} 0%, ${e.couleurs[1]} 100%)` }}>
         <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 80px rgba(0,0,0,.5)" }} />
         <div style={{ position: "relative" }}>
-          <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(255,255,255,.75)" }}>{e.duree === 7 ? "Septennat" : "Quinquennat"} · {e.debut}-{e.debut + e.duree}</div>
-          <div style={{ fontFamily: "Fraunces,Georgia,serif", fontSize: 30, fontWeight: 600, color: "#fff", margin: "4px 0 2px" }}>{e.id === "today" ? "Aujourd'hui : à vous de jouer" : `À la place de ${e.president}`}</div>
+          <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(255,255,255,.75)" }}>{e.duree === 7 ? tr("Septennat") : tr("Quinquennat")} · {e.debut}-{e.debut + e.duree}</div>
+          <div style={{ fontFamily: "Fraunces,Georgia,serif", fontSize: 30, fontWeight: 600, color: "#fff", margin: "4px 0 2px" }}>{e.id === "today" ? tr("Aujourd'hui : à vous de jouer") : tr("À la place de {a}", { a: e.president })}</div>
           <div style={{ fontSize: 14, color: "#f4c64a", fontStyle: "italic", marginBottom: 14 }}>{e.tagline}</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {chip("Dette", `${fmt(e.dette, 0)} %`)}{chip("Déficit", `${fmt(e.solde, 1)} %`)}{chip("Chômage", `${fmt(e.chomage, 1)} %`)}{chip("Inflation", `${fmt(e.inflation, 1)} %`)}{chip("Taux d'emprunt", `${fmt(e.marche, 1)} %`)}
+            {chip(tr("Dette"), `${fmt(e.dette, 0)} %`)}{chip(tr("Déficit"), `${fmt(e.solde, 1)} %`)}{chip(tr("Chômage"), `${fmt(e.chomage, 1)} %`)}{chip(tr("Inflation"), `${fmt(e.inflation, 1)} %`)}{chip(tr("Taux d'emprunt"), `${fmt(e.marche, 1)} %`)}
           </div>
         </div>
       </div>
       {/* Rappel historique */}
       <div style={{ marginTop: 14, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 6 }}><Icon n="history" size={17} /> Ce qui s'est passé avant {e.debut}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 6 }}><Icon n="history" size={17} /> {tr("Ce qui s'est passé avant")} {e.debut}</div>
         <p style={{ margin: 0, color: C.sub, fontSize: 14, lineHeight: 1.65 }}>{info.rappel}</p>
-        {e.id !== "today" && <p style={{ margin: "10px 0 0", color: C.dim, fontSize: 12.5, lineHeight: 1.5 }}>Pendant votre mandat, vous affronterez les grands événements réels de l'époque. À la fin, vous découvrirez ce qu'a fait le vrai président et comparerez vos résultats aux siens. Les montants sont convertis en euros.</p>}
+        {e.id !== "today" && <p style={{ margin: "10px 0 0", color: C.dim, fontSize: 12.5, lineHeight: 1.5 }}>{tr("Pendant votre mandat, vous affronterez les grands événements réels de l'époque. À la fin, vous découvrirez ce qu'a fait le vrai président et comparerez vos résultats aux siens. Les montants sont convertis en euros.")}</p>}
       </div>
 
       <LettreMission eraId={e.id} />
 
-      {step(1, "Nommez votre équipe", !!team.trim())}
-      <input value={team} onChange={(ev) => setTeam(ev.target.value)} placeholder="Les Réformateurs" style={{ ...inp, fontSize: 15, maxWidth: 420 }} autoFocus />
+      {step(1, tr("Nommez votre équipe"), !!team.trim())}
+      <input value={team} onChange={(ev) => setTeam(ev.target.value)} placeholder={tr("Les Réformateurs")} style={{ ...inp, fontSize: 15, maxWidth: 420 }} autoFocus />
 
-      {step(2, "Choisissez votre doctrine", !!doc)}
-      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>Une simple orientation : vous restez libre de tous vos choix ensuite.</div>
+      {step(2, tr("Choisissez votre doctrine"), !!doc)}
+      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>{tr("Une simple orientation : vous restez libre de tous vos choix ensuite.")}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
         {DOCTRINES.map((d) => (
           <div key={d.id} role="radio" aria-checked={doc === d.id} tabIndex={0} onClick={() => setDoc(d.id)} onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setDoc(d.id); } }} style={{ position: "relative", cursor: "pointer", background: doc === d.id ? al(d.color, "1F") : C.card, border: `2px solid ${doc === d.id ? d.color : C.line}`, borderRadius: 12, padding: 12, touchAction: "manipulation" }}>
@@ -2205,31 +2246,31 @@ function EraSetup({ eraId, lockedCode, onStart, onSkipConseil, onBack }) {
         ))}
       </div>
 
-      {step(3, "Choisissez votre niveau", true)}
-      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>Les objectifs et la difficulté sont les mêmes : seul change le nombre de commandes et d'indicateurs affichés.</div>
+      {step(3, tr("Choisissez votre niveau"), true)}
+      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>{tr("Les objectifs et la difficulté sont les mêmes : seul change le nombre de commandes et d'indicateurs affichés.")}</div>
       <div data-levels="1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 10 }}>
         {Object.entries(LEVELS).map(([id, L]) => (
           <div key={id} role="radio" aria-checked={lvl === id} tabIndex={0} data-level={id} onClick={() => setLvl(id)} onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setLvl(id); } }} style={{ cursor: "pointer", borderRadius: 12, padding: 13, background: lvl === id ? al(L.color, "18") : C.card, border: `2px solid ${lvl === id ? L.color : C.line}` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><Icon n={L.icon} size={19} color={L.color} /><span style={{ color: C.ink, fontWeight: 500, fontSize: 14 }}>{L.label}</span></div>
-            <div style={{ color: L.color, fontSize: 11.5, marginBottom: 4 }}>{L.nLev} leviers · {L.nInd} indicateurs</div>
+            <div style={{ color: L.color, fontSize: 11.5, marginBottom: 4 }}>{L.nLev} {tr("leviers ·")} {L.nInd} {tr("indicateurs")}</div>
             <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{L.desc}</div>
           </div>
         ))}
       </div>
-      {imposed && imposed !== eraId && <div style={{ margin: "18px 0 0", fontSize: 12.5, color: C.gold, display: "flex", gap: 6 }}><Icon n="info-circle" size={14} />Ce code de classe impose l'époque « {e.president} {e.debut} » : c'est celle que vous allez jouer.</div>}
+      {imposed && imposed !== eraId && <div style={{ margin: "18px 0 0", fontSize: 12.5, color: C.gold, display: "flex", gap: 6 }}><Icon n="info-circle" size={14} />{tr("Ce code de classe impose l'époque «")} {e.president} {e.debut} {tr("» : c'est celle que vous allez jouer.")}</div>}
       {lockedCode
-        ? <div data-class-note="1" style={{ fontSize: 12.5, color: C.dim, margin: "22px 0 18px", display: "flex", alignItems: "center", gap: 6 }}><Icon n="users-group" size={15} color={C.gold} />Classe <b style={{ color: C.sub }}>{lockedCode}</b> : toute la classe joue cette époque avec les mêmes imprévus.</div>
+        ? <div data-class-note="1" style={{ fontSize: 12.5, color: C.dim, margin: "22px 0 18px", display: "flex", alignItems: "center", gap: 6 }}><Icon n="users-group" size={15} color={C.gold} />{tr("Classe")} <b style={{ color: C.sub }}>{lockedCode}</b> {tr(": toute la classe joue cette époque avec les mêmes imprévus.")}</div>
         : <div style={{ height: 18 }} />}
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <Btn kind="primary" disabled={!canStart} className={canStart ? "qvibe" : ""} onClick={() => { applyLevel(lvl); onStart(codeOk.toUpperCase(), team.trim(), doc, eraFinal); }} style={{ fontSize: 15, padding: "12px 20px" }}>
-          <Icon n="player-play" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Entrer au palais (avec année conseil)
+          <Icon n="player-play" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />{tr("Entrer au palais (avec année conseil)")}
         </Btn>
-        {canStart && <Btn onClick={() => { applyLevel(lvl); onSkipConseil(codeOk.toUpperCase(), team.trim(), doc, eraFinal); }}><Icon n="player-skip-forward" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Passer l'année conseil</Btn>}
+        {canStart && <Btn onClick={() => { applyLevel(lvl); onSkipConseil(codeOk.toUpperCase(), team.trim(), doc, eraFinal); }}><Icon n="player-skip-forward" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Passer l'année conseil")}</Btn>}
       </div>
       {!canStart && (
         <div style={{ marginTop: 10, fontSize: 12, color: C.gold, display: "flex", alignItems: "center", gap: 6 }}>
-          <Icon n="info-circle" size={14} />Avant de commencer, complétez : {[!team.trim() && "le nom d'équipe", !doc && "la doctrine"].filter(Boolean).join(" et ")}.
+          <Icon n="info-circle" size={14} />{tr("Avant de commencer, complétez :")} {[!team.trim() && tr("le nom d'équipe"), !doc && tr("la doctrine")].filter(Boolean).join(tr(" et "))}.
         </div>
       )}
     </div>
@@ -2243,19 +2284,19 @@ function ConseilIntro({ team, onGo }) {
   const info = ERA_INFO[CURRENT_ERA.id] || {};
   return (
     <div>
-      <ScreenTitle icon="user-star" title="Avant de gouverner… un conseil" sub="Une mise en bouche qui ne compte pas" />
+      <ScreenTitle icon="user-star" title={tr("Avant de gouverner… un conseil")} sub={tr("Une mise en bouche qui ne compte pas")} />
       <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 16, padding: 22, marginBottom: 18 }}>
         <div style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
           <div style={{ width: 44, height: 44, borderRadius: "50%", flexShrink: 0, background: C.goldFill, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={24} color={C.onAccent} /></div>
           <p style={{ color: C.sub, fontSize: 14.5, lineHeight: 1.7, margin: 0 }}>
-            Nous sommes en <b style={{ color: C.ink }}>{CURRENT_ERA.debut}</b>. <b style={{ color: C.ink }}>{info.pred}</b> {info.predSituation}. Avant l'élection, il faut encore voter un <b style={{ color: C.ink }}>dernier budget</b>, et l'équipe au pouvoir cherche un regard neuf. Votre réputation est arrivée jusqu'au palais : on vous demande, <b style={{ color: C.gold }}>{team}</b>, de proposer ce budget à partir de quelques leviers clés. Rien ne vous engage : c'est un entraînement avant votre propre campagne.
+            {tr("Nous sommes en")} <b style={{ color: C.ink }}>{CURRENT_ERA.debut}</b>. <b style={{ color: C.ink }}>{info.pred}</b> {info.predSituation}{tr(". Avant l'élection, il faut encore voter un")} <b style={{ color: C.ink }}>{tr("dernier budget")}</b>{tr(", et l'équipe au pouvoir cherche un regard neuf. Votre réputation est arrivée jusqu'au palais : on vous demande,")} <b style={{ color: C.gold }}>{team}</b>{tr(", de proposer ce budget à partir de quelques leviers clés. Rien ne vous engage : c'est un entraînement avant votre propre campagne.")}
           </p>
         </div>
       </div>
       <div style={{ color: C.ink, fontSize: 20, fontWeight: 500, marginBottom: 20, lineHeight: 1.5, background: C.amberBg, border: `2px solid ${C.gold}`, borderRadius: 14, padding: "16px 20px" }}>
-        Vous allez découvrir le fonctionnement du budget avec <b style={{ color: C.gold }}>quelques leviers simples</b>, puis affronter <b style={{ color: C.gold }}>2 imprévus</b>. Ensuite, vous vous présenterez à l'élection pour votre vrai mandat de {YEARS} ans.
+        {tr("Vous allez découvrir le fonctionnement du budget avec")} <b style={{ color: C.gold }}>{tr("quelques leviers simples")}</b>{tr(", puis affronter")} <b style={{ color: C.gold }}>{tr("2 imprévus")}</b>{tr(". Ensuite, vous vous présenterez à l'élection pour votre vrai mandat de")} {YEARS} {tr("ans.")}
       </div>
-      <Btn kind="primary" onClick={onGo} style={{ fontSize: 15, padding: "12px 20px" }}><Icon n="arrow-right" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Découvrir le budget</Btn>
+      <Btn kind="primary" onClick={onGo} style={{ fontSize: 15, padding: "12px 20px" }}><Icon n="arrow-right" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />{tr("Découvrir le budget")}</Btn>
     </div>
   );
 }
@@ -2263,19 +2304,19 @@ function ConseilIntro({ team, onGo }) {
 /* ---------- Année conseil : bilan + présentation à l'élection ---------- */
 function ConseilBilan({ indBefore, ind, onElection }) {
   let verdict, tone;
-  if (ind.solde > indBefore.solde + 0.3) { verdict = "Vous avez le sens de l'équilibre : le déficit s'est réduit. L'équipe sortante est convaincue que vous avez l'étoffe d'un·e président·e."; tone = C.mint; }
-  else if (ind.solde < indBefore.solde - 0.5) { verdict = "Le déficit s'est creusé… Gouverner n'est pas si simple ! Heureusement, cette année ne comptait pas : vous savez maintenant ce qui vous attend."; tone = C.coral; }
-  else { verdict = "Un budget prudent, sans grand bouleversement. Vous avez saisi le principe : chaque choix a un coût."; tone = C.gold; }
+  if (ind.solde > indBefore.solde + 0.3) { verdict = tr("Vous avez le sens de l'équilibre : le déficit s'est réduit. L'équipe sortante est convaincue que vous avez l'étoffe d'un·e président·e."); tone = C.mint; }
+  else if (ind.solde < indBefore.solde - 0.5) { verdict = tr("Le déficit s'est creusé… Gouverner n'est pas si simple ! Heureusement, cette année ne comptait pas : vous savez maintenant ce qui vous attend."); tone = C.coral; }
+  else { verdict = tr("Un budget prudent, sans grand bouleversement. Vous avez saisi le principe : chaque choix a un coût."); tone = C.gold; }
   return (
     <div>
-      <ScreenTitle icon="clipboard-check" title="Bilan de votre conseil" sub="Ce que votre budget aurait donné" />
+      <ScreenTitle icon="clipboard-check" title={tr("Bilan de votre conseil")} sub={tr("Ce que votre budget aurait donné")} />
       <HUD ind={ind} prev={indBefore} />
       <div style={{ marginTop: 14, background: C.card2, border: `1px solid ${al(tone, "55")}`, borderRadius: 14, padding: 16, display: "flex", gap: 11, alignItems: "flex-start" }}>
         <div style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: C.goldFill, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="clipboard-check" size={19} color={C.onAccent} /></div>
-        <div style={{ fontSize: 13.5, color: C.sub, lineHeight: 1.6 }}><b style={{ color: C.ink }}>Verdict :</b> {verdict} Il est temps de vous lancer dans la campagne.</div>
+        <div style={{ fontSize: 13.5, color: C.sub, lineHeight: 1.6 }}><b style={{ color: C.ink }}>{tr("Verdict :")}</b> {verdict} {tr("Il est temps de vous lancer dans la campagne.")}</div>
       </div>
       <div style={{ marginTop: 16 }}>
-        <Btn kind="primary" onClick={onElection} style={{ fontSize: 15, padding: "12px 20px" }}><Icon n="flag" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />Me présenter à l'élection</Btn>
+        <Btn kind="primary" onClick={onElection} style={{ fontSize: 15, padding: "12px 20px" }}><Icon n="flag" size={16} style={{ verticalAlign: -3, marginRight: 7 }} />{tr("Me présenter à l'élection")}</Btn>
       </div>
     </div>
   );
@@ -2292,9 +2333,9 @@ function ElectionIntro({ team, onElected }) {
     <div style={{ textAlign: "center", padding: "30px 12px" }}>
       {phase === 1 && <Confetti />}
       <Icon n="ballpen" size={46} color={C.gold} />
-      <h2 style={{ color: C.ink, fontFamily: "Fraunces,serif", fontSize: 28, margin: "14px 0 8px" }}>{phase === 0 ? "Jour de l'élection…" : "Élu·e !"}</h2>
+      <h2 style={{ color: C.ink, fontFamily: "Fraunces,serif", fontSize: 28, margin: "14px 0 8px" }}>{phase === 0 ? tr("Jour de l'élection…") : tr("Élu·e !")}</h2>
       <p style={{ color: C.dim, fontSize: 15, maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
-        {phase === 0 ? "Les Français votent pour choisir leur nouveau président…" : `Félicitations, ${team} ! Le pays vous confie les clés pour ${YEARS} ans.`}
+        {phase === 0 ? tr("Les Français votent pour choisir leur nouveau président…") : tr("Félicitations, {a} ! Le pays vous confie les clés pour {b} ans.", { a: team, b: YEARS })}
       </p>
       {phase === 1 && amb && (
         <div style={{ textAlign: "left", maxWidth: 640, margin: "22px auto 0", background: C.card2, border: `1px solid ${al(C.gold, "55")}`, borderRadius: 14, padding: "18px 20px" }}>
@@ -2302,7 +2343,7 @@ function ElectionIntro({ team, onElected }) {
           {lignes.map((l, i) => <p key={i} style={{ margin: "0 0 7px", color: C.sub, fontSize: 14, lineHeight: 1.6 }}>{l}</p>)}
         </div>
       )}
-      {phase === 1 && <div style={{ marginTop: 22 }}><Btn kind="primary" onClick={onElected} style={{ fontSize: 15, padding: "12px 22px" }}>Commencer mon mandat <Icon n="arrow-right" size={16} style={{ verticalAlign: -3 }} /></Btn></div>}
+      {phase === 1 && <div style={{ marginTop: 22 }}><Btn kind="primary" onClick={onElected} style={{ fontSize: 15, padding: "12px 22px" }}>{tr("Commencer mon mandat")} <Icon n="arrow-right" size={16} style={{ verticalAlign: -3 }} /></Btn></div>}
     </div>
   );
 }
@@ -2318,19 +2359,19 @@ function ChainHeritage({ chain }) {
     const vw = m && m.view ? m.view : (x) => x;
     const d = vw(g.mine) - vw(g.hist);
     const good = ((m ? m.inv : true) ? -d : d) > 0;       // taux d'emprunt : plus bas = mieux
-    return { k, label: m ? m.label : "Taux d'emprunt", hist: fmtv(g.hist), mine: fmtv(g.mine), start: fmtv(g.start), flat: Math.abs(d) < 0.05, good };
+    return { k, label: m ? m.label : tr("Taux d'emprunt"), hist: fmtv(g.hist), mine: fmtv(g.mine), start: fmtv(g.start), flat: Math.abs(d) < 0.05, good };
   }).filter(Boolean);
   const col = { width: 62, textAlign: "right", flexShrink: 0 };
   return (
     <div data-chain-heritage="1" data-chain-futur={fut ? "1" : "0"} style={{ background: C.card, border: `1px solid ${al(C.gold, "66")}`, borderRadius: 14, padding: 16, marginBottom: 18 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 16, fontWeight: 600, fontFamily: "Fraunces,serif", marginBottom: 4 }}><Icon n="history" size={18} /> Votre héritage</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 16, fontWeight: 600, fontFamily: "Fraunces,serif", marginBottom: 4 }}><Icon n="history" size={18} /> {tr("Votre héritage")}</div>
       <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.55, marginBottom: 10 }}>
         {fut
-          ? <>Le pays est repris <b style={{ color: C.ink }}>tel que vous l'avez laissé</b> : mêmes politiques, mêmes marges de manœuvre. Les événements de ce mandat sont des <b style={{ color: C.ink }}>scénarios imaginés</b> à partir de tendances actuelles : ce ne sont pas des prévisions.</>
-          : <>L'Histoire a continué, mais votre mandat l'a infléchie. <b style={{ color: C.ink }}>La moitié de votre écart avec la réalité</b> se transmet à ce nouveau mandat ; le reste revient à la situation historique.</>}
+          ? <>{tr("Le pays est repris")} <b style={{ color: C.ink }}>{tr("tel que vous l'avez laissé")}</b> {tr(": mêmes politiques, mêmes marges de manœuvre. Les événements de ce mandat sont des")} <b style={{ color: C.ink }}>{tr("scénarios imaginés")}</b> {tr("à partir de tendances actuelles : ce ne sont pas des prévisions.")}</>
+          : <>{tr("L'Histoire a continué, mais votre mandat l'a infléchie.")} <b style={{ color: C.ink }}>{tr("La moitié de votre écart avec la réalité")}</b> {tr("se transmet à ce nouveau mandat ; le reste revient à la situation historique.")}</>}
       </div>
       <div style={{ display: "grid", gap: 6 }}>
-        <div style={{ display: "flex", gap: 8, fontSize: 11, color: C.dim, padding: "0 10px" }}><span style={{ flex: 1 }}>Indicateur</span><span style={col}>{fut ? `Début ${chain.fromDebut}` : "Histoire"}</span><span style={col}>{fut ? `Départ ${chain.override.debut}` : "Votre fin"}</span>{!fut && <span style={col}>Départ</span>}</div>
+        <div style={{ display: "flex", gap: 8, fontSize: 11, color: C.dim, padding: "0 10px" }}><span style={{ flex: 1 }}>{tr("Indicateur")}</span><span style={col}>{fut ? tr("Début {a}", { a: chain.fromDebut }) : tr("Histoire")}</span><span style={col}>{fut ? tr("Départ {a}", { a: chain.override.debut }) : tr("Votre fin")}</span>{!fut && <span style={col}>{tr("Départ")}</span>}</div>
         {rows.map((r) => (
           <div key={r.k} data-heritage-row={r.k} style={{ display: "flex", alignItems: "center", gap: 8, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 9, padding: "8px 10px", fontSize: 13 }}>
             <span style={{ flex: 1, minWidth: 0, color: C.ink }}>{r.label}</span>
@@ -2348,19 +2389,19 @@ function Mission({ team, doctrine, onGo, chain = null }) {
   const [infoChiffres, setInfoChiffres] = useState(false);
   return (
     <div>
-      <ScreenTitle icon="target-arrow" title="Votre mission" sub={`${team} · doctrine ${doctrine?.label}${chain ? ` · ${chain.n}ᵉ mandat` : ""}`} />
+      <ScreenTitle icon="target-arrow" title={tr("Votre mission")} sub={tr("{a} · doctrine {b}{c}", { a: team, b: doctrine?.label, c: chain ? tr(" · {a}ᵉ mandat", { a: chain.n }) : "" })} />
       <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 16, padding: 22, marginBottom: 18 }}>
         <p style={{ color: C.ink, fontSize: 16, lineHeight: 1.65, margin: 0 }}>
-          {chain ? <>Vous êtes <b>réélu·e</b> : votre <b>{chain.n}ᵉ mandat</b> commence en {CURRENT_ERA.debut} et dure <b>{YEARS} ans</b>.</> : <>Vous venez d'être élu·e : vous allez diriger la France pendant <b>{YEARS} ans</b>{CURRENT_ERA.id !== "today" && <>, à partir de {CURRENT_ERA.debut}, à la place de {CURRENT_ERA.president}</>}.</>} Chaque année, vous voterez un <b>budget</b> (ce que l'État gagne et dépense), puis vous affronterez <b>3 événements</b> imprévus. À la fin, les Français voteront.
+          {chain ? <>{tr("Vous êtes")} <b>{tr("réélu·e")}</b> {tr(": votre")} <b>{chain.n}{tr("ᵉ mandat")}</b> {tr("commence en")} {CURRENT_ERA.debut} {tr("et dure")} <b>{YEARS} {tr("ans")}</b>.</> : <>{tr("Vous venez d'être élu·e : vous allez diriger la France pendant")} <b>{YEARS} {tr("ans")}</b>{CURRENT_ERA.id !== "today" && <>{tr(", à partir de")} {CURRENT_ERA.debut}{tr(", à la place de")} {CURRENT_ERA.president}</>}.</>} {tr("Chaque année, vous voterez un")} <b>{tr("budget")}</b> {tr("(ce que l'État gagne et dépense), puis vous affronterez")} <b>{tr("3 événements")}</b> {tr("imprévus. À la fin, les Français voteront.")}
         </p>
         <p style={{ color: C.sub, fontSize: 15, lineHeight: 1.65, margin: "12px 0 0" }}>
-          Au départ : un <b style={{ color: C.coral }}>déficit de {fmt(-START.solde, 1)} %</b> (l'État dépense plus qu'il ne gagne) et une <b style={{ color: C.coral }}>dette de {fmt(START.dette, 0)} %</b> du PIB{CURRENT_ERA.id !== "today" && <> ; l'inflation atteint <b style={{ color: C.coral }}>{fmt(START.inflation, 1)} %</b> et l'État emprunte à <b>{fmt(MARCHE0, 1)} %</b></>}. Votre but : redresser les comptes <b>sans casser la société</b>. Attention, tout se tient — aucune décision n'est gratuite.
+          {tr("Au départ : un")} <b style={{ color: C.coral }}>{tr("déficit de")} {fmt(-START.solde, 1)} %</b> {tr("(l'État dépense plus qu'il ne gagne) et une")} <b style={{ color: C.coral }}>{tr("dette de")} {fmt(START.dette, 0)} %</b> {tr("du PIB")}{CURRENT_ERA.id !== "today" && <> {tr("; l'inflation atteint")} <b style={{ color: C.coral }}>{fmt(START.inflation, 1)} %</b> {tr("et l'État emprunte à")} <b>{fmt(MARCHE0, 1)} %</b></>}{tr(". Votre but : redresser les comptes")} <b>{tr("sans casser la société")}</b>{tr(". Attention, tout se tient — aucune décision n'est gratuite.")}
         </p>
       </div>
       {chain && <ChainHeritage chain={chain} />}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
         <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 500, marginBottom: 10 }}><Icon n="target" size={18} /> Vos objectifs</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 500, marginBottom: 10 }}><Icon n="target" size={18} /> {tr("Vos objectifs")}</div>
           {getObjectifs().map((o) => (
             <div key={o.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: C.sub, padding: "4px 0" }}>
               <Icon n={o.icon} size={15} color={C.dim} /> {o.label}
@@ -2368,45 +2409,45 @@ function Mission({ team, doctrine, onGo, chain = null }) {
           ))}
         </div>
         <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 500, marginBottom: 10 }}><Icon n="trophy" size={18} /> Comment vous êtes noté·e</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 500, marginBottom: 10 }}><Icon n="trophy" size={18} /> {tr("Comment vous êtes noté·e")}</div>
           <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.8 }}>
-            <div><b style={{ color: C.mint }}>Économie</b> 55 % · <b style={{ color: "var(--c-sante)" }}>Social</b> 30 % · <b style={{ color: C.gold }}>Popularité</b> 15 %</div>
-            <div style={{ color: C.dim, fontSize: 13, marginTop: 8 }}>Le <b>score</b> décide du classement entre équipes. Mais votre <b>réélection</b> dépend surtout de votre <b>popularité</b> le jour du vote !</div>
+            <div><b style={{ color: C.mint }}>{tr("Économie")}</b> 55 % · <b style={{ color: "var(--c-sante)" }}>{tr("Social")}</b> 30 % · <b style={{ color: C.gold }}>{tr("Popularité")}</b> 15 %</div>
+            <div style={{ color: C.dim, fontSize: 13, marginTop: 8 }}>{tr("Le")} <b>{tr("score")}</b> {tr("décide du classement entre équipes. Mais votre")} <b>{tr("réélection")}</b> {tr("dépend surtout de votre")} <b>{tr("popularité")}</b> {tr("le jour du vote !")}</div>
           </div>
         </div>
       </div>
       {/* Accordéon : explication du périmètre et des chiffres */}
       <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, marginBottom: 18, overflow: "hidden" }}>
         <button onClick={() => setInfoChiffres(!infoChiffres)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", color: C.ink, fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 8, padding: "13px 16px" }}>
-          <Icon n="info-circle" size={17} color={C.gold} /> En savoir plus sur les chiffres utilisés
+          <Icon n="info-circle" size={17} color={C.gold} /> {tr("En savoir plus sur les chiffres utilisés")}
           <span style={{ marginLeft: "auto", color: C.dim }}>{infoChiffres ? "▲" : "▼"}</span>
         </button>
         {infoChiffres && (
           <div style={{ padding: "0 16px 16px", color: C.sub, fontSize: 13.5, lineHeight: 1.65 }}>
             <p style={{ margin: "0 0 10px" }}>
-              Le jeu simule <b style={{ color: C.ink }}>les dépenses publiques de la France</b> — l'ensemble des administrations publiques : l'<b>État</b>, la <b>Sécurité sociale</b> (retraites, santé, chômage) et les <b>collectivités locales</b>. Ce n'est donc pas seulement « le budget de l'État » au sens strict : c'est le périmètre utilisé quand on parle du <b>déficit public</b> (~5,4 % du PIB) et de la <b>dette</b> (~119 %). Les dépenses <b>privées</b> des ménages et des entreprises n'y figurent pas.
+              {tr("Le jeu simule")} <b style={{ color: C.ink }}>{tr("les dépenses publiques de la France")}</b> {tr("— l'ensemble des administrations publiques : l'")}<b>{tr("État")}</b>{tr(", la")} <b>{tr("Sécurité sociale")}</b> {tr("(retraites, santé, chômage) et les")} <b>{tr("collectivités locales")}</b>{tr(". Ce n'est donc pas seulement « le budget de l'État » au sens strict : c'est le périmètre utilisé quand on parle du")} <b>{tr("déficit public")}</b> {tr("(~5,4 % du PIB) et de la")} <b>{tr("dette")}</b> {tr("(~119 %). Les dépenses")} <b>{tr("privées")}</b> {tr("des ménages et des entreprises n'y figurent pas.")}
             </p>
             <p style={{ margin: "0 0 10px" }}>
-              Les chiffres de départ sont des <b style={{ color: C.ink }}>ordres de grandeur arrondis</b>, issus de sources publiques (INSEE, projet de loi de finances, Cour des comptes).
-              {CURRENT_ERA.id !== "today" && <><br /><b style={{ color: C.gold }}>Votre époque ({CURRENT_ERA.debut}) :</b> dette {fmt(CURRENT_ERA.dette, 0)} % du PIB, déficit {fmt(CURRENT_ERA.solde, 1)} %, chômage {fmt(CURRENT_ERA.chomage, 1)} %, inflation {fmt(CURRENT_ERA.inflation, 1)} %, taux d'emprunt {fmt(CURRENT_ERA.marche, 1)} %. Les montants sont convertis en euros de l'époque (PIB ≈ {fmt(CURRENT_ERA.pib, 0)} milliards d'euros). Les repères ci-dessous sont ceux de la France d'aujourd'hui, pour comparaison.</>}
+              {tr("Les chiffres de départ sont des")} <b style={{ color: C.ink }}>{tr("ordres de grandeur arrondis")}</b>{tr(", issus de sources publiques (INSEE, projet de loi de finances, Cour des comptes).")}
+              {CURRENT_ERA.id !== "today" && <><br /><b style={{ color: C.gold }}>{tr("Votre époque (")}{CURRENT_ERA.debut}) :</b> {tr("dette")} {fmt(CURRENT_ERA.dette, 0)} {tr("% du PIB, déficit")} {fmt(CURRENT_ERA.solde, 1)} {tr("%, chômage")} {fmt(CURRENT_ERA.chomage, 1)} {tr("%, inflation")} {fmt(CURRENT_ERA.inflation, 1)} {tr("%, taux d'emprunt")} {fmt(CURRENT_ERA.marche, 1)} {tr("%. Les montants sont convertis en euros de l'époque (PIB ≈")} {fmt(CURRENT_ERA.pib, 0)} {tr("milliards d'euros). Les repères ci-dessous sont ceux de la France d'aujourd'hui, pour comparaison.")}</>}
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 18px", fontSize: 13, fontFamily: "monospace", color: C.dim, background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
-              <div>PIB ≈ 3 000 Md€</div><div>Dette ≈ 119 % du PIB</div>
-              <div>Recettes ≈ 1 450 Md€</div><div>Déficit ≈ 5,4 % du PIB</div>
-              <div>Dépenses ≈ 1 600 Md€</div><div>Chômage ≈ 8,3 %</div>
-              <div>Nouveaux emprunts ≈ 4,9 % (OAT 10 ans, nov. 2026)</div><div>Taux moyen de la dette ≈ 2,0 %</div>
-              <div>Inflation ≈ 3,4 % sur un an (oct. 2026)</div><div>Croissance 2026 ≈ 0,5 %</div>
+              <div>{tr("PIB ≈ 3 000 Md€")}</div><div>{tr("Dette ≈ 119 % du PIB")}</div>
+              <div>{tr("Recettes ≈ 1 450 Md€")}</div><div>{tr("Déficit ≈ 5,4 % du PIB")}</div>
+              <div>{tr("Dépenses ≈ 1 600 Md€")}</div><div>{tr("Chômage ≈ 8,3 %")}</div>
+              <div>{tr("Nouveaux emprunts ≈ 4,9 % (OAT 10 ans, nov. 2026)")}</div><div>{tr("Taux moyen de la dette ≈ 2,0 %")}</div>
+              <div>{tr("Inflation ≈ 3,4 % sur un an (oct. 2026)")}</div><div>{tr("Croissance 2026 ≈ 0,5 %")}</div>
             </div>
             <div style={{ fontSize: 12.5, lineHeight: 1.7 }}>
-              <div><b style={{ color: C.mint }}>Recettes</b> : TVA ~211 · impôt sur le revenu ~95 · CSG ~130 · impôt sur les sociétés ~58 · cotisations ~610 Md€</div>
-              <div style={{ marginTop: 4 }}><b style={{ color: C.coral }}>Dépenses</b> : retraites ~340 · santé ~300 · éducation ~155 (État + collectivités) · défense ~50 Md€</div>
+              <div><b style={{ color: C.mint }}>{tr("Recettes")}</b> {tr(": TVA ~211 · impôt sur le revenu ~95 · CSG ~130 · impôt sur les sociétés ~58 · cotisations ~610 Md€")}</div>
+              <div style={{ marginTop: 4 }}><b style={{ color: C.coral }}>{tr("Dépenses")}</b> {tr(": retraites ~340 · santé ~300 · éducation ~155 (État + collectivités) · défense ~50 Md€")}</div>
             </div>
-            <p style={{ margin: "10px 0 0", color: C.dim, fontSize: 12.5 }}>Ces chiffres rendent le jeu crédible ; ce n'est pas une prévision officielle.</p>
+            <p style={{ margin: "10px 0 0", color: C.dim, fontSize: 12.5 }}>{tr("Ces chiffres rendent le jeu crédible ; ce n'est pas une prévision officielle.")}</p>
           </div>
         )}
       </div>
 
-      <Btn kind="primary" onClick={onGo} style={{ fontSize: 16, padding: "13px 22px" }}><Icon n="player-play" size={17} style={{ verticalAlign: -3, marginRight: 7 }} />Entrer en fonction</Btn>
+      <Btn kind="primary" onClick={onGo} style={{ fontSize: 16, padding: "13px 22px" }}><Icon n="player-play" size={17} style={{ verticalAlign: -3, marginRight: 7 }} />{tr("Entrer en fonction")}</Btn>
     </div>
   );
 }
@@ -2433,12 +2474,12 @@ function MarketStrip({ taux, marche = MARCHE0, dette }) {
   const tcol = marche > 5.5 ? C.coral : marche > 4.3 ? C.gold : C.mint;
   return (
     <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: C.card, border: `1px solid ${al(tcol, "44")}`, borderRadius: 10, padding: "7px 12px" }}>
-      <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.dim, fontSize: 11.5, fontWeight: 500 }}><Icon n="building-bank" size={14} color={tcol} /> Marchés financiers</span>
-      <span style={{ fontSize: 12, color: C.sub }} title="Taux auquel l'État emprunte aujourd'hui (OAT 10 ans)">Nouveaux emprunts <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(marche, 1)} %</b></span>
+      <span style={{ display: "flex", alignItems: "center", gap: 5, color: C.dim, fontSize: 11.5, fontWeight: 500 }}><Icon n="building-bank" size={14} color={tcol} /> {tr("Marchés financiers")}</span>
+      <span style={{ fontSize: 12, color: C.sub }} title={tr("Taux auquel l'État emprunte aujourd'hui (OAT 10 ans)")}>{tr("Nouveaux emprunts")} <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(marche, 1)} %</b></span>
       <span style={{ color: C.line }}>·</span>
-      <span style={{ fontSize: 12, color: C.sub }} title="Taux moyen payé sur toute la dette (vieux emprunts compris)">Taux moyen de la dette <b style={{ color: C.ink, fontFamily: "monospace" }}>{fmt(taux, 2)} %</b></span>
+      <span style={{ fontSize: 12, color: C.sub }} title={tr("Taux moyen payé sur toute la dette (vieux emprunts compris)")}>{tr("Taux moyen de la dette")} <b style={{ color: C.ink, fontFamily: "monospace" }}>{fmt(taux, 2)} %</b></span>
       <span style={{ color: C.line }}>·</span>
-      <span style={{ fontSize: 12, color: C.sub }}>Charge de la dette <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(chargeMd)} Md€/an</b></span>
+      <span style={{ fontSize: 12, color: C.sub }}>{tr("Charge de la dette")} <b style={{ color: tcol, fontFamily: "monospace" }}>{fmt(chargeMd)} {tr("Md€/an")}</b></span>
     </div>
   );
 }
@@ -2540,7 +2581,7 @@ function spendingBreakdown({ levels = {}, S, I = 0, k = 1 }) {
   const sumF = fam.reduce((a, f) => a + f.md, 0);
   if (sumF > S - I) { const sc = Math.max(0, S - I) / Math.max(sumF, 1e-9); fam.forEach((f) => { f.md *= sc; }); }   // jamais plus que le total
   const autres = Math.max(0, S - I - fam.reduce((a, f) => a + f.md, 0));
-  return allocSquares([...fam, { id: "interets", label: "Intérêts de la dette", md: I }, { id: "autres", label: "Autres dépenses (non modifiables dans le jeu)", md: autres }], "autres");
+  return allocSquares([...fam, { id: "interets", label: tr("Intérêts de la dette"), md: I }, { id: "autres", label: tr("Autres dépenses (non modifiables dans le jeu)"), md: autres }], "autres");
 }
 // Répartition des sources de l'argent dépensé : recettes par famille d'impôts + emprunt. 1 000 carrés = les dépenses
 // (ou les recettes en cas d'excédent). Mêmes totaux que le graphique « Recettes vs Dépenses » : dépenses = recettes − solde.
@@ -2551,7 +2592,7 @@ function revenueBreakdown({ levels = {}, S, R, k = 1 }) {
   const sumF = fam.reduce((a, f) => a + f.md, 0);
   if (sumF > R) { const sc = R / Math.max(sumF, 1e-9); fam.forEach((f) => { f.md *= sc; }); }
   const autres = Math.max(0, R - fam.reduce((a, f) => a + f.md, 0));
-  return allocSquares([...fam, { id: "autresrec", label: "Autres recettes (non modifiables dans le jeu)", md: autres }, { id: "emprunt", label: "Emprunt (le déficit)", md: Math.max(0, S - R) }], "autresrec");
+  return allocSquares([...fam, { id: "autresrec", label: tr("Autres recettes (non modifiables dans le jeu)"), md: autres }, { id: "emprunt", label: tr("Emprunt (le déficit)"), md: Math.max(0, S - R) }], "autresrec");
 }
 function PosteWaffle({ rows, focus, label, view = "postes", onFocus }) {
   const mobile = useIsMobile();
@@ -2561,7 +2602,7 @@ function PosteWaffle({ rows, focus, label, view = "postes", onFocus }) {
     return treemap(items, 0, 0, W, H).map((b) => ({ ...b, cols: bestCols(b.sq, b.w, b.h * 0.9) }));
   }, [rows, H]);
   return (
-    <div role="img" aria-label={label || "Graphique en blocs : à quoi servent 1 000 € de dépenses de l'État"} data-waffle="1" data-view={view} data-focus={focus || ""}
+    <div role="img" aria-label={label || tr("Graphique en blocs : à quoi servent 1 000 € de dépenses de l'État")} data-waffle="1" data-view={view} data-focus={focus || ""}
       style={{ position: "relative", width: "100%", maxWidth: 680, aspectRatio: `${W} / ${H}` }}>
       {blocks.map((b) => {
         const base = posteColor(b.id), dim = focus && focus !== b.id;
@@ -2589,7 +2630,7 @@ function PosteWaffle({ rows, focus, label, view = "postes", onFocus }) {
 // En-tête : le poste isolé, ou, par défaut, le message d'accueil de la vue (« idle »)
 function PosteHeadline({ rows, focus, idle }) {
   const r = rows.find((x) => x.id === focus);
-  const d = r ? { n: r.sq, col: posteColor(r.id), text: <>{r.label} <span style={{ color: C.dim, fontSize: 12.5 }}>· {Math.round(r.md)} Md€ · {r.pct} % du total</span></> } : (idle || { n: 1000, col: C.ink, text: "dépensés par l'État : touchez un poste pour l'isoler" });
+  const d = r ? { n: r.sq, col: posteColor(r.id), text: <>{r.label} <span style={{ color: C.dim, fontSize: 12.5 }}>· {Math.round(r.md)} {tr("Md€ ·")} {r.pct} {tr("% du total")}</span></> } : (idle || { n: 1000, col: C.ink, text: tr("dépensés par l'État : touchez un poste pour l'isoler") });
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", margin: "2px 0 10px" }}>
       <span data-waffle-big="1" style={{ fontFamily: "monospace", fontSize: 30, fontWeight: 700, color: d.col, lineHeight: 1 }}>{d.n} €</span>
@@ -2608,7 +2649,7 @@ function PosteLegend({ rows, focus, onFocus }) {
             <i style={{ width: 14, height: 14, borderRadius: 3, background: posteColor(r.id), flexShrink: 0 }} />
             <span style={{ flex: 1, minWidth: 0, lineHeight: 1.25 }}>{r.label}</span>
             <b style={{ fontFamily: "monospace", fontSize: 13 }}>{r.sq} €</b>
-            <span style={{ color: C.dim, fontSize: 11.5, minWidth: 58, textAlign: "right" }}>{Math.round(r.md)} Md€</span>
+            <span style={{ color: C.dim, fontSize: 11.5, minWidth: 58, textAlign: "right" }}>{Math.round(r.md)} {tr("Md€")}</span>
           </button>
         );
       })}
@@ -2622,10 +2663,10 @@ function PosteNotes({ rows }) {
   const it = rows.find((r) => r.id === "interets"), au = rows.find((r) => r.id === "autres");
   return (
     <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.6, marginTop: 10, display: "grid", gap: 4 }}>
-      <div>Les trois plus gros postes ({top.map((r) => shortOf(r.id)).join(", ")}) représentent <b style={{ color: C.ink }}>{topSq} €</b> sur 1 000 €.</div>
-      {it && it.sq > 0 && <div>Les intérêts de la dette absorbent <b style={{ color: C.ink }}>{it.sq} €</b> : de l'argent qui ne finance aucun service public.</div>}
-      {au && au.sq > 0 && <div>Les <b style={{ color: C.ink }}>{au.sq} €</b> restants regroupent des dépenses que le jeu ne vous laisse pas modifier.</div>}
-      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>Comment lire :</b> chaque petit carré vaut 1 € sur 1 000 € dépensés. Chaque bloc regroupe un poste : plus il est grand, plus il pèse. Touchez un bloc pour l'isoler.</div>
+      <div>{tr("Les trois plus gros postes (")}{top.map((r) => shortOf(r.id)).join(", ")}{tr(") représentent")} <b style={{ color: C.ink }}>{topSq} €</b> {tr("sur 1 000 €.")}</div>
+      {it && it.sq > 0 && <div>{tr("Les intérêts de la dette absorbent")} <b style={{ color: C.ink }}>{it.sq} €</b> {tr(": de l'argent qui ne finance aucun service public.")}</div>}
+      {au && au.sq > 0 && <div>{tr("Les")} <b style={{ color: C.ink }}>{au.sq} €</b> {tr("restants regroupent des dépenses que le jeu ne vous laisse pas modifier.")}</div>}
+      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>{tr("Comment lire :")}</b> {tr("chaque petit carré vaut 1 € sur 1 000 € dépensés. Chaque bloc regroupe un poste : plus il est grand, plus il pèse. Touchez un bloc pour l'isoler.")}</div>
     </div>
   );
 }
@@ -2637,12 +2678,12 @@ function SourceNotes({ rows, model, levels, before, d }) {
   const tva = tvaToCover(model.deficitMd, levels);
   return (
     <div style={{ fontSize: 12.5, color: C.sub, lineHeight: 1.6, marginTop: 10, display: "grid", gap: 4 }}>
-      {top.length > 0 && <div>Les trois premières sources ({top.map((r) => shortOf(r.id)).join(", ")}) fournissent <b style={{ color: C.ink }}>{topSq} €</b> sur 1 000 €.</div>}
-      {emp && emp.sq > 0 && <div><b style={{ color: C.ink }}>{emp.sq} €</b> viennent de l'emprunt : c'est le déficit. {Math.abs(d) >= 1 && <>L'an dernier : <b style={{ color: C.ink }}>{before} €</b> (<b style={{ color: d < 0 ? C.mint : C.coral }}>{d > 0 ? "+" : "−"}{Math.abs(d)} €</b> cette année).</>}</div>}
-      {tva && <div>Combler ce déficit avec la seule TVA demanderait environ <b style={{ color: C.ink }}>{tva.n} crans</b> : la TVA passerait de {tva.a} à {tva.b} Md€ (+{tva.pct} %).</div>}
-      {model.surplusMd >= 1 && <div>Les recettes dépassent les dépenses de <b style={{ color: C.ink }}>{Math.round(model.surplusMd)} Md€</b> : c'est un excédent.</div>}
-      {au && au.sq > 0 && <div>Les <b style={{ color: C.ink }}>{au.sq} €</b> d'« autres recettes » regroupent des recettes que le jeu ne vous laisse pas modifier.</div>}
-      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>Comment lire :</b> chaque petit carré vaut 1 € sur 1 000 € dépensés. Chaque bloc regroupe un poste : plus il est grand, plus il pèse. Touchez un bloc pour l'isoler.</div>
+      {top.length > 0 && <div>{tr("Les trois premières sources (")}{top.map((r) => shortOf(r.id)).join(", ")}{tr(") fournissent")} <b style={{ color: C.ink }}>{topSq} €</b> {tr("sur 1 000 €.")}</div>}
+      {emp && emp.sq > 0 && <div><b style={{ color: C.ink }}>{emp.sq} €</b> {tr("viennent de l'emprunt : c'est le déficit.")} {Math.abs(d) >= 1 && <>{tr("L'an dernier :")} <b style={{ color: C.ink }}>{before} €</b> (<b style={{ color: d < 0 ? C.mint : C.coral }}>{d > 0 ? "+" : "−"}{Math.abs(d)} €</b> {tr("cette année).")}</>}</div>}
+      {tva && <div>{tr("Combler ce déficit avec la seule TVA demanderait environ")} <b style={{ color: C.ink }}>{tva.n} {tr("crans")}</b> {tr(": la TVA passerait de")} {tva.a} {tr("à")} {tva.b} {tr("Md€ (+")}{tva.pct} %).</div>}
+      {model.surplusMd >= 1 && <div>{tr("Les recettes dépassent les dépenses de")} <b style={{ color: C.ink }}>{Math.round(model.surplusMd)} {tr("Md€")}</b> {tr(": c'est un excédent.")}</div>}
+      {au && au.sq > 0 && <div>{tr("Les")} <b style={{ color: C.ink }}>{au.sq} €</b> {tr("d'« autres recettes » regroupent des recettes que le jeu ne vous laisse pas modifier.")}</div>}
+      <div style={{ color: C.dim, fontSize: 11.5 }}><b style={{ color: C.sub }}>{tr("Comment lire :")}</b> {tr("chaque petit carré vaut 1 € sur 1 000 € dépensés. Chaque bloc regroupe un poste : plus il est grand, plus il pèse. Touchez un bloc pour l'isoler.")}</div>
     </div>
   );
 }
@@ -2652,8 +2693,8 @@ function BudgetSquares({ history, levels, year, view: initialView = "postes", fo
   const [view, setView] = useState(initialView);
   const [focus, setFocus] = useState(focus0);
   const last = history && history[history.length - 1];
-  const back = <div style={{ marginTop: 14 }}><Btn kind="primary" onClick={onClose}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Revenir au bilan</Btn></div>;
-  if (!last || !(last.depenses > 0)) return <div data-budget-squares="1"><ScreenTitle icon="grid-dots" title="Le budget en 1 000 €" sub="Aucune année terminée pour l'instant." />{back}</div>;
+  const back = <div style={{ marginTop: 14 }}><Btn kind="primary" onClick={onClose}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Revenir au bilan")}</Btn></div>;
+  if (!last || !(last.depenses > 0)) return <div data-budget-squares="1"><ScreenTitle icon="grid-dots" title={tr("Le budget en 1 000 €")} sub={tr("Aucune année terminée pour l'instant.")} />{back}</div>;
   const k = last.pib / (PIB * ECH);
   const model = waffleModel({ S: last.depenses, R: last.recettes, I: (last.charge || 0) * k });
   const spendRows = spendingBreakdown({ levels, S: last.depenses, I: (last.charge || 0) * k, k });
@@ -2663,14 +2704,14 @@ function BudgetSquares({ history, levels, year, view: initialView = "postes", fo
   const before = prev && prev.depenses > 0 ? shareBorrowed(prev.depenses, prev.recettes) : shareBorrowed(S0, R0);
   const d = shareBorrowed(last.depenses, last.recettes) - before;
   const emp = srcRows.find((r) => r.id === "emprunt");
-  const idleSrc = emp.sq > 0 ? { n: emp.sq, col: C.coral, text: "empruntés sur 1 000 € dépensés : touchez une source pour l'isoler" }
-    : model.surplusMd >= 1 ? { n: 0, col: C.mint, text: "empruntés : les recettes dépassent les dépenses (excédent)" }
-    : { n: 0, col: C.mint, text: "empruntés : le budget est à l'équilibre" };
-  const tabs = [["postes", "Où va l'argent"], ["sources", "D'où vient l'argent"]];
+  const idleSrc = emp.sq > 0 ? { n: emp.sq, col: C.coral, text: tr("empruntés sur 1 000 € dépensés : touchez une source pour l'isoler") }
+    : model.surplusMd >= 1 ? { n: 0, col: C.mint, text: tr("empruntés : les recettes dépassent les dépenses (excédent)") }
+    : { n: 0, col: C.mint, text: tr("empruntés : le budget est à l'équilibre") };
+  const tabs = [["postes", tr("Où va l'argent")], ["sources", tr("D'où vient l'argent")]];
   return (
     <div data-budget-squares="1" data-view={view}>
-      <ScreenTitle icon="grid-dots" title="Le budget en 1 000 €" sub={`Bilan ${BASE_YEAR + year} : imaginez que l'État ait dépensé 1 000 € cette année. ${view === "postes" ? "À quoi cet argent a-t-il servi ?" : "D'où venait l'argent ?"}`} />
-      <div role="group" aria-label="Choisir la représentation" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+      <ScreenTitle icon="grid-dots" title={tr("Le budget en 1 000 €")} sub={tr("Bilan {a} : imaginez que l'État ait dépensé 1 000 € cette année. {b}", { a: BASE_YEAR + year, b: view === "postes" ? tr("À quoi cet argent a-t-il servi ?") : tr("D'où venait l'argent ?") })} />
+      <div role="group" aria-label={tr("Choisir la représentation")} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
         {tabs.map(([id, lab]) => (
           <button key={id} onClick={() => { setView(id); setFocus(null); }} aria-pressed={view === id} data-tab={id}
             style={{ flex: "1 1 150px", minHeight: 42, padding: "9px 12px", borderRadius: 9, cursor: "pointer", fontSize: 13.5, fontWeight: view === id ? 700 : 500, border: `2px solid ${view === id ? C.gold : C.line}`, background: view === id ? al(C.gold, "22") : "transparent", color: view === id ? C.gold : C.dim, touchAction: "manipulation" }}>{lab}</button>
@@ -2687,7 +2728,7 @@ function BudgetSquares({ history, levels, year, view: initialView = "postes", fo
         ) : (
           <>
             <PosteHeadline rows={srcRows} focus={focus} idle={idleSrc} />
-            <PosteWaffle rows={srcRows} focus={focus} onFocus={setFocus} view="sources" label="Graphique en blocs : d'où vient l'argent que dépense l'État (impôts, cotisations, emprunt)" />
+            <PosteWaffle rows={srcRows} focus={focus} onFocus={setFocus} view="sources" label={tr("Graphique en blocs : d'où vient l'argent que dépense l'État (impôts, cotisations, emprunt)")} />
             <PosteLegend rows={srcRows} focus={focus} onFocus={setFocus} />
             <SourceNotes rows={srcRows} model={model} levels={levels} before={before} d={d} />
           </>
@@ -2707,7 +2748,7 @@ function BudgetGuide({ steps, tab, setTab, note, onValidate }) {
   return (
     <div style={{ background: C.card2, border: `2px solid ${C.gold}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12, boxShadow: `0 0 0 4px ${al(C.gold, "1A")}` }}>
       <button onClick={() => setOpen(!open)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: 0, minHeight: 32, touchAction: "manipulation" }}>
-        <span style={{ color: C.gold, fontSize: 18, fontWeight: 600, fontFamily: "Fraunces,serif" }}>🧭 Votre mission, pas à pas</span>
+        <span style={{ color: C.gold, fontSize: 18, fontWeight: 600, fontFamily: "Fraunces,serif" }}>{tr("🧭 Votre mission, pas à pas")}</span>
         <span style={{ color: C.dim, fontSize: 12 }}>{done}/{steps.length} {open ? "▴" : "▾"}</span>
       </button>
       <Collapse open={open}>
@@ -2715,13 +2756,13 @@ function BudgetGuide({ steps, tab, setTab, note, onValidate }) {
           {note && <div style={{ color: C.sub, fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>{note}</div>}
           {/* L'étape en cours, seule et en grand : c'est la seule chose à faire maintenant */}
           <div style={{ marginTop: 12, background: al(C.gold, "1A"), border: `1px solid ${C.gold}`, borderRadius: 12, padding: "14px 16px" }}>
-            <div style={{ color: C.gold, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em" }}>Étape {cur + 1} sur {steps.length}</div>
+            <div style={{ color: C.gold, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em" }}>{tr("Étape")} {cur + 1} {tr("sur")} {steps.length}</div>
             <div style={{ color: C.ink, fontSize: 21, fontWeight: 700, margin: "4px 0 4px", fontFamily: "Fraunces,serif" }}>{st.title}</div>
             <div style={{ color: C.sub, fontSize: 14.5, lineHeight: 1.55 }}>{st.sub}</div>
             {st.go && st.go.tab !== tab && (
               <button onClick={() => setTab(st.go.tab)} style={{ marginTop: 10, background: C.goldFill, color: "var(--on-accent)", border: "none", borderRadius: 9, padding: "10px 16px", fontSize: 14, fontWeight: 700, cursor: "pointer", minHeight: 42, touchAction: "manipulation" }}>{st.go.label} →</button>
             )}
-            {st.go && st.go.tab === tab && <div style={{ marginTop: 8, color: C.gold, fontSize: 13.5, fontWeight: 600 }}>👇 Les leviers sont juste en dessous.</div>}
+            {st.go && st.go.tab === tab && <div style={{ marginTop: 8, color: C.gold, fontSize: 13.5, fontWeight: 600 }}>{tr("👇 Les leviers sont juste en dessous.")}</div>}
             {!st.go && onValidate && (
               <button onClick={onValidate} className="qhint" style={{ marginTop: 10, background: C.goldFill, color: "var(--on-accent)", border: "none", borderRadius: 9, padding: "10px 16px", fontSize: 14, fontWeight: 700, cursor: "pointer", minHeight: 42, touchAction: "manipulation" }}>{st.cta} →</button>
             )}
@@ -2747,7 +2788,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const [visited, setVisited] = useState({ rec: true, dep: false }); // "rec" affiché par défaut
   const [confirm, setConfirm] = useState(false);
   const setTab = (id) => { setTabState(id); setVisited((v) => ({ ...v, [id]: true })); setConfirm(false); };
-  const nonVus = [["rec", "Recettes"], ["dep", "Dépenses"]].filter(([id]) => !visited[id]);
+  const nonVus = [["rec", tr("Recettes")], ["dep", tr("Dépenses")]].filter(([id]) => !visited[id]);
   const preview = useMemo(() => applyBudgetYear(indPrev, levels, baseLevels, year, doctrine), [indPrev, levels, baseLevels, year, doctrine]);
   const balance = preview.balanceMd;
   const setLevel = (id, v) => { const lv = LEVERS.find((l) => l.id === id); setLevels({ ...levels, [id]: clamp(v, lv?.lmin ?? LEVEL_MIN, LEVEL_MAX) }); };
@@ -2777,9 +2818,9 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const anyRec = changedIn("rec"), anyDep = changedIn("dep");
   const readyToValidate = guided && anyRec && anyDep; // les deux étapes sont faites : le bouton Valider pulse
   const guideSteps = [
-    { id: "rec", short: "Vos recettes", title: "Réglez vos recettes (impôts)", sub: "Onglet Recettes : touchez + pour augmenter un impôt, − pour le baisser. Modifiez-en autant que vous voulez : chaque impôt relevé réduit le déficit, mais pèse sur quelqu'un.", done: anyRec, go: { tab: "rec", label: "Aller aux recettes" } },
-    { id: "dep", short: "Vos dépenses", title: "Réglez vos dépenses", sub: "Onglet Dépenses : touchez − pour économiser, + pour dépenser davantage. Ajustez autant de postes que vous voulez : chaque choix a un coût social.", done: anyDep, go: { tab: "dep", label: "Aller aux dépenses" } },
-    { id: "go", short: "Valider", cta: conseil ? "Proposer ce budget" : "Valider le budget", title: "Validez votre budget", sub: `Vous pouvez encore modifier recettes et dépenses. Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « ${conseil ? "Proposer ce budget" : "Valider le budget"} ».`, done: false },
+    { id: "rec", short: tr("Vos recettes"), title: tr("Réglez vos recettes (impôts)"), sub: tr("Onglet Recettes : touchez + pour augmenter un impôt, − pour le baisser. Modifiez-en autant que vous voulez : chaque impôt relevé réduit le déficit, mais pèse sur quelqu'un."), done: anyRec, go: { tab: "rec", label: tr("Aller aux recettes") } },
+    { id: "dep", short: tr("Vos dépenses"), title: tr("Réglez vos dépenses"), sub: tr("Onglet Dépenses : touchez − pour économiser, + pour dépenser davantage. Ajustez autant de postes que vous voulez : chaque choix a un coût social."), done: anyDep, go: { tab: "dep", label: tr("Aller aux dépenses") } },
+    { id: "go", short: tr("Valider"), cta: conseil ? tr("Proposer ce budget") : tr("Valider le budget"), title: tr("Validez votre budget"), sub: tr("Vous pouvez encore modifier recettes et dépenses. Suivez le résultat dans la barre « Solde prévu » ; quand il vous convient, appuyez sur « {a} ».", { a: conseil ? tr("Proposer ce budget") : tr("Valider le budget") }), done: false },
   ];
   // Projection : si on garde ce solde total jusqu'à la fin du mandat, où finit la dette ?
   const detteProjetee = useMemo(() => {
@@ -2792,34 +2833,34 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
   const alerteDette = detteProjetee > 140;
   return (
     <div>
-      <ScreenTitle icon="wallet" title={conseil ? "Le dernier budget du président" : `Budget ${BASE_YEAR + year}`} sub={conseil ? "Année conseil (ne compte pas) — aidez le président sortant avec quelques leviers clés." : `Année ${year}/${YEARS} — ajustez par crans. Les taux se conservent d'une année sur l'autre.`} />
+      <ScreenTitle icon="wallet" title={conseil ? tr("Le dernier budget du président") : tr("Budget {a}", { a: BASE_YEAR + year })} sub={conseil ? tr("Année conseil (ne compte pas) — aidez le président sortant avec quelques leviers clés.") : tr("Année {a}/{b} — ajustez par crans. Les taux se conservent d'une année sur l'autre.", { a: year, b: YEARS })} />
       {guided && <BudgetGuide steps={guideSteps} tab={tab} setTab={setTab} onValidate={handleValider} note={conseil
-        ? <>Le budget part avec <b style={{ color: C.coral }}>{fmt(-START.solde, 1)} % de déficit</b>. Essayez de le réduire — mais attention, tout choix a un coût social.</>
-        : "Les leviers sont tous ici, et un cadre jaune explique l'effet de chaque décision. Dès la 2ᵉ année, vous jouez sans filet !"} />}
+        ? <>{tr("Le budget part avec")} <b style={{ color: C.coral }}>{fmt(-START.solde, 1)} {tr("% de déficit")}</b>{tr(". Essayez de le réduire — mais attention, tout choix a un coût social.")}</>
+        : tr("Les leviers sont tous ici, et un cadre jaune explique l'effet de chaque décision. Dès la 2ᵉ année, vous jouez sans filet !")} />}
       {/* Barre de résultat en direct : reste visible pendant le défilement */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, marginBottom: 10, padding: "8px 10px", background: C.card2, border: `1px solid ${C.line}`, borderRadius: 10, boxShadow: "0 6px 16px rgba(0,0,0,.28)" }}>
         {guided && (() => { const i = Math.max(0, guideSteps.findIndex((g) => !g.done)); return (
-          <div style={{ marginBottom: 6, paddingBottom: 6, borderBottom: `1px solid ${C.line}`, color: C.gold, fontSize: 13.5, fontWeight: 700 }}>👉 Étape {i + 1}/{guideSteps.length} : {guideSteps[i].title}</div>
+          <div style={{ marginBottom: 6, paddingBottom: 6, borderBottom: `1px solid ${C.line}`, color: C.gold, fontSize: 13.5, fontWeight: 700 }}>{tr("👉 Étape")} {i + 1}/{guideSteps.length} : {guideSteps[i].title}</div>
         ); })()}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 160px", minWidth: 0 }}>
-            <div style={{ fontSize: 10, color: C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>Solde prévu cette année</div>
+            <div style={{ fontSize: 10, color: C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>{tr("Solde prévu cette année")}</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
               <span style={{ fontFamily: "monospace", fontSize: 17, fontWeight: 700, color: dSolde > 0.05 ? C.mint : dSolde < -0.05 ? C.coral : C.ink }}>{fmt(soldeTotal, 1)} %</span>
-              <span style={{ fontSize: 11, color: C.dim }}>{Math.abs(dSolde) < 0.05 ? `sans changement : ${fmt(solde0, 1)} %` : <><b style={{ color: dSolde > 0 ? C.mint : C.coral }}>{dSolde > 0 ? "+" : ""}{fmt(dSolde, 1)} pt</b> par rapport à « sans changement » ({fmt(solde0, 1)} %)</>}</span>
+              <span style={{ fontSize: 11, color: C.dim }}>{Math.abs(dSolde) < 0.05 ? tr("sans changement : {a} %", { a: fmt(solde0, 1) }) : <><b style={{ color: dSolde > 0 ? C.mint : C.coral }}>{dSolde > 0 ? "+" : ""}{fmt(dSolde, 1)} {tr("pt")}</b> {tr("par rapport à « sans changement » (")}{fmt(solde0, 1)} %)</>}</span>
             </div>
           </div>
-          <Btn kind="primary" onClick={handleValider} className={readyToValidate ? "qhint" : ""} style={{ padding: "8px 14px", fontSize: 13, minHeight: 40 }}>{confirm && nonVus.length ? "Valider quand même" : conseil ? "Proposer" : "Valider"} <span aria-hidden="true">→</span></Btn>
+          <Btn kind="primary" onClick={handleValider} className={readyToValidate ? "qhint" : ""} style={{ padding: "8px 14px", fontSize: 13, minHeight: 40 }}>{confirm && nonVus.length ? tr("Valider quand même") : conseil ? tr("Proposer") : tr("Valider")} <span aria-hidden="true">→</span></Btn>
         </div>
         {confirm && nonVus.length > 0 && (
           <div style={{ marginTop: 8, background: C.amberBg, border: `1px solid ${al("var(--c-ethique)", "66")}`, borderRadius: 8, padding: "7px 10px", color: "var(--c-ethique)", fontSize: 12, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span style={{ flex: 1, minWidth: 150 }}>Vous n'avez pas ouvert l'onglet <b>« {nonVus[0][1]} »</b>.</span>
-            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "var(--amber-fill)", color: C.onAccent, border: "none", borderRadius: 7, padding: "7px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer", minHeight: 36 }}>Voir</button>
+            <span style={{ flex: 1, minWidth: 150 }}>{tr("Vous n'avez pas ouvert l'onglet")} <b>« {nonVus[0][1]} »</b>.</span>
+            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "var(--amber-fill)", color: C.onAccent, border: "none", borderRadius: 7, padding: "7px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer", minHeight: 36 }}>{tr("Voir")}</button>
           </div>
         )}
       </div>
       <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-        {[["rec", "Recettes", C.mint, 1, anyRec], ["dep", "Dépenses", C.coral, 2, anyDep]].map(([id, lab, col, num, stepDone]) => {
+        {[["rec", tr("Recettes"), C.mint, 1, anyRec], ["dep", tr("Dépenses"), C.coral, 2, anyDep]].map(([id, lab, col, num, stepDone]) => {
           const active = tab === id;
           // Le pas en cours du guide (recettes d'abord, puis dépenses) pulse sur l'onglet concerné
           const isCurrentStep = guided && !stepDone && (id === "rec" || anyRec);
@@ -2829,15 +2870,15 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
               <span aria-hidden="true" style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)", width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, background: stepDone ? C.mintFill : C.goldFill, color: "var(--on-accent)", border: `2px solid ${C.bg}` }}>{stepDone ? "✓" : num}</span>
             )}
             {active && <span style={{ marginRight: 5 }}>▾</span>}{lab} <span style={{ opacity: .7, fontSize: 11 }}>({LEVERS.filter((l) => l.cat === id && inFilter(l)).length})</span>
-            {!visited[id] && <span style={{ marginLeft: 6, fontSize: 10.5, color: "var(--c-ethique)", fontWeight: 600 }}>● à voir</span>}
+            {!visited[id] && <span style={{ marginLeft: 6, fontSize: 10.5, color: "var(--c-ethique)", fontWeight: 600 }}>{tr("● à voir")}</span>}
           </button>
           ); })}
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", fontSize: 11.5, color: C.dim, margin: "0 0 8px" }}>
-        <span>Code couleur des effets :</span>
-        <span style={{ color: C.mint, fontWeight: 600 }}>■ vert = améliore la situation du pays</span>
-        <span style={{ color: C.coral, fontWeight: 600 }}>■ rouge = la dégrade</span>
-        <span>(la flèche indique si l'indicateur monte ↑ ou baisse ↓)</span>
+        <span>{tr("Code couleur des effets :")}</span>
+        <span style={{ color: C.mint, fontWeight: 600 }}>{tr("■ vert = améliore la situation du pays")}</span>
+        <span style={{ color: C.coral, fontWeight: 600 }}>{tr("■ rouge = la dégrade")}</span>
+        <span>{tr("(la flèche indique si l'indicateur monte ↑ ou baisse ↓)")}</span>
       </div>
       <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "2px 12px" }}>
         {visibleList.map((l, idx) => (
@@ -2845,49 +2886,49 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
         ))}
         {collapse && (
           <button onClick={() => setExpanded(true)} style={{ width: "100%", background: C.card, border: `1px dashed ${al(C.gold, "88")}`, borderRadius: 10, padding: "12px 14px", color: C.gold, fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, minHeight: 44, touchAction: "manipulation" }}>
-            <Icon n="chevron-down" size={16} /> Voir les {list.length - visibleList.length} leviers restants
+            <Icon n="chevron-down" size={16} /> {tr("Voir les")} {list.length - visibleList.length} {tr("leviers restants")}
           </button>
         )}
       </div>
       <div style={{ marginTop: 12, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 12, padding: "12px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
           <div>
-            <div style={{ fontSize: 11, color: C.dim, textTransform: "uppercase" }}>Effet net sur le solde (cumulé)</div>
-            <div style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 600, color: balance >= 0 ? C.mint : C.coral }}>{balance >= 0 ? "+" : ""}{fmt(balance * ECH)} Md€</div>
-            {balance !== 0 && <div style={{ fontSize: 10.5, color: C.dim }}>soit {eqHab(balance * ECH)} et par an</div>}
+            <div style={{ fontSize: 11, color: C.dim, textTransform: "uppercase" }}>{tr("Effet net sur le solde (cumulé)")}</div>
+            <div style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 600, color: balance >= 0 ? C.mint : C.coral }}>{balance >= 0 ? "+" : ""}{fmt(balance * ECH)} {tr("Md€")}</div>
+            {balance !== 0 && <div style={{ fontSize: 10.5, color: C.dim }}>{tr("soit")} {eqHab(balance * ECH)} {tr("et par an")}</div>}
           </div>
-          <Btn kind="primary" onClick={handleValider} className={readyToValidate ? "qhint" : ""}>{confirm && nonVus.length ? "Valider quand même" : conseil ? "Proposer ce budget" : "Valider le budget"} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+          <Btn kind="primary" onClick={handleValider} className={readyToValidate ? "qhint" : ""}>{confirm && nonVus.length ? tr("Valider quand même") : conseil ? tr("Proposer ce budget") : tr("Valider le budget")} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
         </div>
         {confirm && nonVus.length > 0 && (
           <div style={{ marginTop: 10, background: C.amberBg, border: `1px solid ${al("var(--c-ethique)", "66")}`, borderRadius: 9, padding: "9px 12px", color: "var(--c-ethique)", fontSize: 12.5, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <Icon n="eye-off" size={16} style={{ flexShrink: 0 }} />
-            <span style={{ flex: 1, minWidth: 180 }}>Vous n'avez pas ouvert l'onglet <b>« {nonVus[0][1]} »</b>. Jetez-y un œil avant de valider — c'est la moitié de votre budget !</span>
-            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "var(--amber-fill)", color: C.onAccent, border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Voir les {nonVus[0][1].toLowerCase()}</button>
+            <span style={{ flex: 1, minWidth: 180 }}>{tr("Vous n'avez pas ouvert l'onglet")} <b>« {nonVus[0][1]} »</b>{tr(". Jetez-y un œil avant de valider — c'est la moitié de votre budget !")}</span>
+            <button onClick={() => setTab(nonVus[0][0])} style={{ background: "var(--amber-fill)", color: C.onAccent, border: "none", borderRadius: 7, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{tr("Voir les")} {nonVus[0][1].toLowerCase()}</button>
           </div>
         )}
         {/* Aperçu complet des conséquences prévues */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 10 }}>
-          <PreviewChip label="Solde total" value={`${fmt(soldeTotal, 1)} %`} tone={soldeTotal < -6 ? "bad" : soldeTotal > -1 ? "good" : "mid"} />
-          <PreviewChip label={`Dette en ${BASE_YEAR + YEARS}`} value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
-          <PreviewChip label="Croissance" value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
-          <PreviewChip label="Chômage" value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
+          <PreviewChip label={tr("Solde total")} value={`${fmt(soldeTotal, 1)} %`} tone={soldeTotal < -6 ? "bad" : soldeTotal > -1 ? "good" : "mid"} />
+          <PreviewChip label={tr("Dette en {a}", { a: BASE_YEAR + YEARS })} value={`${fmt(detteProjetee, 0)} %`} tone={detteProjetee > 130 ? "bad" : detteProjetee < indPrev.dette ? "good" : "mid"} />
+          <PreviewChip label={tr("Croissance")} value={`${preview.ind.croissance > 0 ? "+" : ""}${fmt(preview.ind.croissance, 1)} %`} delta={preview.ind.croissance - startYear(indPrev, year, doctrine).croissance} />
+          <PreviewChip label={tr("Chômage")} value={`${fmt(preview.ind.chomage, 1)} %`} delta={-(preview.ind.chomage - indPrev.chomage)} />
         </div>
         <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, textAlign: "center", background: C.inset, border: `1px solid ${C.line}`, borderRadius: 8, padding: "7px 10px" }}>
-          Solde primaire <b style={{ fontFamily: "monospace" }}>{fmt(soldePrimaire, 1)} %</b> − charge de la dette <b style={{ fontFamily: "monospace", color: C.coral }}>{fmt(chargePct, 1)} %</b> (≈ {fmt(chargeMd)} Md€ ; taux moyen {fmt(tauxPrev, 2)} %, nouveaux emprunts à {fmt(marcheNext, 1)} %) = solde total <b style={{ fontFamily: "monospace", color: soldeTotal < -3 ? C.coral : C.gold }}>{fmt(soldeTotal, 1)} %</b>
+          {tr("Solde primaire")} <b style={{ fontFamily: "monospace" }}>{fmt(soldePrimaire, 1)} %</b> {tr("− charge de la dette")} <b style={{ fontFamily: "monospace", color: C.coral }}>{fmt(chargePct, 1)} %</b> (≈ {fmt(chargeMd)} {tr("Md€ ; taux moyen")} {fmt(tauxPrev, 2)} {tr("%, nouveaux emprunts à")} {fmt(marcheNext, 1)} {tr("%) = solde total")} <b style={{ fontFamily: "monospace", color: soldeTotal < -3 ? C.coral : C.gold }}>{fmt(soldeTotal, 1)} %</b>
         </div>
         <div style={{ fontSize: 11, color: C.dim, marginTop: 6, textAlign: "center" }}>
-          Dette {fmt(indPrev.dette, 0)} % → <b style={{ color: detteMonte ? C.coral : C.mint }}>{fmt(detteProjetee, 0)} %</b> en fin de mandat si vous gardez ce cap.
+          {tr("Dette")} {fmt(indPrev.dette, 0)} % → <b style={{ color: detteMonte ? C.coral : C.mint }}>{fmt(detteProjetee, 0)} %</b> {tr("en fin de mandat si vous gardez ce cap.")}
         </div>
         {(alerteDeficit || alerteDette) && (
           <div style={{ marginTop: 10, background: C.coralBg, border: `1px solid ${al(C.coral, "66")}`, borderRadius: 9, padding: "9px 12px", color: C.coral, fontSize: 12.5, display: "flex", alignItems: "flex-start", gap: 8 }}>
             <Icon n="alert-triangle" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-            <span>{alerteDeficit && `Déficit très élevé (${fmt(soldeTotal, 1)} %). `}{alerteDette && `À ce rythme, la dette grimpe à ${fmt(detteProjetee, 0)} % du PIB — risque de crise budgétaire. `}Pensez à augmenter des recettes ou réduire des dépenses.</span>
+            <span>{alerteDeficit && tr("Déficit très élevé ({a} %). ", { a: fmt(soldeTotal, 1) })}{alerteDette && tr("À ce rythme, la dette grimpe à {a} % du PIB — risque de crise budgétaire. ", { a: fmt(detteProjetee, 0) })}{tr("Pensez à augmenter des recettes ou réduire des dépenses.")}</span>
           </div>
         )}
-        <div style={{ color: C.dim, fontSize: 11, marginTop: 8, textAlign: "center" }}>Prévision avant événements — les 3 cartes de l'année viendront tout bousculer.</div>
+        <div style={{ color: C.dim, fontSize: 11, marginTop: 8, textAlign: "center" }}>{tr("Prévision avant événements — les 3 cartes de l'année viendront tout bousculer.")}</div>
         {year > 1 && (
           <div style={{ color: C.dim, fontSize: 10.5, marginTop: 4, textAlign: "center", fontStyle: "italic", lineHeight: 1.4 }}>
-            Le solde repart de sa base chaque année : vos choix budgétaires durables sont conservés, mais les chocs ponctuels de l'an dernier ne se répètent pas. Seule la <b style={{ fontStyle: "normal", color: C.sub }}>dette</b> s'accumule.
+            {tr("Le solde repart de sa base chaque année : vos choix budgétaires durables sont conservés, mais les chocs ponctuels de l'an dernier ne se répètent pas. Seule la")} <b style={{ fontStyle: "normal", color: C.sub }}>{tr("dette")}</b> {tr("s'accumule.")}
           </div>
         )}
       </div>
@@ -2912,11 +2953,11 @@ function leverConseq(lever, d) {
   const s = Math.sign(d), out = [];
   // badUp : une hausse de cet indicateur est une mauvaise nouvelle
   const add = (val, nom, badUp) => { if (!val) return; const up = val * s > 0; out.push({ txt: `${nom} ${up ? "↑" : "↓"}`, good: badUp ? !up : up }); };
-  add(lever.cat === "rec" ? -1 : 1, "déficit", true);
+  add(lever.cat === "rec" ? -1 : 1, tr("déficit"), true);
   if (lever.cro) add(lever.cro, "croissance", false);
-  if (lever.cho) add(lever.cho, "chômage", true);
-  if (lever.fx) { add(lever.fx.popularite, "popularité", false); add(lever.fx.cohesion, "cohésion", false); add(lever.fx.environnement, "environnement", false); }
-  if (INEG[lever.id]) add(-INEG[lever.id], "égalité", false);
+  if (lever.cho) add(lever.cho, tr("chômage"), true);
+  if (lever.fx) { add(lever.fx.popularite, tr("popularité"), false); add(lever.fx.cohesion, tr("cohésion"), false); add(lever.fx.environnement, "environnement", false); }
+  if (INEG[lever.id]) add(-INEG[lever.id], tr("égalité"), false);
   return out.slice(0, 5);
 }
 // Explications concrètes, pensées pour des élèves de 16-17 ans : qui est touché, pourquoi.
@@ -2949,22 +2990,22 @@ function leverImpactSentence(lever, d) {
   const eur = Math.abs(d * lever.eurStep) * ECH;
   const hab = fmt(parHabitant(eur), 0);
   let budget;
-  if (rec) budget = up ? `L'État encaisse environ ${fmt(eur, 0)} milliards d'euros de plus par an (≈ ${hab} € par habitant) : le déficit diminue.` : `L'État perd environ ${fmt(eur, 0)} milliards d'euros par an (≈ ${hab} € par habitant) : le déficit augmente.`;
-  else budget = up ? `Cela coûte environ ${fmt(eur, 0)} milliards d'euros de plus par an (≈ ${hab} € par habitant) : le déficit augmente.` : `L'État économise environ ${fmt(eur, 0)} milliards d'euros par an (≈ ${hab} € par habitant) : le déficit diminue.`;
+  if (rec) budget = up ? tr("L'État encaisse environ {a} milliards d'euros de plus par an (≈ {b} € par habitant) : le déficit diminue.", { a: fmt(eur, 0), b: hab }) : tr("L'État perd environ {a} milliards d'euros par an (≈ {b} € par habitant) : le déficit augmente.", { a: fmt(eur, 0), b: hab });
+  else budget = up ? tr("Cela coûte environ {a} milliards d'euros de plus par an (≈ {b} € par habitant) : le déficit augmente.", { a: fmt(eur, 0), b: hab }) : tr("L'État économise environ {a} milliards d'euros par an (≈ {b} € par habitant) : le déficit diminue.", { a: fmt(eur, 0), b: hab });
   const plus = [], moins = [];
   // isGood(v) : l'effet "v" (dans le sens du réglage) est-il bon pour le pays ?
   const sort = (v, goodIfUp, txtUp, txtDown) => {
     if (!v) return; const effUp = v * s > 0;
     (effUp === goodIfUp ? plus : moins).push(effUp ? txtUp : txtDown);
   };
-  sort(lever.cro, true, "la croissance accélère", "la croissance ralentit");
-  sort(lever.cho, false, "le chômage augmente", "le chômage recule");
+  sort(lever.cro, true, tr("la croissance accélère"), tr("la croissance ralentit"));
+  sort(lever.cho, false, tr("le chômage augmente"), tr("le chômage recule"));
   if (lever.fx) {
-    sort(lever.fx.popularite, true, "votre popularité monte", "votre popularité baisse");
-    sort(lever.fx.cohesion, true, "la société est plus unie", "le mécontentement grandit");
-    sort(lever.fx.environnement, true, "l'environnement progresse", "l'environnement recule");
+    sort(lever.fx.popularite, true, tr("votre popularité monte"), tr("votre popularité baisse"));
+    sort(lever.fx.cohesion, true, tr("la société est plus unie"), tr("le mécontentement grandit"));
+    sort(lever.fx.environnement, true, tr("l'environnement progresse"), tr("l'environnement recule"));
   }
-  sort(INEG[lever.id], false, "les inégalités augmentent", "les inégalités diminuent");
+  sort(INEG[lever.id], false, tr("les inégalités augmentent"), tr("les inégalités diminuent"));
   const ex = EXPLAIN[lever.id];
   return { budget, concret: ex ? (up ? ex.up : ex.down) : "", plus: plus.slice(0, 3), moins: moins.slice(0, 3) };
 }
@@ -2989,19 +3030,19 @@ function Dashboard({ ind, prev, badge, sub, how, children, fold = false }) {
   const [folded, setFolded] = useState(fold);
   if (folded) return (
     <button onClick={() => setFolded(false)} style={{ width: "100%", marginBottom: 14, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 52px 10px 14px", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, color: C.sub, fontSize: 13.5, minHeight: 44, touchAction: "manipulation" }}>
-      <Icon n="dashboard" size={16} color={C.gold} /> Voir le tableau de bord (les chiffres de départ)
+      <Icon n="dashboard" size={16} color={C.gold} /> {tr("Voir le tableau de bord (les chiffres de départ)")}
       <span style={{ marginLeft: "auto", color: C.dim }}>▾</span>
     </button>
   );
   return (
     <div style={{ marginBottom: 18, background: C.card, border: `1px solid ${al(C.gold, "55")}`, borderRadius: 16, padding: "16px 16px 14px" }}>
       {badge}
-      <ScreenTitle icon="dashboard" title="Votre tableau de bord" sub={sub || "Les chiffres clés de la France : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure."} />
+      <ScreenTitle icon="dashboard" title={tr("Votre tableau de bord")} sub={sub || tr("Les chiffres clés de la France : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure.")} />
       <HUD ind={ind} prev={prev} />
       {children}
       <div style={{ marginTop: 10, fontSize: 11.5, color: C.dim, lineHeight: 1.5 }}>
-        <b style={{ color: C.sub }}>Comment lire :</b>{" "}
-        {how || <>pour la société et la vie politique, <b style={{ color: C.sub }}>plus la valeur est haute, mieux c'est</b>. Pour l'économie, une flèche <span style={{ color: C.mint, fontWeight: 600 }}>verte</span> signale une amélioration (dette, chômage et inflation sont meilleurs quand ils baissent).</>}
+        <b style={{ color: C.sub }}>{tr("Comment lire :")}</b>{" "}
+        {how || <>{tr("pour la société et la vie politique,")} <b style={{ color: C.sub }}>{tr("plus la valeur est haute, mieux c'est")}</b>{tr(". Pour l'économie, une flèche")} <span style={{ color: C.mint, fontWeight: 600 }}>{tr("verte")}</span> {tr("signale une amélioration (dette, chômage et inflation sont meilleurs quand ils baissent).")}</>}
       </div>
     </div>
   );
@@ -3014,15 +3055,15 @@ function EvolutionFrame({ history }) {
     <div style={{ marginTop: 14, marginBottom: 6, background: C.card, border: `1px solid ${al(C.gold, "55")}`, borderRadius: 16, padding: "16px 16px 14px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
         <div style={{ flex: "1 1 240px", minWidth: 0 }}>
-          <ScreenTitle icon="chart-dots" title="L'évolution depuis le début de votre mandat" sub="Chaque point est la fin d'une année : regardez dans quelle direction part le pays." />
+          <ScreenTitle icon="chart-dots" title={tr("L'évolution depuis le début de votre mandat")} sub={tr("Chaque point est la fin d'une année : regardez dans quelle direction part le pays.")} />
         </div>
         {history && history.length > 0 && (
-          <button onClick={() => setReplay(replay + 1)} style={{ background: "transparent", color: C.gold, border: `1px solid ${al(C.gold, "88")}`, borderRadius: 9, padding: "8px 12px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", minHeight: 38, touchAction: "manipulation" }}>↻ Revoir le tracé</button>
+          <button onClick={() => setReplay(replay + 1)} style={{ background: "transparent", color: C.gold, border: `1px solid ${al(C.gold, "88")}`, borderRadius: 9, padding: "8px 12px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", minHeight: 38, touchAction: "manipulation" }}>{tr("↻ Revoir le tracé")}</button>
         )}
       </div>
       <EvolutionCharts key={replay} history={history} />
       <div style={{ marginTop: 10, fontSize: 11.5, color: C.dim, lineHeight: 1.5 }}>
-        <b style={{ color: C.sub }}>Comment lire :</b> la ligne pointillée dorée rappelle la valeur de <b style={{ color: C.sub }}>départ</b> de votre mandat. Pour la dette, le chômage, l'inflation et les taux, passer <b style={{ color: C.sub }}>sous</b> cette ligne est une bonne nouvelle ; pour le PIB, c'est l'inverse.
+        <b style={{ color: C.sub }}>{tr("Comment lire :")}</b> {tr("la ligne pointillée dorée rappelle la valeur de")} <b style={{ color: C.sub }}>{tr("départ")}</b> {tr("de votre mandat. Pour la dette, le chômage, l'inflation et les taux, passer")} <b style={{ color: C.sub }}>{tr("sous")}</b> {tr("cette ligne est une bonne nouvelle ; pour le PIB, c'est l'inverse.")}
       </div>
     </div>
   );
@@ -3053,10 +3094,10 @@ function ImpactBox({ info }) {
   const line = { margin: "0 0 4px" };
   return (
     <div style={{ flex: 1 }}>
-      <p style={line}><b>💶 Budget :</b> {info.budget}</p>
-      {info.concret && <p style={line}><b>👀 Concrètement :</b> {info.concret}</p>}
-      {info.plus.length > 0 && <p style={{ ...line, color: "#14532d" }}><b>👍 Bonne nouvelle :</b> {info.plus.join(", ")}.</p>}
-      {info.moins.length > 0 && <p style={{ margin: 0, color: "#8b1c1c" }}><b>⚠️ Mais attention :</b> {info.moins.join(", ")}.</p>}
+      <p style={line}><b>{tr("💶 Budget :")}</b> {info.budget}</p>
+      {info.concret && <p style={line}><b>{tr("👀 Concrètement :")}</b> {info.concret}</p>}
+      {info.plus.length > 0 && <p style={{ ...line, color: "#14532d" }}><b>{tr("👍 Bonne nouvelle :")}</b> {info.plus.join(", ")}.</p>}
+      {info.moins.length > 0 && <p style={{ margin: 0, color: "#8b1c1c" }}><b>{tr("⚠️ Mais attention :")}</b> {info.moins.join(", ")}.</p>}
     </div>
   );
 }
@@ -3077,21 +3118,21 @@ function LeverRow({ lever, level, baseLevel, onChange, verbose = false, pulse = 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Icon n={lever.icon} size={17} color={C.gold} />
         <span style={{ flex: 1, fontSize: 12.5, color: C.ink, lineHeight: 1.2 }}>{lever.label}</span>
-        <button onClick={() => setInfo(!info)} title="Explication" style={{ background: "none", border: "none", cursor: "pointer", color: info ? C.gold : C.dim, padding: 10, margin: -10, display: "flex", touchAction: "manipulation" }}><Icon n="help-circle" size={15} /></button>
+        <button onClick={() => setInfo(!info)} title={tr("Explication")} style={{ background: "none", border: "none", cursor: "pointer", color: info ? C.gold : C.dim, padding: 10, margin: -10, display: "flex", touchAction: "manipulation" }}><Icon n="help-circle" size={15} /></button>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <button onClick={() => onChange(level - 1)} style={stepBtn} aria-label="Diminuer">−</button>
+          <button onClick={() => onChange(level - 1)} style={stepBtn} aria-label={tr("Diminuer")}>−</button>
           <span style={{ fontFamily: "monospace", fontSize: 14, width: 30, textAlign: "center", color: chgCol }}>{level > 0 ? "+" : ""}{level}</span>
-          <button onClick={() => onChange(level + 1)} style={stepBtn} className={pulse ? "qhint" : ""} aria-label="Augmenter">+</button>
+          <button onClick={() => onChange(level + 1)} style={stepBtn} className={pulse ? "qhint" : ""} aria-label={tr("Augmenter")}>+</button>
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 4, paddingLeft: 25, gap: 8 }}>
         <span style={{ fontSize: 11, fontFamily: "monospace", color: C.sub }}>
           {curRate != null
             ? <>{fmt(curRate, 1)}{changed && <> → <b style={{ color: C.gold }}>{fmt(newRate, 1)}</b></>} {lever.unit}</>
-            : <>{fmt(curEur)}{changed && <> → <b style={{ color: C.gold }}>{fmt(newEur)}</b></>} Md€</>}
-          {curRate != null && <span style={{ color: C.dim }}> · {fmt(newEur)} Md€</span>}
+            : <>{fmt(curEur)}{changed && <> → <b style={{ color: C.gold }}>{fmt(newEur)}</b></>} {tr("Md€")}</>}
+          {curRate != null && <span style={{ color: C.dim }}> · {fmt(newEur)} {tr("Md€")}</span>}
         </span>
-        <span style={{ fontSize: 11, fontFamily: "monospace", color: chgCol, whiteSpace: "nowrap" }}>{changed ? `${dEur > 0 ? "+" : ""}${fmt(dEur, 1)} Md€/an` : "—"}</span>
+        <span style={{ fontSize: 11, fontFamily: "monospace", color: chgCol, whiteSpace: "nowrap" }}>{changed ? tr("{a}{b} Md€/an", { a: dEur > 0 ? "+" : "", b: fmt(dEur, 1) }) : "—"}</span>
       </div>
       {/* Effet causal visible dès qu'on modifie le levier */}
       {changed && (
@@ -3109,13 +3150,13 @@ function LeverRow({ lever, level, baseLevel, onChange, verbose = false, pulse = 
           <Icon n="bulb" size={18} color="#3A2E0A" style={{ flexShrink: 0, marginTop: 1 }} />
           {compact ? (
             <div style={{ flex: 1 }}>
-              <p style={{ margin: "0 0 2px" }}><b>💶 Budget :</b> {info.budget}</p>
-              <button onClick={() => setImpactOpen(true)} style={{ background: "none", border: "none", color: "#3A2E0A", textDecoration: "underline", fontWeight: 700, fontSize: 12, cursor: "pointer", padding: "6px 0", minHeight: 40, touchAction: "manipulation" }}>Voir le détail complet ▾</button>
+              <p style={{ margin: "0 0 2px" }}><b>{tr("💶 Budget :")}</b> {info.budget}</p>
+              <button onClick={() => setImpactOpen(true)} style={{ background: "none", border: "none", color: "#3A2E0A", textDecoration: "underline", fontWeight: 700, fontSize: 12, cursor: "pointer", padding: "6px 0", minHeight: 40, touchAction: "manipulation" }}>{tr("Voir le détail complet ▾")}</button>
             </div>
           ) : (
             <div style={{ flex: 1 }}>
               <ImpactBox info={info} />
-              {isMobile && <button onClick={() => setImpactOpen(false)} style={{ background: "none", border: "none", color: "#3A2E0A", textDecoration: "underline", fontWeight: 700, fontSize: 12, cursor: "pointer", padding: "6px 0", minHeight: 40, touchAction: "manipulation" }}>Réduire ▴</button>}
+              {isMobile && <button onClick={() => setImpactOpen(false)} style={{ background: "none", border: "none", color: "#3A2E0A", textDecoration: "underline", fontWeight: 700, fontSize: 12, cursor: "pointer", padding: "6px 0", minHeight: 40, touchAction: "manipulation" }}>{tr("Réduire ▴")}</button>}
             </div>
           )}
         </div>
@@ -3139,39 +3180,39 @@ function EventScreen({ event, index, total, onChoose }) {
     <div>
       {/* En-tête : numéro d'événement bien visible + progression */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span className="qvibe3" style={{ fontSize: 20, fontWeight: 600, color: C.ink, fontFamily: "Fraunces,serif", padding: "2px 8px", margin: "-2px -8px" }}>Événement {index + 1} <span style={{ color: C.dim, fontSize: 15 }}>sur {total}</span></span>
+        <span className="qvibe3" style={{ fontSize: 20, fontWeight: 600, color: C.ink, fontFamily: "Fraunces,serif", padding: "2px 8px", margin: "-2px -8px" }}>{tr("Événement")} {index + 1} <span style={{ color: C.dim, fontSize: 15 }}>{tr("sur")} {total}</span></span>
         <div style={{ display: "flex", gap: 5 }}>{Array.from({ length: total }).map((_, i) => <div key={i} className={i === index ? "qvibe3" : ""} style={{ width: 26, height: 5, borderRadius: 3, background: i <= index ? C.gold : C.line }} />)}</div>
       </div>
       <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 16 }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: al(t.color, "26"), color: t.color, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}>
           <Icon n={t.icon.replace("ti-", "")} size={14} /> {t.label}
         </div>
-        {event.hist && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: al(C.gold, "26"), color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="history" size={13} /> {CHAIN_MODE ? "Dossier historique · uchronie" : "Événement historique réel"}</div>}
-        {event.prosp && <div data-badge-prosp="1" style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: event.crise ? al(C.coral, "26") : al(C.mint, "26"), color: event.crise ? C.coral : C.mint, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n={event.crise ? "alert-triangle" : "sparkles"} size={13} /> {event.crise ? "Crise mondiale imaginée" : "Scénario imaginé"}</div>}
-        {!event.hist && CURRENT_ERA.id !== "today" && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: C.line, color: C.dim, fontSize: 11, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}>Situation imaginée (non historique)</div>}
+        {event.hist && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: al(C.gold, "26"), color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="history" size={13} /> {CHAIN_MODE ? tr("Dossier historique · uchronie") : tr("Événement historique réel")}</div>}
+        {event.prosp && <div data-badge-prosp="1" style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: event.crise ? al(C.coral, "26") : al(C.mint, "26"), color: event.crise ? C.coral : C.mint, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n={event.crise ? "alert-triangle" : "sparkles"} size={13} /> {event.crise ? tr("Crise mondiale imaginée") : tr("Scénario imaginé")}</div>}
+        {!event.hist && CURRENT_ERA.id !== "today" && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: 8, background: C.line, color: C.dim, fontSize: 11, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}>{tr("Situation imaginée (non historique)")}</div>}
         <h3 style={{ margin: "0 0 6px", color: C.ink, fontSize: 19, fontFamily: "Fraunces,serif", fontWeight: 600 }}>{event.title}</h3>
         <p style={{ margin: "0 0 14px", color: C.sub, fontSize: 13.5, lineHeight: 1.6 }}>{event.desc}</p>
-        {event.contexte && <HistContext text={event.contexte} label={event.prosp ? (event.crise ? "Pourquoi cette crise ?" : "Pourquoi ce scénario ?") : undefined} />}
+        {event.contexte && <HistContext text={event.contexte} label={event.prosp ? (event.crise ? tr("Pourquoi cette crise ?") : tr("Pourquoi ce scénario ?")) : undefined} />}
         {/* Consigne claire */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.gold, fontSize: 17, fontWeight: 700, marginBottom: 2 }}>
-          <Icon n="help-circle" size={20} /> Que décidez-vous ?
+          <Icon n="help-circle" size={20} /> {tr("Que décidez-vous ?")}
         </div>
-        <div style={{ color: C.sub, fontSize: 13, marginBottom: 12 }}>Une seule réponse possible : touchez une proposition, puis validez.</div>
-        <div role="radiogroup" aria-label="Propositions" style={{ display: "grid", gap: 6 }}>
+        <div style={{ color: C.sub, fontSize: 13, marginBottom: 12 }}>{tr("Une seule réponse possible : touchez une proposition, puis validez.")}</div>
+        <div role="radiogroup" aria-label={tr("Propositions")} style={{ display: "grid", gap: 6 }}>
           {event.choices.map((ch, i) => (
             <React.Fragment key={i}>
-              {i > 0 && <span aria-hidden="true" style={{ justifySelf: "center", fontSize: 11.5, fontWeight: 800, letterSpacing: ".08em", color: C.gold, background: al(C.gold, "22"), border: `1px solid ${al(C.gold, "55")}`, borderRadius: 20, padding: "2px 12px" }}>OU</span>}
+              {i > 0 && <span aria-hidden="true" style={{ justifySelf: "center", fontSize: 11.5, fontWeight: 800, letterSpacing: ".08em", color: C.gold, background: al(C.gold, "22"), border: `1px solid ${al(C.gold, "55")}`, borderRadius: 20, padding: "2px 12px" }}>{tr("OU")}</span>}
               <ChoiceRow choice={ch} letter={letter(i)} selected={sel === i} onSelect={() => pick(i)} />
             </React.Fragment>
           ))}
         </div>
         <div ref={confirmRef} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.line}` }}>
           <span style={{ fontSize: 13, fontWeight: sel != null || nudge ? 600 : 400, color: nudge ? C.coral : sel != null ? C.gold : C.dim }}>
-            {sel != null ? `Votre choix : ${letter(sel)}. Vous pouvez encore changer d'avis.` : nudge ? "Touchez d'abord une proposition ci-dessus." : "Aucune proposition choisie pour l'instant."}
+            {sel != null ? tr("Votre choix : {a}. Vous pouvez encore changer d'avis.", { a: letter(sel) }) : nudge ? tr("Touchez d'abord une proposition ci-dessus.") : tr("Aucune proposition choisie pour l'instant.")}
           </span>
           <button onClick={() => (sel == null ? setNudge(true) : onChoose(event.choices[sel]))} className={sel != null ? "qhint" : ""}
             style={{ background: C.goldFill, color: C.onAccent, border: "none", borderRadius: 10, padding: "12px 20px", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 7, minHeight: 46, opacity: sel != null ? 1 : 0.5, touchAction: "manipulation" }}>
-            Valider mon choix <Icon n="arrow-right" size={16} />
+            {tr("Valider mon choix")} <Icon n="arrow-right" size={16} />
           </button>
         </div>
       </div>
@@ -3180,7 +3221,7 @@ function EventScreen({ event, index, total, onChoose }) {
 }
 function ChoiceRow({ choice, letter, selected, onSelect }) {
   const fxChips = Object.entries(choice.fx).filter(([, v]) => Math.abs(v) >= 0.05).map(([k, v]) => {   // un effet nul ou quasi nul (« 0,0 », « −0,0 ») n'est pas affiché
-    const m = k === "soldeDur" ? { label: "Solde (chaque année)" } : IND_META.find((x) => x.id === k); if (!m) return null;
+    const m = k === "soldeDur" ? { label: tr("Solde (chaque année)") } : IND_META.find((x) => x.id === k); if (!m) return null;
     const vv = k === "inegalites" ? -v : v; // l'indicateur affiché est l'ÉGALITÉ : sens inversé
     const good = ["chomage", "dette", "inflation"].includes(k) ? vv < 0 : vv > 0;
     return <span key={k} style={{ fontSize: 10.5, fontFamily: "monospace", color: good ? C.mint : C.coral, background: C.inset, padding: "1px 6px", borderRadius: 5, border: `1px solid ${C.line}` }}>{m.label} {vv > 0 ? "+" : ""}{fmt(vv, 1)}</span>;
@@ -3195,7 +3236,7 @@ function ChoiceRow({ choice, letter, selected, onSelect }) {
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8, paddingLeft: 36 }}>{fxChips}</div>
       {(choice.fx.integrite || 0) <= -5 && (
         <div style={{ marginTop: 7, paddingLeft: 36, fontSize: 11, color: "var(--c-ethique)", display: "flex", alignItems: "center", gap: 5 }}>
-          <Icon n="alert-triangle" size={13} /> Entame fortement votre intégrité — risque de scandale plus tard.
+          <Icon n="alert-triangle" size={13} /> {tr("Entame fortement votre intégrité — risque de scandale plus tard.")}
         </div>
       )}
       <div style={{ paddingLeft: 36 }} onClick={(e) => e.stopPropagation()}>{choice.note && <Note text={choice.note} />}</div>
@@ -3309,7 +3350,7 @@ function GroupedBarsSVG({ data, colorA, colorB }) {
 }
 function EvolutionCharts({ history }) {
   if (!history || history.length === 0)
-    return <div style={{ color: C.dim, fontSize: 12.5, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14 }}>Les graphiques d'évolution apparaîtront à la fin de la première année.</div>;
+    return <div style={{ color: C.dim, fontSize: 12.5, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14 }}>{tr("Les graphiques d'évolution apparaîtront à la fin de la première année.")}</div>;
   let pib = PIB * ECH;
   const rows = history.map((h) => {
     pib = pib * (1 + (h.ind.croissance + (h.ind.inflation ?? INFL_TREND)) / 100);
@@ -3320,33 +3361,33 @@ function EvolutionCharts({ history }) {
   });
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-      <ChartFrame title="Dette (% du PIB)">
-        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.dette.toFixed(1) }))} color={C.coral} refValue={DETTE0} refLabel={`départ ${fmt(DETTE0, 0)}`} decimals={0} />
+      <ChartFrame title={tr("Dette (% du PIB)")}>
+        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.dette.toFixed(1) }))} color={C.coral} refValue={DETTE0} refLabel={tr("départ {a}", { a: fmt(DETTE0, 0) })} decimals={0} />
       </ChartFrame>
-      <ChartFrame title="PIB (Md€)">
+      <ChartFrame title={tr("PIB (Md€)")}>
         <LineChartSVG data={rows.map((r) => ({ x: r.x, y: Math.round(r.pib) }))} color={C.mint} decimals={0} />
-        <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>PIB nominal (en euros courants) : il progresse avec la croissance <em>et</em> l'inflation de l'époque.</div>
+        <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>{tr("PIB nominal (en euros courants) : il progresse avec la croissance")} <em>{tr("et")}</em> {tr("l'inflation de l'époque.")}</div>
       </ChartFrame>
-      <ChartFrame title="Recettes vs Dépenses (Md€)" legend={[{ label: "Recettes", color: C.mint }, { label: "Dépenses", color: C.coral }]}>
+      <ChartFrame title={tr("Recettes vs Dépenses (Md€)")} legend={[{ label: tr("Recettes"), color: C.mint }, { label: tr("Dépenses"), color: C.coral }]}>
         <GroupedBarsSVG data={rows.map((r) => ({ x: r.x, a: r.rec, b: r.dep }))} colorA={C.mint} colorB={C.coral} />
       </ChartFrame>
-      <ChartFrame title="Chômage (%)">
-        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.chomage.toFixed(1) }))} color={C.gold} refValue={CHOM0} refLabel={`départ ${fmt(CHOM0, 1)}`} decimals={1} />
+      <ChartFrame title={tr("Chômage (%)")}>
+        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +r.chomage.toFixed(1) }))} color={C.gold} refValue={CHOM0} refLabel={tr("départ {a}", { a: fmt(CHOM0, 1) })} decimals={1} />
       </ChartFrame>
-      <ChartFrame title="Inflation (%)">
-        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.inflation ?? INFL0).toFixed(1) }))} color="var(--c-ethique)" refValue={INFL0} refLabel={`départ ${fmt(INFL0, 1)}`} decimals={1} />
-        <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>Hausse générale des prix sur un an. Au-delà de 5 %, le pouvoir d'achat fond rapidement.</div>
+      <ChartFrame title={tr("Inflation (%)")}>
+        <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.inflation ?? INFL0).toFixed(1) }))} color="var(--c-ethique)" refValue={INFL0} refLabel={tr("départ {a}", { a: fmt(INFL0, 1) })} decimals={1} />
+        <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>{tr("Hausse générale des prix sur un an. Au-delà de 5 %, le pouvoir d'achat fond rapidement.")}</div>
       </ChartFrame>
       {rows.some((r) => r.marche != null) && (
-        <ChartFrame title="Taux des nouveaux emprunts (%)">
-          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.marche ?? MARCHE0).toFixed(1) }))} color="var(--c-lobby)" refValue={MARCHE0} refLabel={`départ ${fmt(MARCHE0, 1)}`} decimals={1} />
-          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>Prix auquel l'État emprunte aujourd'hui (OAT 10 ans). Il monte si les marchés s'inquiètent, baisse s'ils sont rassurés.</div>
+        <ChartFrame title={tr("Taux des nouveaux emprunts (%)")}>
+          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.marche ?? MARCHE0).toFixed(1) }))} color="var(--c-lobby)" refValue={MARCHE0} refLabel={tr("départ {a}", { a: fmt(MARCHE0, 1) })} decimals={1} />
+          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>{tr("Prix auquel l'État emprunte aujourd'hui (OAT 10 ans). Il monte si les marchés s'inquiètent, baisse s'ils sont rassurés.")}</div>
         </ChartFrame>
       )}
       {rows.some((r) => r.taux != null) && (
-        <ChartFrame title="Taux moyen de la dette (%)">
-          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.taux ?? TAUX0).toFixed(2) }))} color={C.coral} refValue={TAUX0} refLabel={`départ ${fmt(TAUX0, 1)}`} decimals={2} />
-          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>Taux payé sur toute la dette. Il rattrape peu à peu le taux des nouveaux emprunts, à mesure que les vieux emprunts bon marché sont remplacés.</div>
+        <ChartFrame title={tr("Taux moyen de la dette (%)")}>
+          <LineChartSVG data={rows.map((r) => ({ x: r.x, y: +(r.taux ?? TAUX0).toFixed(2) }))} color={C.coral} refValue={TAUX0} refLabel={tr("départ {a}", { a: fmt(TAUX0, 1) })} decimals={2} />
+          <div style={{ fontSize: 10, color: C.dim, lineHeight: 1.4, marginTop: 4 }}>{tr("Taux payé sur toute la dette. Il rattrape peu à peu le taux des nouveaux emprunts, à mesure que les vieux emprunts bon marché sont remplacés.")}</div>
         </ChartFrame>
       )}
     </div>
@@ -3364,7 +3405,7 @@ function SoldeBars({ bars, total }) {
   const grid = { display: "grid", gridTemplateColumns: "minmax(0, 38%) minmax(0, 1fr) 46px", alignItems: "center", gap: 8, fontSize: 12.5 };
   return (
     <div data-solde-bars="1" style={{ marginTop: 12 }}>
-      <div style={{ color: C.dim, fontSize: 12, marginBottom: 4 }}>Pourquoi le solde a bougé (en points de PIB)</div>
+      <div style={{ color: C.dim, fontSize: 12, marginBottom: 4 }}>{tr("Pourquoi le solde a bougé (en points de PIB)")}</div>
       {rows.map((b) => (
         <div key={b.k} data-bar={b.k} style={{ ...grid, margin: "5px 0" }}>
           <span style={{ color: C.sub, lineHeight: 1.25 }}>{b.k}</span>
@@ -3377,7 +3418,7 @@ function SoldeBars({ bars, total }) {
       ))}
       {Number.isFinite(total) && (
         <div data-bar-total="1" style={{ ...grid, marginTop: 6, paddingTop: 6, borderTop: `1px solid ${C.line}` }}>
-          <span style={{ color: C.ink, fontWeight: 600 }}>Variation du solde</span><span />
+          <span style={{ color: C.ink, fontWeight: 600 }}>{tr("Variation du solde")}</span><span />
           <b style={{ textAlign: "right", fontFamily: "monospace", fontWeight: 600, color: total >= 0 ? C.mint : C.coral }}>{sg(total)}</b>
         </div>
       )}
@@ -3394,17 +3435,17 @@ function ChipHelp({ chip }) {
   if (!chip) return null;
   const meta = chip.id ? IND_META.find((m) => m.id === chip.id) : null;
   const text = chip.hint || (meta && meta.info) || CHIP_HELP[chip.id] || "";
-  const lecture = { ok: "C'est plutôt favorable.", ko: "C'est plutôt défavorable.", mid: "À surveiller.", nt: "Peu de changement." }[chip.tone || "nt"];
+  const lecture = { ok: tr("C'est plutôt favorable."), ko: tr("C'est plutôt défavorable."), mid: tr("À surveiller."), nt: tr("Peu de changement.") }[chip.tone || "nt"];
   return (
     <div data-chip-panel="1" style={{ marginTop: 8, padding: "10px 12px", borderRadius: 10, background: C.card, border: `1px solid ${C.line}`, fontSize: 13, lineHeight: 1.55, color: C.sub }}>
-      <div style={{ color: C.ink, fontWeight: 600, marginBottom: 4 }}>{chip.more ? "Les autres décisions de l'année" : (meta && meta.label !== chip.k ? `${chip.k} (${meta.label.toLowerCase()})` : chip.k)}</div>
+      <div style={{ color: C.ink, fontWeight: 600, marginBottom: 4 }}>{chip.more ? tr("Les autres décisions de l'année") : (meta && meta.label !== chip.k ? `${chip.k} (${meta.label.toLowerCase()})` : chip.k)}</div>
       {chip.more ? (
         <div style={{ display: "grid", gap: 3 }}>
-          {chip.more.map((x, i) => <div key={i} data-more-line="1"><Icon n="arrow-right" size={12} /> {x.k} : <b style={{ color: C.ink, fontWeight: 600 }}>{x.dir} {x.v}</b> <span style={{ color: C.dim }}>{x.cat === "dep" ? "de dépenses" : "de recettes"} par an</span></div>)}
+          {chip.more.map((x, i) => <div key={i} data-more-line="1"><Icon n="arrow-right" size={12} /> {x.k} : <b style={{ color: C.ink, fontWeight: 600 }}>{x.dir} {x.v}</b> <span style={{ color: C.dim }}>{x.cat === "dep" ? tr("de dépenses") : tr("de recettes")} {tr("par an")}</span></div>)}
         </div>
       ) : <div>{text}</div>}
       {chip.read && <div style={{ marginTop: 6, color: C.ink }}>{chip.read}</div>}
-      {!chip.more && !chip.lever && <div data-chip-reading="1" style={{ marginTop: 6, color: C.ink }}>Cette année : <b style={{ fontWeight: 600 }}>{chip.v}</b>. {lecture}</div>}
+      {!chip.more && !chip.lever && <div data-chip-reading="1" style={{ marginTop: 6, color: C.ink }}>{tr("Cette année :")} <b style={{ fontWeight: 600 }}>{chip.v}</b>. {lecture}</div>}
     </div>
   );
 }
@@ -3447,10 +3488,10 @@ function ConseilBlock({ sec, showSquares, onSquares }) {
       )}
       {sec.bars && <SoldeBars bars={sec.bars} total={sec.total} />}
       {showSquares && (
-        <div><button onClick={() => onSquares("sources", "emprunt")} data-link-squares="1" style={{ marginTop: 8, background: "none", border: "none", padding: "8px 0", minHeight: 40, color: C.gold, fontSize: 12.5, fontWeight: 600, cursor: "pointer", textDecoration: "underline", touchAction: "manipulation", textAlign: "left" }}>Voir ce déficit pour 1 000 € dépensés →</button></div>
+        <div><button onClick={() => onSquares("sources", "emprunt")} data-link-squares="1" style={{ marginTop: 8, background: "none", border: "none", padding: "8px 0", minHeight: 40, color: C.gold, fontSize: 12.5, fontWeight: 600, cursor: "pointer", textDecoration: "underline", touchAction: "manipulation", textAlign: "left" }}>{tr("Voir ce déficit pour 1 000 € dépensés →")}</button></div>
       )}
       <button onClick={() => setOpen(!open)} aria-expanded={open} data-explain-toggle="1" style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: showSquares ? 0 : 8, background: "none", border: "none", padding: "6px 0", minHeight: 32, color: C.dim, fontSize: 12.5, cursor: "pointer", touchAction: "manipulation" }}>
-        <Icon n={open ? "chevron-up" : "chevron-down"} size={14} /> Comprendre ces chiffres
+        <Icon n={open ? "chevron-up" : "chevron-down"} size={14} /> {tr("Comprendre ces chiffres")}
       </button>
       <Collapse open={open}><div style={{ color: C.sub, fontSize: 13, lineHeight: 1.6, marginTop: 2 }}>{sec.c}</div></Collapse>
     </div>
@@ -3466,9 +3507,9 @@ function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSq
   const tip = sections.find((x) => x.tip), blocks = sections.filter((x) => !x.tip);   // le conseil passe en bandeau, en tête
   return (
     <div>
-      <ScreenTitle icon="clipboard-check" title={`Bilan ${BASE_YEAR + year}`} sub="Ce que vos décisions ont changé cette année" />
-      <Dashboard ind={ind} prev={indBefore} sub="L'état de la France à la fin de l'année. Les flèches montrent ce qui a changé depuis le début de l'année."
-        how={<>une flèche ▲ ou ▼ indique la variation depuis le début de l'année ; elle est <span style={{ color: C.mint, fontWeight: 600 }}>verte</span> quand c'est une amélioration, <span style={{ color: C.coral, fontWeight: 600 }}>rouge</span> quand c'est une dégradation (dette, chômage et inflation sont meilleurs quand ils baissent). Pour la société et la vie politique, <b style={{ color: C.sub }}>plus la valeur est haute, mieux c'est</b>.</>} />
+      <ScreenTitle icon="clipboard-check" title={tr("Bilan {a}", { a: BASE_YEAR + year })} sub={tr("Ce que vos décisions ont changé cette année")} />
+      <Dashboard ind={ind} prev={indBefore} sub={tr("L'état de la France à la fin de l'année. Les flèches montrent ce qui a changé depuis le début de l'année.")}
+        how={<>{tr("une flèche ▲ ou ▼ indique la variation depuis le début de l'année ; elle est")} <span style={{ color: C.mint, fontWeight: 600 }}>{tr("verte")}</span> {tr("quand c'est une amélioration,")} <span style={{ color: C.coral, fontWeight: 600 }}>{tr("rouge")}</span> {tr("quand c'est une dégradation (dette, chômage et inflation sont meilleurs quand ils baissent). Pour la société et la vie politique,")} <b style={{ color: C.sub }}>{tr("plus la valeur est haute, mieux c'est")}</b>.</>} />
 
       {/* Victoires intermédiaires (renforcement positif) */}
       {wins.length > 0 && (
@@ -3485,16 +3526,16 @@ function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSq
       <div style={{ marginTop: 14, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
           <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.goldFill, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="user-check" size={18} color="var(--on-accent)" /></div>
-          <div><div style={{ color: C.ink, fontSize: 13.5, fontWeight: 500 }}>Le mot de votre conseiller</div><div style={{ color: C.dim, fontSize: 11 }}>Bilan de l'année {BASE_YEAR + year}</div></div>
+          <div><div style={{ color: C.ink, fontSize: 13.5, fontWeight: 500 }}>{tr("Le mot de votre conseiller")}</div><div style={{ color: C.dim, fontSize: 11 }}>{tr("Bilan de l'année")} {BASE_YEAR + year}</div></div>
         </div>
         {tip && (
           <div data-conseil-tip="1" style={{ margin: "0 0 12px", padding: "10px 12px", borderRadius: 10, background: al(C.gold, "1F"), border: `1px solid ${al(C.gold, "66")}`, display: "flex", gap: 8, alignItems: "flex-start", color: C.ink, fontSize: 13.5, lineHeight: 1.5 }}>
-            <Icon n="bulb" size={18} color={C.gold} /><span><b style={{ fontWeight: 600 }}>Conseil pour l'an prochain :</b> {tip.c}</span>
+            <Icon n="bulb" size={18} color={C.gold} /><span><b style={{ fontWeight: 600 }}>{tr("Conseil pour l'an prochain :")}</b> {tip.c}</span>
           </div>
         )}
         <div style={{ display: "grid", gap: 10 }}>
           {blocks.map((sec) => <ConseilBlock key={sec.t} sec={sec} showSquares={sec.t === "Vos comptes publics" && !!history && history.length > 0} onSquares={onSquares} />)}
-          {bilan.alerte.map((a, i) => <BilanLine key={i} icon="alert-triangle" color={C.coral} label="Alerte" text={a} />)}
+          {bilan.alerte.map((a, i) => <BilanLine key={i} icon="alert-triangle" color={C.coral} label={tr("Alerte")} text={a} />)}
         </div>
       </div>
 
@@ -3502,9 +3543,9 @@ function YearSummary({ year, indBefore, ind, flags, chute, onNext, onTable, onSq
       <EvolutionFrame history={history} />
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 16 }}>
-        <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Chiffres année par année</Btn>
-        <Btn onClick={() => onSquares("postes")}><Icon n="grid-dots" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Le budget en 1 000 €</Btn>
-        <Btn kind="primary" onClick={onNext}>{chute ? "Fin du mandat" : year >= YEARS ? "Élection présidentielle" : `Passer à ${BASE_YEAR + 1 + year}`} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+        <Btn onClick={onTable}><Icon n="table" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Chiffres année par année")}</Btn>
+        <Btn onClick={() => onSquares("postes")}><Icon n="grid-dots" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Le budget en 1 000 €")}</Btn>
+        <Btn kind="primary" onClick={onNext}>{chute ? tr("Fin du mandat") : year >= YEARS ? tr("Élection présidentielle") : tr("Passer à {a}", { a: BASE_YEAR + 1 + year })} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
       </div>
     </div>
   );
@@ -3530,9 +3571,9 @@ function ResultsTable({ history, onClose }) {
   const yr = (r) => (isMobile ? "'" + String(BASE_YEAR + r.year).slice(2) : String(BASE_YEAR + r.year));
   return (
     <div>
-      <ScreenTitle icon="table" title="Les chiffres année par année" sub="Toutes les valeurs à la fin de chaque année terminée. Les courbes sont dans le bilan de l'année." />
+      <ScreenTitle icon="table" title={tr("Les chiffres année par année")} sub={tr("Toutes les valeurs à la fin de chaque année terminée. Les courbes sont dans le bilan de l'année.")} />
       {n === 0
-        ? <div style={{ color: C.dim, fontSize: 13, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16 }}>Aucune année terminée pour l'instant. Le tableau se remplira à la fin de chaque année.</div>
+        ? <div style={{ color: C.dim, fontSize: 13, background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16 }}>{tr("Aucune année terminée pour l'instant. Le tableau se remplira à la fin de chaque année.")}</div>
         : (
           <div style={{ overflowX: "auto", background: C.card, border: `1px solid ${C.line}`, borderRadius: 12 }}>
             <table data-layout={isMobile ? "mobile" : "desktop"} data-cols={cols} style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse" }}>
@@ -3544,10 +3585,10 @@ function ResultsTable({ history, onClose }) {
               </colgroup>
               <thead>
                 <tr style={{ color: C.dim, fontSize: isMobile ? 10.5 : 12 }}>
-                  <th style={{ padding: isMobile ? "8px 6px" : "9px 12px", textAlign: "left", fontWeight: 500 }}>Indicateur</th>
-                  {!isMobile && <th style={{ ...cell, fontFamily: "inherit", fontSize: 12, fontWeight: 500 }}>Départ</th>}
+                  <th style={{ padding: isMobile ? "8px 6px" : "9px 12px", textAlign: "left", fontWeight: 500 }}>{tr("Indicateur")}</th>
+                  {!isMobile && <th style={{ ...cell, fontFamily: "inherit", fontSize: 12, fontWeight: 500 }}>{tr("Départ")}</th>}
                   {history.map((r, i) => <th key={r.year} style={{ ...cell, fontFamily: "monospace", fontSize: isMobile ? 10.5 : 12, fontWeight: i === n - 1 ? 700 : 500, color: i === n - 1 ? C.gold : C.dim }}>{yr(r)}</th>)}
-                  {!isMobile && <th style={{ ...cell, fontFamily: "inherit", fontSize: 12, fontWeight: 500 }}>Évolution</th>}
+                  {!isMobile && <th style={{ ...cell, fontFamily: "inherit", fontSize: 12, fontWeight: 500 }}>{tr("Évolution")}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -3562,7 +3603,7 @@ function ResultsTable({ history, onClose }) {
                         <tr key={m.id} style={{ borderTop: `1px solid ${al(C.line, "55")}` }}>
                           <td style={{ padding: isMobile ? "6px 6px" : "8px 12px", color: C.ink, fontSize: isMobile ? 11 : 13, lineHeight: 1.2, overflowWrap: "anywhere" }}>
                             {m.label}
-                            {isMobile && <div style={{ color: C.dim, fontSize: 9.5, fontFamily: "monospace", marginTop: 1 }}>départ {m.fmt(START[m.id])}{m.unit}</div>}
+                            {isMobile && <div style={{ color: C.dim, fontSize: 9.5, fontFamily: "monospace", marginTop: 1 }}>{tr("départ")} {m.fmt(START[m.id])}{m.unit}</div>}
                           </td>
                           {!isMobile && <td style={{ ...cell, color: C.dim }}>{m.fmt(START[m.id])}{m.unit}</td>}
                           {history.map((r, i) => <td key={r.year} style={{ ...cell, color: indColor(m, r.ind[m.id]), fontWeight: i === n - 1 ? 700 : 400, background: i === n - 1 ? al(C.gold, "10") : "transparent" }}>{m.fmt(r.ind[m.id])}</td>)}
@@ -3576,7 +3617,7 @@ function ResultsTable({ history, onClose }) {
             </table>
           </div>
         )}
-      <div style={{ marginTop: 14 }}><Btn kind="primary" onClick={onClose}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Revenir au jeu</Btn></div>
+      <div style={{ marginTop: 14 }}><Btn kind="primary" onClick={onClose}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Revenir au jeu")}</Btn></div>
     </div>
   );
 }
@@ -3629,7 +3670,7 @@ function Election({ game, onReveal }) {
       <div style={{ display: "flex", height: 16, borderRadius: 8, overflow: "hidden", background: C.inset }}>
         <div style={{ width: `${a}%`, background: C.mint, transition: "width .9s ease" }} /><div style={{ width: `${100 - a}%`, background: C.coral, transition: "width .9s ease" }} />
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.dim, marginTop: 4 }}><span>Vous : {fmt(a, 1)} %</span><span>Adversaire : {fmt(100 - a, 1)} %</span></div>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.dim, marginTop: 4 }}><span>{tr("Vous :")} {fmt(a, 1)} %</span><span>{tr("Adversaire :")} {fmt(100 - a, 1)} %</span></div>
     </div>
   );
   const box = { minHeight: 190, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, animation: "qElecIn .6s ease both" };
@@ -3637,39 +3678,39 @@ function Election({ game, onReveal }) {
     <div data-election="1" style={{ textAlign: "center", padding: "30px 10px" }} aria-live="polite">
       <style>{`@keyframes qElecIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}} @keyframes qElecBlink{0%,100%{opacity:1}50%{opacity:.3}}`}</style>
       <Icon n="ballpen" size={44} color={C.gold} />
-      <h2 style={{ color: C.ink, fontFamily: "Fraunces,serif", fontSize: 26, margin: "12px 0 6px" }}>Le jour du vote</h2>
-      <p style={{ color: C.dim, fontSize: 14, margin: "0 0 14px" }}>Après {YEARS} ans, les Français jugent votre bilan…</p>
+      <h2 style={{ color: C.ink, fontFamily: "Fraunces,serif", fontSize: 26, margin: "12px 0 6px" }}>{tr("Le jour du vote")}</h2>
+      <p style={{ color: C.dim, fontSize: 14, margin: "0 0 14px" }}>{tr("Après")} {YEARS} {tr("ans, les Français jugent votre bilan…")}</p>
       <div style={{ maxWidth: 460, margin: "0 auto" }}>
         {phase <= 1 && quotes[phase] && (
           <div key={"q" + phase} data-step="quote" style={box}>
-            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>Ils s'expriment · {phase + 1}/2</div>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>{tr("Ils s'expriment ·")} {phase + 1}/2</div>
             <div style={{ background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: "16px 18px", fontFamily: "Fraunces,Georgia,serif", fontSize: 17, lineHeight: 1.5, color: C.ink, fontStyle: "italic" }}>« {quotes[phase].text} »</div>
             <div style={{ color: C.dim, fontSize: 12.5 }}>{quotes[phase].who}</div>
           </div>
         )}
         {phase === 2 && (
           <div key="clock" data-step="clock" style={box}>
-            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>{sec >= 60 ? "20 h : les premières estimations" : "Les bureaux de vote ferment"}</div>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>{sec >= 60 ? tr("20 h : les premières estimations") : tr("Les bureaux de vote ferment")}</div>
             <div style={{ fontFamily: "monospace", fontSize: 44, color: C.gold, letterSpacing: ".05em" }}>{sec >= 60 ? "20:00:00" : "19:59:" + String(sec).padStart(2, "0")}</div>
           </div>
         )}
         {phase === 3 && (
           <div key="e1" data-step="est1" style={box}>
-            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>1re estimation</div>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>{tr("1re estimation")}</div>
             {bar(50)}
-            <div style={{ color: C.sub, fontSize: 14 }}>Trop serré pour conclure…</div>
+            <div style={{ color: C.sub, fontSize: 14 }}>{tr("Trop serré pour conclure…")}</div>
           </div>
         )}
         {phase >= 4 && (
           <div key="e2" data-step="est2" style={box}>
-            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>2e estimation</div>
+            <div style={{ color: C.gold, fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>{tr("2e estimation")}</div>
             {bar(share)}
-            <div style={{ color: C.sub, fontSize: 14 }}>Le résultat officiel est attendu…</div>
-            <Btn kind="primary" onClick={onReveal}>Découvrir le verdict <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+            <div style={{ color: C.sub, fontSize: 14 }}>{tr("Le résultat officiel est attendu…")}</div>
+            <Btn kind="primary" onClick={onReveal}>{tr("Découvrir le verdict")} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
           </div>
         )}
       </div>
-      {phase < 4 && <div style={{ marginTop: 14 }}><button data-skip="1" onClick={() => setPhase(4)} style={{ background: "none", border: "none", color: C.dim, fontSize: 12.5, cursor: "pointer", textDecoration: "underline" }}>Passer</button></div>}
+      {phase < 4 && <div style={{ marginTop: 14 }}><button data-skip="1" onClick={() => setPhase(4)} style={{ background: "none", border: "none", color: C.dim, fontSize: 12.5, cursor: "pointer", textDecoration: "underline" }}>{tr("Passer")}</button></div>}
     </div>
   );
 }
@@ -3683,29 +3724,29 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
       {end.key === "triomphe" && <Confetti />}
       {(() => { const { win, share } = electionShare(game.ind, sc); const col = win ? C.mint : C.coral; const catastrophe = ["faillite", "chaos", "scandale"].includes(end.key); return (
         <div data-annonce="1" style={{ textAlign: "center", padding: "18px 14px", marginBottom: 14, borderRadius: 16, background: al(col, "18"), border: `2px solid ${al(col, "88")}` }}>
-          <div style={{ fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: C.dim, marginBottom: 4 }}>Résultat de l'élection</div>
-          <div style={{ fontFamily: "Fraunces,Georgia,serif", fontSize: "clamp(24px, 6.2vw, 34px)", fontWeight: 600, color: col, lineHeight: 1.2 }}>{ELECTION_ANNONCE[end.key] || (win ? "Vous êtes réélu·e" : "Vous êtes battu·e")}</div>
-          {!catastrophe && <div style={{ color: C.sub, fontSize: 14, marginTop: 6 }}>avec {fmt(share, 1)} % des voix</div>}
+          <div style={{ fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: C.dim, marginBottom: 4 }}>{tr("Résultat de l'élection")}</div>
+          <div style={{ fontFamily: "Fraunces,Georgia,serif", fontSize: "clamp(24px, 6.2vw, 34px)", fontWeight: 600, color: col, lineHeight: 1.2 }}>{ELECTION_ANNONCE[end.key] || (win ? tr("Vous êtes réélu·e") : tr("Vous êtes battu·e"))}</div>
+          {!catastrophe && <div style={{ color: C.sub, fontSize: 14, marginTop: 6 }}>{tr("avec")} {fmt(share, 1)} {tr("% des voix")}</div>}
         </div>); })()}
       <div style={{ textAlign: "center", background: al(end.color, "1A"), border: `1px solid ${al(end.color, "66")}`, borderRadius: 16, padding: 22, marginBottom: 16 }}>
         <Icon n={end.icon} size={46} color={end.color} />
         <h2 style={{ color: end.color, fontFamily: "Fraunces,serif", fontSize: 26, margin: "10px 0 6px" }}>{end.title}</h2>
         <p style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.6, maxWidth: 520, margin: "0 auto" }}>{end.text}</p>
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${al(end.color, "33")}`, maxWidth: 560, margin: "12px auto 0" }}>
-          <div style={{ fontSize: 10.5, color: C.dim, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 3 }}>Ce qui explique ce résultat</div>
+          <div style={{ fontSize: 10.5, color: C.dim, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 3 }}>{tr("Ce qui explique ce résultat")}</div>
           <div style={{ color: C.ink, fontSize: 13, lineHeight: 1.55 }}>{expliquerFin(game)}</div>
         </div>
       </div>
       {chainNext && (() => { const nx = nextEraInfo(chainNext); return (
         <div data-chain-offer="1" style={{ background: al(C.gold, "14"), border: `1px solid ${al(C.gold, "88")}`, borderRadius: 16, padding: 18, marginBottom: 16, textAlign: "center" }}>
-          <div style={{ color: C.gold, fontFamily: "Fraunces,serif", fontSize: 18, fontWeight: 600, marginBottom: 6 }}>Vous restez aux commandes</div>
-          <p style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 12px" }}>{nx.futur ? <>Réélu·e, vous pouvez poursuivre avec un nouveau mandat ({nx.debut}–{nx.debut + nx.duree}). Le pays est repris tel que vous l'avez laissé, et les événements sont des scénarios imaginés à partir de tendances actuelles.</> : <>Réélu·e, vous pouvez poursuivre avec le mandat suivant ({nx.debut}–{nx.debut + nx.duree}). Le pays garde la marque de vos choix : la moitié de votre écart avec l'Histoire est transmise.</>}</p>
-          <Btn kind="primary" onClick={onContinue}>Poursuivre : mandat {nx.debut}–{nx.debut + nx.duree} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
-          <div style={{ color: C.dim, fontSize: 11.5, marginTop: 8 }}>{nx.futur ? "Ces scénarios sont fictifs : ce ne sont pas des prévisions." : "Version d'essai : seul le passage 1974 → 1981 est disponible."}</div>
+          <div style={{ color: C.gold, fontFamily: "Fraunces,serif", fontSize: 18, fontWeight: 600, marginBottom: 6 }}>{tr("Vous restez aux commandes")}</div>
+          <p style={{ color: C.sub, fontSize: 13.5, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 12px" }}>{nx.futur ? <>{tr("Réélu·e, vous pouvez poursuivre avec un nouveau mandat (")}{nx.debut}–{nx.debut + nx.duree}{tr("). Le pays est repris tel que vous l'avez laissé, et les événements sont des scénarios imaginés à partir de tendances actuelles.")}</> : <>{tr("Réélu·e, vous pouvez poursuivre avec le mandat suivant (")}{nx.debut}–{nx.debut + nx.duree}{tr("). Le pays garde la marque de vos choix : la moitié de votre écart avec l'Histoire est transmise.")}</>}</p>
+          <Btn kind="primary" onClick={onContinue}>{tr("Poursuivre : mandat")} {nx.debut}–{nx.debut + nx.duree} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
+          <div style={{ color: C.dim, fontSize: 11.5, marginTop: 8 }}>{nx.futur ? tr("Ces scénarios sont fictifs : ce ne sont pas des prévisions.") : tr("Version d'essai : seul le passage 1974 → 1981 est disponible.")}</div>
         </div>); })()}
-      {game.chain && <div data-chain-note="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, color: C.dim, fontSize: 12.5, lineHeight: 1.55 }}>Mandat enchaîné : son score n'entre pas dans le classement de la classe, car votre départ dépendait de votre mandat précédent.</div>}
+      {game.chain && <div data-chain-note="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, color: C.dim, fontSize: 12.5, lineHeight: 1.55 }}>{tr("Mandat enchaîné : son score n'entre pas dans le classement de la classe, car votre départ dépendait de votre mandat précédent.")}</div>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
-        {[["Économie", sc.eco, "55 %"], ["Social", sc.social, "30 %"], ["Politique", sc.politique, "15 %"], ["SCORE", sc.total, "final"]].map(([l, v, w], i) => (
+        {[[tr("Économie"), sc.eco, "55 %"], [tr("Social"), sc.social, "30 %"], [tr("Politique"), sc.politique, "15 %"], ["SCORE", sc.total, "final"]].map(([l, v, w], i) => (
           <div key={l} style={{ background: i === 3 ? C.goldFill : C.card, borderRadius: 12, padding: "12px 10px", textAlign: "center", border: `1px solid ${i === 3 ? C.gold : C.line}` }}>
             <div style={{ fontSize: 10.5, color: i === 3 ? "var(--on-accent)" : C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>{l} <span style={{ opacity: .7 }}>{w}</span></div>
             <div style={{ fontFamily: "monospace", fontSize: 26, fontWeight: 600, color: i === 3 ? "var(--on-accent)" : indScoreCol(v) }}>{i === 3 ? <CountUp to={v} /> : v}</div>
@@ -3714,12 +3755,12 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
       </div>
       {(() => { const L = LETTRES[game.eraId || "today"]; if (!L || game.chain) return null; const res = L.obj.map((o) => ({ o, ok: o.ok(game.ind), near: !o.ok(game.ind) && o.near(game.ind) })); const n = res.filter((r) => r.ok).length; return (
         <div data-lettre-bilan="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 14.5, fontWeight: 500, marginBottom: 10 }}><Icon n="mail-check" size={17} color={C.gold} /> Lettre de mission : {n} objectif{n > 1 ? "s" : ""} sur {res.length} atteint{n > 1 ? "s" : ""}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 14.5, fontWeight: 500, marginBottom: 10 }}><Icon n="mail-check" size={17} color={C.gold} /> {tr("Lettre de mission :")} {n} {tr("objectif")}{n > 1 ? "s" : ""} {tr("sur")} {res.length} {tr("atteint")}{n > 1 ? "s" : ""}</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{res.map(({ o, ok, near }) => { const col = ok ? C.mint : near ? C.gold : C.coral; return <span key={o.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: col, background: al(col, "18"), border: `1px solid ${al(col, "44")}`, borderRadius: 20, padding: "4px 11px" }}><Icon n={ok ? "circle-check" : near ? "circle-dot" : "circle-x"} size={14} />{o.label}</span>; })}</div>
         </div>); })()}
       {wonNew.length > 0 && (
         <div style={{ background: al(C.gold, "14"), border: `1px solid ${al(C.gold, "66")}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 10 }}><Icon n="trophy" size={18} /> {wonNew.length === 1 ? "Nouveau trophée débloqué !" : `${wonNew.length} nouveaux trophées débloqués !`}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 10 }}><Icon n="trophy" size={18} /> {wonNew.length === 1 ? tr("Nouveau trophée débloqué !") : tr("{a} nouveaux trophées débloqués !", { a: wonNew.length })}</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {wonNew.map((t) => (
               <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, background: C.card, border: `1px solid ${C.gold}`, borderRadius: 20, padding: "6px 13px 6px 7px" }}>
@@ -3731,7 +3772,7 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
         </div>
       )}
       <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 12 }}><Icon n="school" size={18} color={C.gold} /> Le bilan pédagogique de votre mandat</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 12 }}><Icon n="school" size={18} color={C.gold} /> {tr("Le bilan pédagogique de votre mandat")}</div>
         <div style={{ display: "grid", gap: 13 }}>
           {leconDetaillee(game).map((s, i) => (
             <div key={i}>
@@ -3744,8 +3785,8 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
       <HistoryComparison game={game} />
       <DecisionsRecap decisions={game.decisions} />
       <div style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 8 }}><Icon n="trophy" size={18} color={C.gold} /> Classement — {game.code}</div>
-        {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13 }}>Aucun score enregistré pour l'instant.</div>}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 8 }}><Icon n="trophy" size={18} color={C.gold} /> {tr("Classement —")} {game.code}</div>
+        {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13 }}>{tr("Aucun score enregistré pour l'instant.")}</div>}
         <div style={{ display: "grid", gap: 6 }}>
           {podium.slice(0, 8).map((e, i) => {
             const me = e.team === game.team && e.score === sc.total;
@@ -3761,8 +3802,8 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
         </div>
       </div>
       <div style={{ display: "flex", gap: 10 }}>
-        <Btn kind="primary" onClick={onReplay}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Rejouer</Btn>
-        <Btn onClick={onHome}><Icon n="home" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Accueil</Btn>
+        <Btn kind="primary" onClick={onReplay}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Rejouer")}</Btn>
+        <Btn onClick={onHome}><Icon n="home" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Accueil")}</Btn>
       </div>
       {game.code === "CLASSE" && <SoutienLink style={{ marginTop: 26 }} />}
     </div>
@@ -3774,36 +3815,36 @@ function HistoryComparison({ game }) {
   if (!info || !info.fin) return null;
   const f = info.fin, me = game.ind;
   const rows = [
-    { label: "Dette (% du PIB)", vous: me.dette, reel: f.dette, mieux: me.dette < f.dette, d: 0 },
-    { label: "Solde public (% du PIB)", vous: me.solde, reel: f.solde, mieux: me.solde > f.solde, d: 1 },
-    { label: "Chômage (%)", vous: me.chomage, reel: f.chomage, mieux: me.chomage < f.chomage, d: 1 },
-    { label: "Inflation (%)", vous: me.inflation ?? 0, reel: f.inflation, mieux: (me.inflation ?? 0) < f.inflation, d: 1 },
+    { label: tr("Dette (% du PIB)"), vous: me.dette, reel: f.dette, mieux: me.dette < f.dette, d: 0 },
+    { label: tr("Solde public (% du PIB)"), vous: me.solde, reel: f.solde, mieux: me.solde > f.solde, d: 1 },
+    { label: tr("Chômage (%)"), vous: me.chomage, reel: f.chomage, mieux: me.chomage < f.chomage, d: 1 },
+    { label: tr("Inflation (%)"), vous: me.inflation ?? 0, reel: f.inflation, mieux: (me.inflation ?? 0) < f.inflation, d: 1 },
   ];
   const nb = rows.filter((r) => r.mieux).length;
   const hist = (HIST_EVENTS[e.id] || []);
   const mine = (game.decisions || []).filter((d) => d.hist);
   return (
     <div style={{ background: C.card, border: `1px solid ${al(C.gold, "66")}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 16, fontWeight: 600, fontFamily: "Fraunces,serif", marginBottom: 4 }}><Icon n="scale" size={18} /> {game.chain ? "Votre mandat face à l'Histoire" : `Auriez-vous fait mieux que ${e.president} ?`}</div>
-      <div style={{ color: C.sub, fontSize: 13, marginBottom: 10 }}>Vous faites mieux sur <b style={{ color: nb >= 3 ? C.mint : nb >= 2 ? C.gold : C.coral }}>{nb} indicateur{nb > 1 ? "s" : ""} sur 4</b> par rapport {game.chain ? "à l'Histoire réelle (votre départ était différent : voir « Votre héritage »)" : "au vrai mandat"} ({f.note || `fin ${f.annee}`}).</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 16, fontWeight: 600, fontFamily: "Fraunces,serif", marginBottom: 4 }}><Icon n="scale" size={18} /> {game.chain ? tr("Votre mandat face à l'Histoire") : tr("Auriez-vous fait mieux que {a} ?", { a: e.president })}</div>
+      <div style={{ color: C.sub, fontSize: 13, marginBottom: 10 }}>{tr("Vous faites mieux sur")} <b style={{ color: nb >= 3 ? C.mint : nb >= 2 ? C.gold : C.coral }}>{nb} {tr("indicateur")}{nb > 1 ? "s" : ""} {tr("sur 4")}</b> {tr("par rapport")} {game.chain ? tr("à l'Histoire réelle (votre départ était différent : voir « Votre héritage »)") : tr("au vrai mandat")} ({f.note || `fin ${f.annee}`}).</div>
       {/* Cartes empilables : jamais de scroll horizontal, même sur petit écran */}
       <div style={{ display: "grid", gap: 7 }}>
         <div style={{ display: "flex", gap: 10, fontSize: 11, color: C.dim, padding: "0 10px" }}>
-          <span style={{ flex: 1 }}>Indicateur</span><span style={{ width: 70, textAlign: "right" }}>Vous</span><span style={{ width: 70, textAlign: "right" }}>{game.chain ? "Histoire" : e.president}</span>
+          <span style={{ flex: 1 }}>{tr("Indicateur")}</span><span style={{ width: 70, textAlign: "right" }}>{tr("Vous")}</span><span style={{ width: 70, textAlign: "right" }}>{game.chain ? tr("Histoire") : e.president}</span>
         </div>
         {rows.map((r) => (
           <div key={r.label} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 10px", background: C.inset, border: `1px solid ${C.line}`, borderRadius: 9, padding: "9px 10px" }}>
             <span style={{ flex: "1 1 140px", color: C.ink, fontSize: 13 }}>{r.label}</span>
             <span style={{ width: 70, textAlign: "right", fontFamily: "monospace", color: r.mieux ? C.mint : C.coral, fontWeight: 600 }}>{fmt(r.vous, r.d)}</span>
             <span style={{ width: 70, textAlign: "right", fontFamily: "monospace", color: C.sub }}>{fmt(r.reel, r.d)}</span>
-            <span style={{ flexBasis: "100%", textAlign: "right", fontSize: 11.5, color: r.mieux ? C.mint : C.coral }}>{r.mieux ? "✓ mieux" : "moins bien"}</span>
+            <span style={{ flexBasis: "100%", textAlign: "right", fontSize: 11.5, color: r.mieux ? C.mint : C.coral }}>{r.mieux ? tr("✓ mieux") : tr("moins bien")}</span>
           </div>
         ))}
       </div>
-      <div style={{ fontSize: 11, color: C.dim, marginTop: 6 }}>Attention : la comparaison est indicative. Le vrai président a aussi affronté d'autres contraintes (majorité parlementaire, conjoncture mondiale, cohabitation…).</div>
+      <div style={{ fontSize: 11, color: C.dim, marginTop: 6 }}>{tr("Attention : la comparaison est indicative. Le vrai président a aussi affronté d'autres contraintes (majorité parlementaire, conjoncture mondiale, cohabitation…).")}</div>
       {mine.length > 0 && (
         <div style={{ marginTop: 14 }}>
-          <div style={{ color: C.ink, fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Face aux grands événements : vos choix et ceux de l'Histoire</div>
+          <div style={{ color: C.ink, fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{tr("Face aux grands événements : vos choix et ceux de l'Histoire")}</div>
           <div style={{ display: "grid", gap: 10 }}>
             {mine.map((d, i) => {
               const ev = hist.find((h) => h.id === d.eid); if (!ev) return null;
@@ -3812,10 +3853,10 @@ function HistoryComparison({ game }) {
                 <div key={i} style={{ background: C.inset, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 12px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
                     <b style={{ color: C.ink, fontSize: 13 }}>{BASE_YEAR + d.year} · {ev.title}</b>
-                    <span style={{ fontSize: 11.5, fontWeight: 600, color: same ? C.mint : C.gold }}>{same ? "Même choix que l'Histoire" : "Choix différent"}</span>
+                    <span style={{ fontSize: 11.5, fontWeight: 600, color: same ? C.mint : C.gold }}>{same ? tr("Même choix que l'Histoire") : tr("Choix différent")}</span>
                   </div>
-                  <div style={{ fontSize: 12.5, color: C.sub, marginTop: 4 }}><b>Vous :</b> {d.choice}</div>
-                  <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2 }}><b>En réalité :</b> {ev.reelTexte}</div>
+                  <div style={{ fontSize: 12.5, color: C.sub, marginTop: 4 }}><b>{tr("Vous :")}</b> {d.choice}</div>
+                  <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2 }}><b>{tr("En réalité :")}</b> {ev.reelTexte}</div>
                 </div>
               );
             })}
@@ -3833,7 +3874,7 @@ function DecisionsRecap({ decisions }) {
   return (
     <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
       <button onClick={() => setOpen(!open)} style={{ background: "none", border: "none", cursor: "pointer", color: C.ink, fontSize: 14, fontWeight: 500, minHeight: 44, touchAction: "manipulation", display: "flex", alignItems: "center", gap: 6, padding: 0, width: "100%" }}>
-        <Icon n="list-check" size={16} color={C.gold} /> Vos {decisions.length} décisions face aux événements
+        <Icon n="list-check" size={16} color={C.gold} /> {tr("Vos")} {decisions.length} {tr("décisions face aux événements")}
         <span style={{ marginLeft: "auto", color: C.dim }}>{open ? "▲" : "▼"}</span>
       </button>
       <Collapse open={open}>
@@ -3866,7 +3907,7 @@ function TrophiesView({ unlocked, onBack }) {
   const have = new Set(unlocked || []);
   return (
     <div>
-      <ScreenTitle icon="trophy" title="Vos trophées" sub={`${have.size} / ${TROPHIES.length} débloqués — rejouez pour tous les obtenir !`} />
+      <ScreenTitle icon="trophy" title={tr("Vos trophées")} sub={tr("{a} / {b} débloqués — rejouez pour tous les obtenir !", { a: have.size, b: TROPHIES.length })} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
         {TROPHIES.map((t) => {
           const got = have.has(t.id);
@@ -3883,7 +3924,7 @@ function TrophiesView({ unlocked, onBack }) {
           );
         })}
       </div>
-      <Btn kind="primary" onClick={onBack}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Retour</Btn>
+      <Btn kind="primary" onClick={onBack}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Retour")}</Btn>
     </div>
   );
 }
@@ -3891,9 +3932,9 @@ function LeaderboardView({ code, level = "complet", onLevel, entries, onBack }) 
   const podium = [...(entries || [])].sort((a, b) => b.score - a.score);
   return (
     <div>
-      <ScreenTitle icon="trophy" title={`Classement — ${code}`} sub={`${podium.length} partie(s) enregistrée(s) · niveau ${LEVELS[level].label}`} />
+      <ScreenTitle icon="trophy" title={tr("Classement — {a}", { a: code })} sub={tr("{a} partie(s) enregistrée(s) · niveau {b}", { a: podium.length, b: LEVELS[level].label })} />
       {onLevel && <div data-lb-levels="1" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>{Object.entries(LEVELS).map(([id, L]) => <button key={id} onClick={() => onLevel(id)} style={{ cursor: "pointer", fontSize: 12.5, padding: "6px 12px", borderRadius: 20, border: `1px solid ${id === level ? C.gold : C.line}`, background: id === level ? al(C.gold, "22") : "transparent", color: id === level ? C.gold : C.sub }}>{L.label}</button>)}</div>}
-      {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13, marginBottom: 12 }}>Aucune partie enregistrée sous ce code.</div>}
+      {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13, marginBottom: 12 }}>{tr("Aucune partie enregistrée sous ce code.")}</div>}
       <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
         {podium.map((e, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${i < 3 ? C.gold : C.line}`, borderRadius: 9, padding: "8px 12px" }}>
@@ -3904,7 +3945,7 @@ function LeaderboardView({ code, level = "complet", onLevel, entries, onBack }) 
           </div>
         ))}
       </div>
-      <Btn kind="primary" onClick={onBack}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Retour</Btn>
+      <Btn kind="primary" onClick={onBack}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Retour")}</Btn>
     </div>
   );
 }
@@ -3912,6 +3953,8 @@ function LeaderboardView({ code, level = "complet", onLevel, entries, onBack }) 
 /* ============================================================
    APP — machine à états
    ============================================================ */
+[ERAS, CHAIN_DESC, FUTURE_EVENTS, FUTURE_CRISES, ERA_INFO, HIST_EVENTS, AMBIANCE, OBJECTIFS, LETTRES, LEVELS, LEVERS, DOCTRINES, TYPES, EVENTS, TROPHIES, IND_META, IND_GROUPS, BLOC_SHORT, POSTES, REVENUES, EXPLAIN, CHIP_HELP, VOTER_QUOTES, ELECTION_ANNONCE].forEach((o) => collectI18n(o));
+
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [squaresView, setSquaresView] = useState("postes"); // représentation ouverte par l'écran « Le budget en 1 000 € »
@@ -3936,6 +3979,9 @@ export default function App() {
   // Chaque nouvel écran (ou nouvel événement) s'ouvre en haut de page, sur le tableau de bord
   useEffect(() => { window.scrollTo(0, 0); }, [screen, evtIdx, conseilEvtIdx]);
   const [theme, setTheme] = useState("dark");
+  const [lang, setLang] = useState("fr");
+  const changeLang = async (l) => { await setLanguage(l); setLang(LANG); storage.set("quinq:lang", LANG); };
+  useEffect(() => { (async () => { const l = await storage.get("quinq:lang"); if (l && l !== "fr" && LANGS[l]) changeLang(l); })(); }, []);
   useEffect(() => { (async () => { const t = await storage.get("quinq:theme"); if (t === "light" || t === "dark") setTheme(t); })(); }, []);
   useEffect(() => { try { document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : ""); } catch {} storage.set("quinq:theme", theme); }, [theme]);
   const [unlockedTrophies, setUnlockedTrophies] = useState([]);
@@ -4121,25 +4167,29 @@ export default function App() {
         .qvibe { animation: qvibe 2.2s ease-in-out infinite, qring 2.2s ease-out infinite; }
         .qvibe3 { display: inline-block; animation: qvibe 2.2s ease-in-out 3, qring 2.2s ease-out 3; border-radius: 8px; }
         ::-webkit-scrollbar { height: 8px; width: 8px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }`}</style>
-      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} title={theme === "light" ? "Passer en mode sombre" : "Passer en mode clair"}
+      <select value={lang} onChange={(e) => changeLang(e.target.value)} aria-label={tr("Langue / Language")}
+        style={{ position: "fixed", top: 12, right: 58, zIndex: 40, height: 38, borderRadius: 10, cursor: "pointer", background: C.card, border: `1px solid ${C.line}`, color: C.gold, fontSize: 13, fontWeight: 600, padding: "0 6px" }}>
+        {Object.entries(LANGS).map(([id, name]) => <option key={id} value={id}>{id.toUpperCase()} · {name}</option>)}
+      </select>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} title={theme === "light" ? tr("Passer en mode sombre") : tr("Passer en mode clair")}
         style={{ position: "fixed", top: 12, right: 12, zIndex: 40, width: 38, height: 38, borderRadius: 10, cursor: "pointer", background: C.card, border: `1px solid ${C.line}`, color: C.gold, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1 }}>{theme === "light" ? "☾" : "☀"}</span>
       </button>
-      <div style={{ maxWidth: ["home", "mission", "era"].includes(screen) ? 1040 : 760, margin: "0 auto", padding: ["home", "mission", "era"].includes(screen) ? "40px 24px 48px" : "18px 16px 40px" }}>
+      <div key={lang} style={{ maxWidth: ["home", "mission", "era"].includes(screen) ? 1040 : 760, margin: "0 auto", padding: ["home", "mission", "era"].includes(screen) ? "40px 24px 48px" : "18px 16px 40px" }}>
         {conseil && ["conseil_budget", "conseil_events"].includes(screen) && (
-          <Dashboard key={screen} fold={screen === "conseil_budget"} ind={conseil.ind} sub="Les chiffres clés de la France au début de l'année : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure."
-            badge={<div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: al(C.gold, "22"), color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="user-star" size={13} /> Année conseil — ne compte pas</div>} />
+          <Dashboard key={screen} fold={screen === "conseil_budget"} ind={conseil.ind} sub={tr("Les chiffres clés de la France au début de l'année : économie, société, vie politique. Touchez un indicateur pour comprendre ce qu'il mesure.")}
+            badge={<div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: al(C.gold, "22"), color: C.gold, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, marginBottom: 10 }}><Icon n="user-star" size={13} /> {tr("Année conseil — ne compte pas")}</div>} />
         )}
         {game && screen !== "home" && (
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 30, height: 30, borderRadius: 8, background: C.goldFill, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={17} color="var(--on-accent)" /></div>
-                <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{game.chain ? `Votre ${game.chain.n}ᵉ mandat · ${CURRENT_ERA.debut}-${CURRENT_ERA.debut + CURRENT_ERA.duree}` : eraLabel(eraById(game.eraId))} · {doctrineOf(game)?.label} · {game.code}</div></div>
+                <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{game.chain ? tr("Votre {a}ᵉ mandat · {b}-{c}", { a: game.chain.n, b: CURRENT_ERA.debut, c: CURRENT_ERA.debut + CURRENT_ERA.duree }) : eraLabel(eraById(game.eraId))} · {doctrineOf(game)?.label} · {game.code}</div></div>
               </div>
               <div style={{ textAlign: "right" }} className="qmandat">
-                <div style={{ color: C.dim, fontSize: 10, textTransform: "uppercase" }}>Mandat</div>
-                <div style={{ color: C.gold, fontFamily: "monospace", fontSize: 16, fontWeight: 600, lineHeight: 1 }}>Année {Math.min(game.year, YEARS)}<span style={{ color: C.line, fontSize: 12 }}>/{YEARS}</span></div>
+                <div style={{ color: C.dim, fontSize: 10, textTransform: "uppercase" }}>{tr("Mandat")}</div>
+                <div style={{ color: C.gold, fontFamily: "monospace", fontSize: 16, fontWeight: 600, lineHeight: 1 }}>{tr("Année")} {Math.min(game.year, YEARS)}<span style={{ color: C.line, fontSize: 12 }}>/{YEARS}</span></div>
               </div>
             </div>
             <div style={{ height: 6, borderRadius: 4, background: C.track, overflow: "hidden" }}><div style={{ width: `${progress}%`, height: "100%", background: C.goldFill, transition: "width .4s" }} /></div>
