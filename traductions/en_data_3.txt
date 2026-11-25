@@ -1,0 +1,139 @@
+409	Leave it to the insurers
+410	Much of the damage is not insured.
+411	Storms Lothar and Martin (December 1999) cause enormous damage; the state releases emergency aid and a plan for the forests.
+412	At the end of the 1990s, economic growth is strong (over 3% a year) and tax revenue far exceeds budget forecasts. This unexpected surplus, nicknamed "the kitty", fuels a political debate about how to use it.
+413	The tax "kitty"
+414	Thanks to strong growth, taxes are bringing in more than expected. What should be done with this surplus?
+415	Cut taxes
+416	Giving money back to taxpayers supports demand.
+417	Reduce the deficit
+418	Use the good years to put the accounts in order.
+419	Increase public spending
+420	Strengthen public services.
+421	The government uses the surplus to cut several taxes, including VAT, brought down to 19.6% in April 2000.
+422	Cutting income tax was a central promise of Jacques Chirac's 2002 campaign, in a context of economic recovery after the 2001 slowdown.
+423	Cut income tax?
+424	Cutting income tax was a campaign promise. But growth is slowing.
+425	Cut income tax by 5%
+426	A cut that mainly benefits households that pay income tax.
+427	Priority to reducing the deficit
+428	Give up a promise to keep the accounts in order.
+429	Cut contributions on low wages instead
+430	Encourage low-skilled employment.
+431	From 2002, income tax is cut by 5%, in line with the campaign promises.
+432	The August 2003 heatwave is the deadliest France has known in a century: temperatures exceed 40°C for several days, and the health system, caught off guard (notably because of staff shortages in the middle of August), is overwhelmed.
+433	The August 2003 heatwave
+434	An exceptional heatwave hits France. Many elderly people die.
+435	Heatwave plan and a "solidarity day" worked to fund care for the elderly
+436	An extra unpaid working day funds care for dependent people.
+437	Fund care for the elderly through the deficit
+438	Quick aid, on credit.
+439	The emotion in the country is immense.
+440	The August 2003 heatwave causes about 15,000 deaths. A worked "solidarity day" is created in 2004 to fund care for the elderly.
+441	The 2003 Fillon reform is the first major pension reform since 1993 (which only concerned the private sector). It aims to respond to population ageing and longer life expectancy.
+442	Reform civil servants' pensions?
+443	Population ageing threatens the balance of the pension system.
+444	Extend civil servants' contribution period to 40 years
+445	Align public and private sectors, despite the strikes.
+446	Raise contributions
+447	Make workers pay more.
+448	Do not reform
+449	The pension deficit widens.
+450	The Fillon reform (2003) gradually aligns civil servants' contribution period with that of the private sector, despite major strikes.
+451	The death of two teenagers, Zyed Benna and Bouna Traoré, electrocuted while hiding from a police check in Clichy-sous-Bois, triggers three weeks of urban riots in many French cities, the largest since May 1968.
+452	The riots of November 2005
+453	After the death of two teenagers, riots break out in many suburbs.
+454	Firmness (state of emergency) and a jobs plan for the neighbourhoods
+455	Restore order and tackle the causes.
+456	Only a plan for the neighbourhoods
+457	Tackle the causes, at the risk of looking soft.
+458	Only firmness
+459	Order returns, the problems remain.
+460	After three weeks of riots, a state of emergency is declared and measures for youth employment in the neighbourhoods are announced.
+461	The first-job contract (CPE), meant to make hiring young people easier by relaxing dismissal rules, sparks a huge protest movement among university and secondary-school students in spring 2006, recalling the mobilisations of 1968 and 1986 in its scale.
+462	The first-job contract (CPE)
+463	A new contract for under-26s, easier to terminate, triggers large student demonstrations.
+464	Keep the CPE
+465	Stand firm against the street.
+466	Withdraw the CPE
+467	End the crisis by giving up the reform.
+468	Change it profoundly
+469	A difficult compromise.
+470	Faced with the demonstrations, the CPE, although passed into law, is withdrawn in April 2006.
+471	The "work, employment, purchasing power" law (TEPA), voted in the summer of 2007, puts into practice Nicolas Sarkozy's campaign slogan "work more to earn more". The tax shield, which caps direct taxes at 50% of income, is particularly controversial.
+472	The "tax package"
+473	The new government wants people to "work more to earn more" and to lighten taxes.
+474	Exempt overtime from tax, strengthen the tax shield, lighten inheritance tax
+475	Costly tax cuts, unevenly distributed.
+476	Measures targeted at the purchasing power of low-income households
+477	Less costly, more redistributive.
+478	Priority to the deficit
+479	Give up the tax promises.
+480	The TEPA law (August 2007) exempts overtime from tax, strengthens the tax shield (taxes capped at 50% of income) and lightens inheritance tax.
+481	The bankruptcy of the American bank Lehman Brothers on 15 September 2008 triggers panic on world financial markets: banks, no longer knowing who holds toxic assets, stop lending to each other. This is the climax of the "subprime" crisis that began in the United States in 2007.
+482	The global financial crisis
+483	The collapse of Lehman Brothers triggers a panic. Banks stop lending to each other.
+484	Guarantee and support the banks
+485	Avoid the collapse of the banking system, with public money.
+486	Let the banks go bankrupt
+487	The risk of a depression like in 1929.
+488	Nationalise the struggling banks
+489	The state takes control, and the risks.
+490	In autumn 2008, the state guarantees interbank loans and provides banks with capital to prevent the financial system from collapsing.
+491	2009 is the worst global recession since the Second World War: international trade collapses, and almost all developed countries see their output fall sharply.
+492	2009: the recession
+493	Output falls sharply and unemployment rises.
+494	Stimulus plan (public investment, car scrappage scheme)
+495	Cushion the crisis through public spending.
+496	Immediate austerity
+497	Cutting the deficit in the middle of a crisis deepens the recession.
+498	Temporary VAT cut
+499	Support consumption through prices.
+500	A €26 billion stimulus plan is launched (public investment, car scrappage scheme). Yet GDP falls by almost 3% in 2009.
+501	As in 2003, demographic ageing pushes for a new pension reform. The 2010 reform raises the legal retirement age from 60 to 62, triggering large demonstrations in the autumn.
+502	Raise the retirement age?
+503	The pension schemes are deep in deficit after the crisis.
+504	Raise the legal age from 60 to 62
+505	A lasting saving, strongly contested.
+506	Make workers pay.
+507	The pension deficit keeps piling up.
+508	The 2010 reform gradually raises the legal retirement age from 60 to 62, despite large demonstrations.
+509	The Greek debt crisis, revealed at the end of 2009, spreads to other European countries (Ireland, Portugal, Spain, Italy) and threatens the very existence of the eurozone. Financial markets doubt the ability of several states, including France, to repay their debt.
+510	The eurozone crisis
+511	Greece is on the brink of bankruptcy. Markets doubt several European countries, including France.
+512	Austerity plans (tax increases and savings)
+513	Reassure the markets, at the cost of growth.
+514	Let the deficit slide
+515	The risk of rising interest rates.
+516	Help Greece without a budget effort
+517	European solidarity has a cost.
+518	The Fillon government adopts two austerity plans (August and November 2011). In January 2012, Standard & Poor's strips France of its "AAA" rating.
+519	François Hollande is elected in May 2012 on a promise to rebalance public finances through tax fairness. As soon as it takes office, the Ayrault government sharply raises taxes on high incomes and large companies.
+520	Put the accounts back in order
+521	The deficit reaches 5% of GDP. The new government wants to reduce it quickly.
+522	Through tax increases on well-off households and companies
+523	Quick revenue, but a brake on growth.
+524	Through spending cuts
+525	Lower taxes, but fewer services.
+526	The European rules will not be respected.
+527	In 2012-2013, taxes rise sharply: a new 45% income-tax bracket and a temporary 75% tax on pay above one million euros.
+528	Faced with the declining competitiveness of French companies, highlighted in particular by the Gallois report (November 2012), the government creates the CICE (tax credit for competitiveness and employment) to reduce labour costs without directly touching social contributions.
+529	Cut labour costs?
+530	French companies are losing competitiveness and unemployment is rising.
+531	Create a tax credit for competitiveness and employment (CICE)
+532	About €20 billion a year to lower labour costs.
+533	Cut employers' contributions directly
+534	The same goal, more simply.
+535	Do nothing
+536	Competitiveness keeps deteriorating.
+537	The tax credit for competitiveness and employment (CICE) comes into force in 2013: about €20 billion a year in lower labour costs.
+538	Announced by François Hollande in January 2014, the responsibility pact marks a shift towards a more business-friendly policy, to the dismay of part of the left, which sees it as a betrayal.
+539	The responsibility pact
+540	Unemployment is above 10%. Should payroll charges be cut further?
+541	New cuts in payroll charges funded by €50 billion of savings
+542	A supply-side turn, contested within the majority.
+543	Stimulate demand
+544	Support consumption.
+545	Stay on the current course
+546	No new reform.
+547	The responsibility pact (2014) provides for new cuts in employers' contributions, funded by €50 billion of savings over three years.

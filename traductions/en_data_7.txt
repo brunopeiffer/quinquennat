@@ -1,0 +1,170 @@
+978	Let the market decide
+979	Liberalism accepts closures; the local social cost can be heavy.
+980	Stock-market crash & banking panic
+981	Markets are collapsing, a big bank is wobbling. Systemic risk looms.
+982	Bail out the bank with public money
+983	Saving the banks prevents collapse but makes taxpayers pay for the private sector (2008).
+984	Guarantee deposits, let shareholders take the losses
+985	Protect savers without saving shareholders: fairer, riskier.
+986	Non-intervention can turn a financial crisis into a depression.
+987	War on Europe's doorstep
+988	A major conflict breaks out. Allies and public opinion call for France to get involved.
+989	Military aid and taking in refugees
+990	International solidarity has an immediate budgetary and social cost.
+991	Humanitarian aid only
+992	A cautious position, sometimes seen as insufficient by allies.
+993	Stay neutral
+994	Neutrality protects the budget but isolates the country diplomatically.
+995	The artificial-intelligence revolution
+996	A technological wave is upending the economy. Jobs under threat, huge productivity gains.
+997	Major training & regulation plan
+998	Supporting technical progress (training) turns a threat into a productivity gain.
+999	Let the market adapt on its own
+1000	Growth without redistribution can widen inequality (creative destruction).
+1001	Tax robots to fund the losers
+1002	A debated idea: redistribute the gains of automation to the jobs destroyed.
+1003	Discovery of a strategic deposit
+1004	Significant resources (lithium, gas) are discovered on French territory.
+1005	Rapid national exploitation
+1006	An immediate budget windfall, at an environmental cost.
+1007	Regulated, ecological exploitation
+1008	Reconciling resources and the environment: slower, more sustainable.
+1009	Leave it in the ground (protect it)
+1010	Giving up a resource for the sake of the climate: a deliberate long-term choice.
+1011	Hosting the Olympic Games
+1012	France is hosting the Olympics. A global showcase but a colossal budget.
+1013	Go big: infrastructure and prestige
+1014	Major events boost activity and national pride, but costs often spiral.
+1015	A modest, controlled version
+1016	Keep public spending under control while still benefiting from the showcase.
+1017	Give up
+1018	Avoid the budget risk but miss an opportunity to shine.
+1019	General strike in the public services
+1020	Teachers, health workers and railway staff walk out together over pay.
+1021	Raise public-sector pay
+1022	The public payroll is a major item; a raise supports demand.
+1023	One-off exceptional bonus
+1024	A bonus costs less than a permanent rise in the civil-service pay scale.
+1025	Stand firm, no concessions
+1026	A long conflict disrupts the economy and damages the social climate.
+1027	Urban riots
+1028	A tragedy triggers nights of rioting. Shops burned, tension at its peak.
+1029	Plan for the neighbourhoods (jobs, schools)
+1030	Tackle the causes (unemployment, services) rather than the symptoms.
+1031	Restore order by force
+1032	A security response calms things in the short term but feeds resentment.
+1033	Both: firmness + investment
+1034	Combining order and social justice: a difficult balance but often necessary.
+1035	Drought and farming crisis
+1036	Harvests are collapsing. Farmers are protesting, food prices are rising.
+1037	Compensate the farmers
+1038	Support a stricken sector; farm subsidies are a highly political issue.
+1039	Invest in sustainable irrigation
+1040	Adapt farming to climate change (structural investment).
+1041	Let the market adjust prices
+1042	Rising food prices hit the poorest first (inflation).
+1043	Surge in inflation
+1044	Prices are soaring, purchasing power is falling. Anger is rising.
+1045	Index benefits and the minimum wage to inflation
+1046	Protecting purchasing power supports demand but can feed inflation (wage-price loop).
+1047	Temporary freeze on some prices
+1048	Price controls bring short-term relief but create shortages if they last.
+1049	Let the central bank act (interest rates)
+1050	Raising interest rates calms inflation by slowing activity (the ECB's trade-off).
+1051	Public hospitals at breaking point
+1052	Lack of beds, exhausted health workers, overwhelmed emergency departments.
+1053	Hospital investment plan
+1054	Health is a major item; under-investing has a deferred social and health cost.
+1055	Reorganise without spending more
+1056	Efficiency with the same resources has its limits in the face of demand for care.
+1057	Open up to the private sector
+1058	Privatising health care divides opinion: efficiency gains vs equal access.
+1059	The energy lobby proposes a deal
+1060	An oil and gas giant offers to invest €10 billion in the country… in exchange for approval of a controversial project and funding for your communications.
+1061	Accept the deal
+1062	A lobby is trading jobs for favours; the integrity of public decision-making is at stake.
+1063	Negotiate environmental conditions
+1064	Regulate a lobby rather than give in: protect the general interest.
+1065	Refuse firmly
+1066	Resisting pressure groups strengthens democratic trust in the long run.
+1067	Pharmaceutical lobby
+1068	A laboratory offers a strategic vaccine at a high price, in exchange for an exclusive patent and a tax break.
+1069	Sign the exclusive contract
+1070	Depending on a private monopoly for public health raises a sovereignty problem.
+1071	Demand an open licence
+1072	Defend the common good against private interests (health = a public good).
+1073	Fund a public vaccine
+1074	Public investment in research reduces dependence, at a high initial cost.
+1075	Agri-food lobby
+1076	The sector asks for a banned pesticide to be reauthorised to "save the harvests". It supports many rural jobs.
+1077	Reauthorise the pesticide
+1078	Giving in to a lobby against scientific advice: a classic conflict between private interest and public health.
+1079	Help the sector convert to organic farming
+1080	Agro-ecological transition: costly but sustainable.
+1081	Keep the ban without support
+1082	Defending the environment without social support creates losers.
+1083	Financial lobby
+1084	The banks are calling for deregulation to "free up credit and growth".
+1085	Deregulate widely
+1086	Deregulation boosts activity but increases the risk of a crisis (the lesson of 2008).
+1087	Relax rules slightly, keep the safeguards
+1088	Seek a balance between financing the economy and financial stability.
+1089	Refuse and strengthen supervision
+1090	Regulating finance protects the real economy from speculative excesses.
+1091	Mass surveillance
+1092	Your services propose a generalised surveillance system that would reduce crime… at the cost of freedoms.
+1093	Deploy surveillance
+1094	Security versus freedoms: a fundamental dilemma for democracies.
+1095	A version supervised by a judge
+1096	Judicial oversight protects the rule of law while keeping a security tool.
+1097	Give up the scheme
+1098	Protecting freedoms sometimes has an immediate political cost.
+1099	A friend for a key post
+1100	A political ally asks you to appoint a poorly qualified person to an important public post.
+1101	Accept the appointment
+1102	Favouritism (cronyism) undermines trust in public action.
+1103	Offer a secondary post
+1104	A compromise that limits the damage without fully resisting.
+1105	Refuse on the grounds of merit
+1106	Defending integrity can cost political support.
+1107	A scandal is about to break
+1108	A journalist is investigating a dubious public contract signed by your team.
+1109	Cover it up
+1110	Concealing makes the wrongdoing worse; in a democracy, transparency protects better than secrecy.
+1111	Admit it and make amends publicly
+1112	Confession and redress restore trust in the medium term.
+1113	Open an independent inquiry
+1114	Entrusting oversight to an independent third party strengthens credibility.
+1115	Showdown with the European Union
+1116	Brussels demands that you reduce your deficit or face sanctions.
+1117	Respect the 3% rule
+1118	The Stability Pact requires a deficit < 3% of GDP: budget discipline has a social cost.
+1119	Negotiate a delay
+1120	European negotiation makes it possible to spread the budget effort over time.
+1121	Ignore it and accept the sanctions
+1122	Defying the EU sometimes pleases public opinion but isolates the country and costs credibility.
+1123	Migration crisis
+1124	Thousands of people are arriving at the borders. The country is divided over what to do.
+1125	Organised reception and integration
+1126	Immigration has an initial integration cost and a long-term economic contribution.
+1127	Quotas and tighter controls
+1128	A balancing policy, often criticised from both sides.
+1129	Close the borders
+1130	Withdrawal appeals to part of public opinion but clashes with humanitarian commitments.
+1131	Fighting tax fraud
+1132	A report reveals billions in taxes evaded by large companies and wealthy individuals. The public demands accountability.
+1133	Major tax-audit plan (hire inspectors)
+1134	Recovering evaded tax is popular and brings a real but limited gain: it takes inspectors and time, and part of the fraud can never be recovered. On its own, it never closes the deficit.
+1135	A few targeted, high-profile audits
+1136	A modest but quick and consensual effort; the budget return remains small.
+1137	Doing nothing about tax fraud is very badly perceived and fuels a sense of injustice.
+1138	Debate on benefit fraud
+1139	The opposition calls for a major plan against wrongly paid social benefits (RSA minimum income, allowances…). The issue is divisive.
+1140	Sharply tighten checks on benefit recipients
+1141	The amounts recovered are small: benefit fraud is much smaller than tax fraud. And overzealous checks stigmatise the poorest.
+1142	Cross-check files without stigmatising
+1143	A technical and measured approach: a small gain, without harming cohesion.
+1144	Point out that benefit fraud is marginal
+1145	Factually correct, but part of public opinion sees it as laxity.
+1146	Review all spending (zero-based budgeting)
+1147	Your advisers suggest stopping the automatic renewal of budgets: every expense would have to be justified from scratch, every year.

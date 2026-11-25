@@ -1,0 +1,129 @@
+280	Continue the stimulus
+281	The external deficit and inflation keep getting worse.
+282	In March 1983, France stays in the European Monetary System (EMS): a new devaluation, Jacques Delors's austerity plan and the end of automatic wage indexation. Inflation falls sharply in the following years.
+283	The parliamentary elections of March 1986 give the majority to the right, which forces François Mitterrand to appoint Jacques Chirac as Prime Minister: this is the first "cohabitation" of the Fifth Republic, a president and a government from opposing political sides.
+284	Cohabitation: privatise?
+285	After the 1986 parliamentary elections, a majority opposed to the president is in government. It wants to privatise major companies.
+286	Let the government privatise
+287	The sales bring money to the state and reduce the debt.
+288	Oppose the privatisations
+289	The president has little power against the majority.
+290	Accept limited privatisations
+291	A compromise.
+292	Cohabitation begins: Jacques Chirac's government privatises major companies (Saint-Gobain, Paribas, TF1…). The president refuses to sign the decrees, which then have to go through Parliament as laws.
+293	On 19 October 1987, nicknamed "Black Monday", world stock markets lose more than 20% in a single session, the biggest fall since 1929. Contrary to fears at the time, it will not lead to a world recession.
+294	The stock-market crash of October 1987
+295	World stock markets collapse within a few days.
+296	Keep calm and let the markets stabilise
+297	A crash does not always cause a recession.
+298	Launch a support plan
+299	A costly precaution.
+300	Suspend the privatisations
+301	Selling in a collapsing market brings in less.
+302	The October 1987 crash does not lead to a recession: growth remains solid in 1988. The privatisation programme is slowed down.
+303	Before 1988, people with no resources and no right to unemployment benefit had no guaranteed safety net. The RMI, introduced by Michel Rocard's government, is the ancestor of today's RSA (active solidarity income, the current minimum income, created in 2009).
+304	Create a minimum income?
+305	Poverty and social exclusion are growing. Should a minimum income be guaranteed?
+306	Create a minimum integration income
+307	A safety net for the poorest.
+308	Strengthen existing benefits
+309	Less ambitious, less costly.
+310	Create nothing
+311	Social exclusion keeps growing.
+312	The minimum integration income (RMI) is created in December 1988, voted almost unanimously.
+313	The tax on large fortunes (IGF), created in 1982, had been abolished by the Chirac government in 1987 in the name of competitiveness. Its re-creation under a new name, the ISF (solidarity wealth tax), symbolises the left's return to power after cohabitation.
+314	Tax large fortunes?
+315	The tax on large fortunes was abolished in 1987. Should a new one be created?
+316	Create a solidarity wealth tax
+317	A symbolic redistributive tax that brings in little.
+318	Tax inheritances more
+319	Another way of taxing wealth.
+320	Do not tax wealth
+321	Wealth gaps widen.
+322	The solidarity wealth tax (ISF) is created in 1989, replacing the tax on large fortunes abolished in 1987.
+323	On 2 August 1990, Saddam Hussein's Iraq invades Kuwait, its oil-rich neighbour. An international coalition led by the United States, in which France takes part (Operation Daguet), liberates Kuwait in February 1991.
+324	The Gulf War
+325	Iraq invades Kuwait. Oil prices soar and an international coalition forms.
+326	Join the coalition and support the economy
+327	A military commitment has a budgetary cost.
+328	Join and save elsewhere
+329	Stick to the budget despite the war.
+330	Staying out isolates France on the international stage.
+331	France takes part in the international coalition (1991). The oil-price spike is brief, but growth slows.
+332	Before 1991, French Social Security was funded almost exclusively by contributions levied on wages, which made labour more expensive. The CSG (general social contribution), created by the Rocard government, extends funding to all income (wages, but also pensions, capital income…).
+333	Fund Social Security differently?
+334	Social Security is mainly funded by contributions on wages, which weighs on employment.
+335	Create a contribution on all income (CSG)
+336	Make capital income and pensions contribute too.
+337	Raise employee contributions
+338	This makes labour even more expensive.
+339	Borrow
+340	Pass the problem on to future generations.
+341	The general social contribution (CSG) is created in 1991 at a rate of 1.1%: it applies to almost all income, not just wages.
+342	The Maastricht Treaty, signed in February 1992, creates the European Union and lays the foundations of the future single currency. It sets strict criteria that candidate countries must meet: a public deficit below 3% of GDP and debt below 60%.
+343	The Maastricht Treaty
+344	Europe is preparing a single currency. To join, a deficit below 3% of GDP and debt below 60% will be required.
+345	Commit to the single currency and its rules
+346	A strong, stable currency, but budget constraints.
+347	Reject the treaty
+348	Keep monetary sovereignty, at the risk of isolation.
+349	Sign, but postpone the budget effort
+350	The rules will end up being enforced.
+351	The Maastricht Treaty is approved by referendum in September 1992, narrowly (about 51% "yes").
+352	1993 is France's worst economic year since 1945: GDP falls, unemployment passes 11%, and a currency crisis hits the European Monetary System in the summer. Édouard Balladur, the new cohabitation Prime Minister, must act fast.
+353	1993: recession and currency crisis
+354	France goes into recession. Unemployment soars and the deficit gets out of hand.
+355	Big national loan, higher CSG (social contribution on all income) and pension reform
+356	A mix of exceptional financing and reforms.
+357	Deficit-financed stimulus
+358	Cushion the crisis by letting the deficit slide.
+359	Immediate tax increases
+360	Cutting the deficit in the middle of a recession makes it worse.
+361	Édouard Balladur's government launches a big national loan (110 billion francs), raises the CSG to 2.4% and reforms private-sector pensions (contribution period gradually extended to 40 years).
+362	One year before the Maastricht deadline (1997), France must bring its deficit below 3% of GDP to hope to join the euro. The VAT increase, voted in the summer of 1995, is one of the first moves of the new Juppé government.
+363	Reduce the deficit for the euro
+364	The deficit is above 5% of GDP, far from the 3% target set for joining the euro.
+365	Raise VAT by 2 points
+366	VAT brings in money fast, but weighs on low-income households.
+367	Cut spending
+368	Savings, at the cost of reduced public services.
+369	Postpone the effort
+370	The euro goal moves further away.
+371	In August 1995, the standard VAT rate rises from 18.6% to 20.6% to reduce the deficit and prepare for the euro.
+372	The Juppé plan aims to reform Social Security in depth and align the special pension schemes (SNCF national railways, RATP Paris transport…) with the general scheme. In December 1995 it triggers the longest strike movement since 1968, paralysing transport for three weeks.
+373	Social Security reform and major strikes
+374	The Juppé government presents a reform of Social Security and of the special pension schemes. The country is paralysed by strikes.
+375	Keep the whole plan
+376	Stand firm, at the risk of a long conflict.
+377	Withdraw the special-schemes reform, keep the Social Security one
+378	A compromise to end the conflict.
+379	Withdraw everything
+380	Social peace, without reform.
+381	After three weeks of strikes in December 1995, the government withdraws the special-schemes reform but keeps the Social Security reform (creation of the CRDS, a levy to repay the social-security debt).
+382	After Jacques Chirac's surprise dissolution of the National Assembly in April 1997, the parliamentary elections bring the left to power: this is the third cohabitation. Lionel Jospin, the new Prime Minister, must put the accounts back in order so that France can join the euro at its launch on 1 January 1999.
+383	Qualify for the euro
+384	To join the euro, the deficit must fall below 3% of GDP as early as 1997.
+385	Exceptional surcharge on large companies' corporate tax
+386	A temporary effort borne by companies.
+387	Cut spending
+388	An effort borne by public services.
+389	Accept missing the euro
+390	France would stay outside the single currency.
+391	After the 1997 dissolution, the Jospin government introduces an exceptional surcharge on corporate tax. The deficit falls below 3% and France qualifies for the euro in 1998.
+392	Reducing working time to share jobs is an old idea of the left, already tried with the 39-hour week in 1982. The Aubry laws, named after Labour Minister Martine Aubry, extend the 35-hour week to almost all companies.
+393	The 35-hour week?
+394	Unemployment is above 10%. Should working time be reduced to share jobs?
+395	Move to 35 hours with aid to companies
+396	Share the work, with cuts in social contributions to compensate.
+397	Let each sector negotiate
+398	A more flexible and slower approach.
+399	Keep 39 hours
+400	No cost, no effect.
+401	The Aubry laws (1998 and 2000) set the legal working week at 35 hours, with cuts in social contributions for companies.
+402	Storms Lothar (26 December) and Martin (27 December 1999) hit France with winds exceeding 200 km/h in places. They fell the equivalent of three years of timber harvest and leave millions of homes without electricity for several weeks.
+403	The storms of December 1999
+404	Two storms devastate France: forests destroyed, millions of homes without electricity.
+405	Major aid plan for disaster victims and forests
+406	National solidarity in the face of disasters.
+407	Limited aid
+408	Minimal support.

@@ -1,0 +1,148 @@
+1148	Apply zero-based budgeting to the whole state
+1149	"Zero-based" budgeting forces every euro to be justified: strong savings potential, but heavy to implement and a source of conflict with government departments.
+1150	Targeted audit of the largest items
+1151	A partial audit: more modest savings, but more consensual and faster.
+1152	Renew the budgets as usual
+1153	Automatic renewal (on a historical basis) is simple but lets spending that has become inefficient slide.
+1154	An industrial champion to support
+1155	A national company could become a world leader in batteries if the state invests.
+1156	Invest in the national champion
+1157	Industrial policy bets on the future: risky but potentially rewarding.
+1158	Guaranteed loan only
+1159	Support without spending directly (a public guarantee).
+1160	Let the private sector finance it
+1161	Non-intervention leaves the risks and the gains to the market.
+1162	Tightrope walker
+1163	Finish with a balanced budget or a surplus.
+1164	Debt cutter
+1165	Reduce debt by at least 6 points of GDP over the term.
+1166	Full employment
+1167	Bring unemployment below 6%.
+1168	Clean hands
+1169	Keep integrity at 90 or more.
+1170	Green president
+1171	Reach 70 for the environment.
+1172	Unifier
+1173	Keep cohesion at 75 or more.
+1174	Social justice
+1175	Reach an equality index of at least 65.
+1176	Growth engine
+1177	Finish with growth above 2%.
+1178	Landslide winner
+1179	Be re-elected by a landslide.
+1180	Flawless
+1181	Get a score of at least 75.
+1182	Balance
+1183	of GDP
+1184	The difference between what the state takes in (revenue) and what it spends, as a % of GDP. Negative = deficit: it spends more than it earns. Goal: get close to 0, or even a surplus.
+1185	Debt
+1186	The total of all past deficits, expressed as a % of GDP. The higher it is, the heavier the interest to be paid (snowball effect). The European rule aims for 60%.
+1187	Unemployment
+1188	of the workforce
+1189	The share of the workforce without a job. It falls when the economy creates jobs (growth) and rises when it slows down: this is Okun's law.
+1190	Growth
+1191	per year
+1192	The change in GDP, the wealth produced in the country. Strong growth creates jobs and revenue; weak or negative growth means recession.
+1193	Inflation
+1194	The general rise in prices over a year. Too high, it eats away at purchasing power and pushes interest rates up; it was the big problem of the 1970s and 80s. It speeds up when the economy overheats.
+1195	Cohesion
+1196	Measures the unity and social peace of the country. Strengthened by public services and redistribution; weakened by budget cuts and inequality. Too low, it leads to riots.
+1197	Equality
+1198	Measures equality between the richest and the poorest: the higher the index, the more equal the society. Progressive taxes (on income, wealth) and benefits raise it; taxes that weigh on everyone in the same way (VAT) and social cuts lower it.
+1199	Environment
+1200	The state of the ecological transition. Improves with green investment and carbon taxation; slowly deteriorates if ignored.
+1201	Popularity
+1202	Public support. Decisive on election day. It wears off naturally over time ("the wear and tear of power").
+1203	Integrity
+1204	The probity of your government. Damaged by compromises (giving in to a lobby, covering up an affair). Integrity that is too low ends up triggering scandals.
+1205	Economy
+1206	Society & environment
+1207	Political life
+1208	interest on the debt
+1209	other spending
+1210	other revenue
+1211	Pensions and social benefits
+1212	pensions and benefits
+1213	health
+1214	Running the state and local authorities
+1215	running the state
+1216	education
+1217	Investment, research and business
+1218	Defence, security and justice
+1219	defence and security
+1220	Social contributions (payroll "charges")
+1221	social contributions
+1222	CSG (social contribution)
+1223	Income tax
+1224	income tax
+1225	Other taxes (wealth, inheritance, ecology)
+1226	other taxes
+1227	Corporate tax
+1228	corporate tax
+1229	Everything the French buy costs a little more. Low-income households, who spend almost all their income, feel it the most.
+1230	Prices in shops fall a little: everyone gains purchasing power, especially low-income households.
+1231	The households that earn the most pay more: income tax is progressive (the more you earn, the higher the rate).
+1232	Taxpayers, especially the wealthiest, keep more money; the state redistributes less.
+1233	A levy at the same rate on almost all income (wages, pensions…): everyone's net income falls a little.
+1234	Net wages and pensions rise a little for everyone.
+1235	Companies pay more tax on their profits: they have less money left to invest and hire, and some may move abroad.
+1236	Companies keep more of their profits: this can encourage them to invest and set up in France.
+1237	Hiring an employee costs companies more: they become more hesitant to recruit.
+1238	An employee costs the company less: this encourages hiring, but Social Security receives less money.
+1239	Net pay (what the employee actually receives in their account) falls: less purchasing power.
+1240	Net pay rises: employees have more purchasing power.
+1241	Very large fortunes pay more. It is highly redistributive, but brings in little (a few billion euros) and some wealthy taxpayers may move abroad.
+1242	Large fortunes are taxed less: the gap between the richest and everyone else widens.
+1243	Inheritances and gifts are taxed more: this limits the passing on of inequality from one generation to the next, but it is very unpopular.
+1244	Inheritances are taxed less: families pass on more, but wealth inequality is perpetuated.
+1245	Petrol, gas and polluting energy cost more: this encourages people to pollute less, but those who depend on their car resent it (as in the "yellow vests" movement in 2018).
+1246	Fuel and energy cost less: relief for motorists, but less incentive to pollute less.
+1247	Retirees' pensions rise: millions of people benefit, but it is already the largest item of public spending.
+1248	Pensions rise more slowly (or the retirement age goes up): retirees and future retirees are unhappy.
+1249	More resources for hospitals and care: shorter waits in emergency departments, more health workers.
+1250	Fewer resources for health: hospitals under strain, longer waits, medical deserts.
+1251	More teachers and better learning conditions: an investment in the future that pays off in the long term.
+1252	Fewer resources for schools: larger classes. The saving is immediate, but young people's future suffers.
+1253	The RSA minimum income, housing benefit and the in-work bonus rise: low-income households spend almost all of this money, which also keeps shops busy.
+1254	Aid to the poorest falls: the state saves money, but poverty and inequality rise.
+1255	The state funds transport, the ecological transition, research: this creates jobs today and growth tomorrow.
+1256	Less public investment: an immediate saving, but less growth and fewer jobs in the future.
+1257	More resources for the armed forces: the country is better protected and the defence industry hires.
+1258	Fewer resources for the armed forces: the state saves money, but France is less well equipped to face threats.
+1259	More police officers, judges and resources for justice: people feel safer.
+1260	Fewer resources for the police and justice: slower procedures, a feeling of insecurity.
+1261	The state hires more civil servants or raises their pay: more public-sector jobs and more visible public services.
+1262	Not all retiring civil servants are replaced: a big saving, but less visible public services (counters, schools, hospitals…).
+1263	More resources for public agencies (employment, health, environment…): they carry out their tasks better.
+1264	Agencies that duplicate each other are merged and some are abolished: the state saves money, but some services (support for the unemployed, health, environment) may deteriorate.
+1265	More aid to companies and associations: support for activity and local life (clubs, culture…).
+1266	Less aid to companies and associations: a quick saving, but some activities slow down or close.
+1267	More money for municipalities and regions: more local services (schools, transport, sports facilities…).
+1268	Less money for municipalities and regions: they cut their services or raise local taxes.
+1269	The rate at which the state borrows today, over 10 years (known as the "10-year OAT"). It only applies to NEW borrowing. It rises when lenders doubt the soundness of public finances (high debt, large deficit, inflation) and falls when they are reassured.
+1270	The average cost of ALL outstanding debt: a mix of old low-rate loans and new loans at higher rates. It moves slowly: every year, old loans mature and are replaced by loans at market rates. The state's interest bill = average rate × debt.
+1271	I found a job after two years of searching. We can finally breathe.
+1272	Karim, 34, factory worker
+1273	My factory closed and I'm still looking. What has been done for us?
+1274	Sophie, 45, former machine operator
+1275	Prices are calming down: you can feel it at the checkout.
+1276	Marie, 67, retired
+1277	My shopping costs more and more. The end of the month is hard.
+1278	Nadia, 38, mother
+1279	The state has taken back control of its accounts: that's reassuring.
+1280	Pierre, 52, business owner
+1281	The deficit is widening: we're leaving the bill to our children.
+1282	Claire, 41, teacher
+1283	The debt is falling: that means lower taxes tomorrow.
+1284	Louis, 29, engineer
+1285	The debt is exploding and nobody says how we'll pay it back.
+1286	Hélène, 58, accountant
+1287	The country seems at peace: we can talk to each other again.
+1288	Yasmine, 31, nurse
+1289	Everyone is angry: we don't understand each other any more.
+1290	Michel, 49, craftsman
+1291	You are re-elected by a landslide
+1292	You are re-elected
+1293	You are defeated
+1294	You are not re-elected
+1295	You leave power

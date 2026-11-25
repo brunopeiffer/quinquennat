@@ -1,0 +1,150 @@
+828	Growth is decent, but clouds are gathering. Keep public finances on course and protect jobs if the sky darkens.
+829	The economy is open and finance is globalised: an American crash (subprimes) spreads to the whole system, through banks and world trade. A trade deficit has set in since 2005.
+830	Debt < 75%
+831	Unemployment < 10.5%
+832	Deficit < 4%
+833	The eurozone is wobbling, debt has jumped and unemployment is above 9%. Bring the deficit back towards 3%, reverse the unemployment curve and don't let the debt slide.
+834	France has lost export market share to Germany: cost competitiveness is at the heart of the debate (CICE tax credit, responsibility pact). The strong euro does not help.
+835	Deficit < 3.5%
+836	Unemployment < 9.5%
+837	Debt < 95%
+838	The country has come out of the eurozone crisis but remains divided. Reform without inflaming society: jobs, deficit, cohesion.
+839	The trade deficit is structural (deindustrialisation) and the US-China trade war disrupts trade. The pandemic will reveal dependence on global supply chains.
+840	Society at peace (≥ 40)
+841	Inflation is picking up, interest rates are rising and debt is high. Protect purchasing power without letting the public accounts slide.
+842	The rise in prices is largely imported: gas and oil after the invasion of Ukraine, a weak euro against the dollar. The trade deficit hits a record in 2022: the energy bill weighs on the economy.
+843	Inflation < 2.5%
+844	Record debt, a deficit above 5%, borrowing rates close to 5%: there is little room for manoeuvre. Stabilise the public accounts, without letting unemployment rise.
+845	France depends on the markets to finance itself and on its partners to export: a higher interest rate or a trade war quickly feeds through to the budget.
+846	Debt ≤ 125%
+847	Unemployment < 8.3%
+848	Discovery
+849	The essentials of the budget: 12 levers and 6 indicators. Ideal for a first game.
+850	Intermediate
+851	16 levers and 8 indicators: adds employers' contributions, security, local authorities and subsidies.
+852	Complete
+853	All 20 levers and 10 indicators: the full simulation.
+854	VAT
+855	Tax on consumption. Brings in a lot but regressive (weighs more on low-income households).
+856	Income tax (progressive scale)
+857	Progressive: high earners pay proportionally more. Redistributive but unpopular.
+858	CSG (flat-rate social contribution)
+859	A single-rate levy on almost all income. Brings in a lot, not very progressive.
+860	Corporate tax (IS)
+861	Taxes company profits. Too high, it harms competitiveness and investment.
+862	Employers' contributions
+863	Fund Social Security. A huge item, but any increase raises labour costs (unemployment).
+864	Employees' contributions
+865	Deducted from wages: any increase reduces net pay and purchasing power.
+866	Wealth tax (ISF / IFI)
+867	Taxes very large fortunes. Highly redistributive and rather popular, but brings in little and can push wealthy taxpayers to move abroad.
+868	Inheritance and gift tax
+869	Taxes what people receive as an inheritance or a gift. Limits the passing on of inequality from one generation to the next, but very unpopular, even among low-income households.
+870	Green taxes (fuel tax, carbon tax)
+871	Taxes energy and carbon. Encourages the transition but can trigger a tax revolt.
+872	Pensions
+873	The largest spending item. Any cut (age, amount) is politically explosive.
+874	Health / Hospitals
+875	Under-investing creates medical deserts and overwhelms emergency departments; high deferred social cost.
+876	Education
+877	Public spending on education (state + local authorities). Investment in human capital: long-term return on growth.
+878	Benefits & minimum incomes (RSA, housing benefit, in-work bonus)
+879	Strong multiplier: paid to low-income households, they are almost entirely spent.
+880	Investment & research (ecology, infrastructure, R&D)
+881	The strongest multiplier: boosts tomorrow's growth, but brings in little right away.
+882	Defence & sovereignty
+883	Sovereignty and industrial jobs. Costly, with a knock-on effect on industry.
+884	Security & Justice
+885	Public order and justice. Reassures public opinion; a purely repressive excess can strain society.
+886	Public payroll & staffing (not replacing departures)
+887	Civil servants' salaries. Not replacing retiring staff saves a lot, but reduces public employment and the service provided (an idea of Retailleau/Lisnard).
+888	State agencies & operators
+889	The state funds hundreds of public agencies and bodies (employment, health, environment…). Cutting this budget means merging those that do the same work or abolishing some: it saves money, but some tasks may be carried out less well.
+890	Subsidies (companies & associations)
+891	Aid to companies and non-profit associations. Trimming it saves money fast, but slows activity and weakens the associative sector.
+892	Grants to local authorities
+893	Local authorities carry out ~70% of public investment. Cutting their grants saves money, but reduces local services and investment.
+894	Budget austerity
+895	in the style of Milei's Argentina
+896	Cut spending and debt above all. The markets trust you, society is more fragile.
+897	Debt weighs less on growth, but cohesion is harder to maintain.
+898	Solidarity & ecology
+899	Nordic model / Lula
+900	Extensive public services and ecological transition, funded by taxes. Strong cohesion, debt to keep an eye on.
+901	Social and education spending strengthens cohesion more.
+902	Liberal competitiveness
+903	in the style of Macron / Ireland
+904	Cut business taxes to attract activity. Growth boosted, revenue to be rebuilt.
+905	Investment and payroll-charge cuts boost growth more strongly.
+906	National sovereignty
+907	Priority to industry, defence and borders. Popular, but tensions with partners.
+908	Defence spending brings more popularity and activity.
+909	Crisis
+910	Social
+911	International
+912	Opportunity
+913	Lobby
+914	Ethical dilemma
+915	Health
+916	Climate
+917	Exceptional heatwave
+918	A heat dome settles in. Hospitals overwhelmed, schools closed, elderly people in danger.
+919	Emergency heatwave plan (air conditioners, hospitals)
+920	Cyclical public spending: a quick response protects the population but temporarily widens the deficit.
+921	Recommendations and free public transport
+922	An inexpensive response, but seen as timid if tragedy strikes.
+923	Release nothing special
+924	Doing nothing in the face of a health risk is very costly in popularity.
+925	Cyberattack on public services
+926	An attack paralyses the tax services, health insurance and several hospitals.
+927	Invest massively in cybersecurity
+928	Intangible investment (security, digital) protects the economy and trust.
+929	Quietly pay the ransom
+930	A quick fix, but it encourages crime and weakens the rule of law.
+931	Make do with the means available
+932	Under-investing in protection exposes the country to repeated economic losses.
+933	Global viral epidemic
+934	A new virus is spreading. Should the economy be locked down to save lives?
+935	Strict lockdown + "whatever it costs"
+936	Major shock: the state supports the economy through debt (short-time working, aid). An automatic-stabiliser effect.
+937	Targeted restrictions, economy kept open
+938	Health/economy trade-off: preserving GDP can cost lives and divide the country.
+939	Let it circulate, herd immunity
+940	A radical choice with a very high human and political cost.
+941	Energy prices soar
+942	A war abroad doubles the price of gas. Households and companies are being strangled.
+943	State-funded tariff shield
+944	Subsidising prices protects purchasing power but costs tens of billions of euros.
+945	Energy voucher targeted at low-income households
+946	Targeted aid is cheaper than universal aid, on a tight budget.
+947	Speed up renewables and energy restraint
+948	A structural response: reduces dependence in the long term, but brings no immediate relief.
+949	Social movement against a tax
+950	A new carbon tax on fuel triggers blockades all over the country.
+951	Withdraw the tax
+952	Backing down calms the street but weakens the credibility of climate action.
+953	Keep it + redistribute the revenue
+954	Green taxes are better accepted if the revenue is redistributed (tax fairness).
+955	Keep it and crack down on the blockades
+956	Firmness can escalate and damage social cohesion for a long time.
+957	Pension reform
+958	The pension system is in deficit. Raising the retirement age would save a lot.
+959	Raise the retirement age to 64
+960	Structural reform: improves the accounts for the long term but very unpopular.
+961	Raise contributions instead
+962	Another balancing lever: weighing on work rather than on age.
+963	The status quo lets a deficit slide that will weigh on future generations.
+964	Terrorist attack
+965	An attack hits a major city. The country is in shock and demands answers.
+966	Massive security plan + state of emergency
+967	Security vs freedoms: a delicate democratic trade-off in times of crisis.
+968	Strengthen intelligence discreetly
+969	A measured response, less spectacular but often more effective.
+970	Call for unity without strong measures
+971	The public expects concrete action after a collective trauma.
+972	Threat of relocation abroad
+973	A large industrial group threatens to close a factory and move abroad.
+974	Pay subsidies to keep it
+975	Helping a private company with public money: effective but debatable (moral hazard).
+976	Negotiate a conversion of the site
+977	Support the industrial transition rather than subsidise what exists.

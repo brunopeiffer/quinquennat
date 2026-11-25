@@ -1,0 +1,160 @@
+0	V. Giscard d'Estaing
+1	The oil shock strikes
+2	F. Mitterrand
+3	Inflation at 13%, interest rates at 15%
+4	Growth returns, then recession
+5	J. Chirac
+6	Goal: qualify France for the euro
+7	The euro arrives in people's pockets
+8	N. Sarkozy
+9	The financial crisis is coming
+10	F. Hollande
+11	The eurozone in turmoil
+12	E. Macron
+13	Yellow vests, then the pandemic
+14	Inflation and rising interest rates
+15	You
+16	Record debt, interest rates close to 5%
+17	Facing unemployment and inflation, part of the majority is calling for a stimulus through consumption and public-sector jobs.
+18	Part of the majority is calling for the nationalisation of major industrial groups and banks.
+19	After the 1986 parliamentary elections, the future of the big state-owned companies is at the heart of the debate: should some be privatised?
+20	Old age becomes an emergency
+21	The large baby-boom generations are reaching 85. Care homes are full, home-care workers are impossible to find, families are exhausted.
+22	People born during the baby boom (1946-1975) are gradually reaching old age. How to fund the loss of independence (care homes, home help) has been debated for years; an "autonomy" branch was added to French Social Security in 2020. This scenario imagines the moment when the issue becomes urgent.
+23	Major public plan to fund long-term care
+24	A response based on solidarity, but a lasting expense that weighs on the public accounts.
+25	Compulsory long-term-care insurance, paid by households
+26	The cost is shifted onto households: less public spending, more inequality.
+27	Rely on home care and family carers
+28	Cheap in the short term, but the burden falls on families.
+29	Births are falling
+30	Fewer children every year: classes and maternity wards close, mayors protest, pension forecasts worsen.
+31	The number of births in France has been falling for over ten years. Fewer children eventually means fewer pupils, fewer maternity wards and, later, fewer workers to fund pensions. This scenario imagines the trade-offs this forces on local areas.
+32	Let local authorities manage the closures
+33	No new spending, but the most fragile areas fall behind.
+34	Revive family policy (nurseries, parental leave)
+35	A lasting effort whose effect on the birth rate remains uncertain.
+36	Merge schools and maternity wards to maintain quality
+37	More efficient services, but further away from residents.
+38	Trade war
+39	New customs duties hit European exports. Manufacturers ask for help, consumers fear price rises.
+40	A customs duty is a tax on imported goods, used to protect domestic production or to put pressure on another country. An escalation between major powers can hit European exporters and make some products more expensive. This scenario imagines a new rise in trade tensions.
+41	Massively support exporters (subsidies, guarantees)
+42	Jobs are protected in the short term, at the cost of extra public spending.
+43	Retaliate with European customs duties
+44	A show of strength that may pay off, but makes imported products more expensive.
+45	Negotiate and accept concessions
+46	Escalation is avoided, but some sectors pay the price.
+47	Shortage of critical metals
+48	Lithium, copper, rare earths: supplies are getting tight. Battery and wind-turbine manufacturers are sounding the alarm.
+49	Batteries, wind turbines, chips and military equipment depend on metals mined and refined in a small number of countries. Pressure on these supplies would push prices up and slow down some industries. This scenario imagines a shortage.
+50	Investment plan for mining and recycling
+51	More independence, but contested projects and a cost for the state.
+52	Impose quotas and restrained use
+53	Less dependence, but more expensive products and constraints for everyone.
+54	Buy from the highest bidder on the world market
+55	No immediate effort, but dependence and high prices remain.
+56	France is downgraded by a credit rating agency
+57	A major agency lowers France's credit rating. Borrowing rates rise, commentators call for an austerity plan.
+58	Rating agencies assess a state's ability to repay its debt; a downgrade generally makes future borrowing more expensive. The exact effect on interest rates depends on the context and the markets. This scenario imagines a new downgrade of France's rating.
+59	Immediate spending-cuts plan
+60	A strong signal to the markets, but a heavy social cost.
+61	Tax increase targeted at the highest incomes
+62	A fairer effort, which may slow investment.
+63	Reassure and count on growth to reduce the deficit
+64	No austerity, but debt and interest rates may get heavier.
+65	The sea is eating away the coastline
+66	Houses and roads are falling into the sea. Mayors ask who will pay to move entire neighbourhoods.
+67	With global warming, sea levels are rising and erosion is accelerating on some coasts. Some municipalities have already been identified as exposed to coastal erosion. This scenario imagines the moment when someone has to decide who pays for relocating them.
+68	Impose strict rules to move buildings back from the shore
+69	Future risks are limited, but the value of existing property is frozen.
+70	Fund the relocation of the most exposed municipalities
+71	Costly national solidarity, but it prevents tragedies.
+72	Protect with sea walls and let insurers decide
+73	Visible protection, but costs that come back later.
+74	The defence effort speeds up
+75	European partners expect a bigger defence effort. The armed forces ask for resources, the Ministry of Finance for trade-offs.
+76	In 2025, NATO countries committed to sharply increasing their defence spending over the decade. For France, this means finding extra resources or pooling part of them with its European partners. This scenario imagines the deadline approaching.
+77	Pool purchases with our European partners
+78	Economies of scale, but shared sovereignty.
+79	Spread the effort over time and protect social spending
+80	The social budget is spared, but France's credibility is damaged.
+81	Massive, lasting increase in the defence budget
+82	A real, visible effort, financed by debt or by other savings.
+83	Fake videos and disinformation
+84	Convincingly faked videos are spreading massively. Trust in information collapses, two years before a presidential election.
+85	Artificial-intelligence tools can produce very realistic images, voices and videos that can be used to deceive, especially at election time. This scenario imagines a wave of fake content as a presidential election approaches.
+86	Fund media literacy and a fact-checking unit
+87	A long-term response whose effect is slow and diffuse.
+88	Require traceability and penalise platforms
+89	Clear rules, but a burden for companies and a risk to freedom of expression.
+90	Let the platforms regulate themselves
+91	No new constraints, but democratic trust erodes.
+92	Energy-inefficient housing: the deadline is approaching
+93	The deadline for renovating energy-guzzling homes is coming up. Landlords, tenants and tradespeople ask for clarification.
+94	Part of the housing stock is very energy-inefficient (so-called "thermal sieves"). The law already sets out a gradual timetable restricting the rental of the worst-performing homes. This scenario imagines a tightening or a postponement as a deadline approaches.
+95	Postpone the deadlines
+96	Landlords breathe a sigh of relief, but the energy and climate bill remains.
+97	Major, heavily subsidised renovation plan
+98	Households get help and the climate benefits, but public spending is heavy.
+99	Keep the timetable of obligations
+100	A clear course for the climate, but low-income households in difficulty.
+101	Medical deserts: the situation is getting worse
+102	In many areas, finding a doctor has become an obstacle course. Emergency departments are overwhelmed, local officials are mobilising.
+103	Several million French people already have no regular GP and some areas lack practitioners. The options under discussion range from incentives to settle there to regulation, including delegating tasks. This scenario imagines the situation getting worse.
+104	Regulate where doctors can set up practice
+105	A more balanced distribution, but a measure poorly accepted by the profession.
+106	Delegate more to nurses and telemedicine
+107	An inexpensive solution, but the quality of care remains uneven across areas.
+108	Hire salaried doctors and open health centres
+109	Real access to care, but a lasting expense and difficult recruitment.
+110	Global crisis: the bond crash
+111	A large developed country loses the markets' confidence. Borrowing rates soar everywhere, European banks wobble, and France pays more to finance its debt.
+112	When investors doubt a state's ability to repay, they demand higher interest rates; the rise can spread to other heavily indebted countries and weaken the banks holding their bonds. This scenario imagines a global bond-market panic.
+113	Support the banks and the economy, whatever it costs
+114	Panic is contained, but debt climbs at the worst possible moment.
+115	European guarantee plan and stricter prudential rules
+116	A coordinated but slower response, which does not prevent a recession.
+117	Let the markets purge themselves, with no public safety net
+118	The public accounts are preserved, but the recession is brutal.
+119	Global crisis: the chip blockade
+120	A regional conflict cuts off the world supply of semiconductors and disrupts sea freight. Factories stop, prices rise.
+121	A large share of microchips is made in a very small number of places and shipped along a few sea routes. A prolonged interruption would hit the car, electronics and manufacturing industries, while pushing prices up. This scenario imagines a lasting blockade.
+122	Emergency industrial plan: strategic stocks and aid to factories
+123	Industry holds on, at the cost of a heavy public bill.
+124	Ration and prioritise (health, defence, energy), negotiate supply agreements
+125	Vital sectors are protected, the others wait.
+126	Let companies adjust through prices
+127	No public spending, but an industrial recession and high prices.
+128	Global crisis: the year without a summer
+129	A simultaneous mega-drought on several continents ruins harvests. Food prices soar, some countries ban their exports.
+130	World harvests depend on a small number of large farming regions. Simultaneous droughts would sharply reduce supply and push food prices up, with social and geopolitical tensions. This scenario imagines such an episode.
+131	Massive aid to farmers and a cap on food prices
+132	Households are protected, but the measure is expensive and long-lasting.
+133	Build up stocks, requisition and control exports
+134	The country secures its supplies, at the cost of tensions with its partners.
+135	Let prices adjust
+136	No spending, but the poorest fall behind.
+137	Global crisis: the AI bubble bursts
+138	The valuations of the artificial-intelligence giants collapse. Waves of layoffs, pension funds hit, credit tightening.
+139	When stock-market valuations rise much faster than expected profits, a reversal can trigger a chain of losses: companies, savers, banks. This scenario imagines a bubble around artificial intelligence bursting.
+140	Rescue the big tech groups and support jobs
+141	Job losses are cushioned, but bailing out private giants is unpopular.
+142	Regulate finance and launch a major retraining plan
+143	A long-term effort, but the economic shock is real.
+144	Let the bubble deflate
+145	The public accounts hold, but unemployment jumps.
+146	Global crisis: the payments breakdown
+147	A global cyberattack paralyses payment systems for several weeks. Empty cash machines, blocked wages, shops at a standstill.
+148	Payments, wages and interbank transfers rely on a few highly interconnected digital infrastructures. A successful attack could block them and freeze economic activity. This scenario imagines such a paralysis.
+149	Restore payments with public guarantees and an emergency currency
+150	The shock is cushioned, but the state absorbs the losses.
+151	Impose crisis protocols and cooperation between banks
+152	A slower but better-controlled way out of the crisis.
+153	Let the banks fend for themselves
+154	No public spending, but trust is lastingly damaged.
+155	Alain Poher
+156	President of the Senate, serving as interim head of state since the death of President Georges Pompidou on 2 April 1974
+157	The "Thirty Glorious Years" are coming to an end: since the war, France has enjoyed strong growth and near full employment. At the end of 1973, the Yom Kippur War triggers the first oil shock: the price of oil is multiplied by four. Prices soar and economic activity slows. On 2 April 1974, President Georges Pompidou dies in office; Alain Poher serves as interim president until the election.
+158	end of 1981; old statistical series, compare the debt figures with caution
+159	Valéry Giscard d'Estaing

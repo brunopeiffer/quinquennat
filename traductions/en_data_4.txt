@@ -1,0 +1,130 @@
+548	France is hit by two waves of Islamist terrorist attacks in 2015: against Charlie Hebdo and the Hyper Cacher supermarket in January, then at the Bataclan, the Stade de France and Paris café terraces in November, killing 130 people. A state of emergency is declared for the first time since the Algerian War.
+549	The 2015 attacks
+550	France is hit by deadly terrorist attacks.
+551	Strengthen security sharply, even if it means exceeding the deficit targets
+552	Security before budget rules.
+553	Strengthen security within the existing budget
+554	Redeploy existing resources.
+555	Limited measures
+556	The public expects a strong response.
+557	After the 2015 attacks, a state of emergency is declared and the resources of the police, justice system and armed forces are strengthened.
+558	The labour law, championed by minister Myriam El Khomri, aims to give company-level negotiation more weight relative to the law. It sparks months of demonstrations in spring 2016 and is adopted without a vote using Article 49.3 of the Constitution (which lets the government pass a law without a vote, unless it is brought down by a motion of censure).
+559	Reform the labour code?
+560	A labour-law reform, giving more room to negotiation within companies, sparks months of demonstrations.
+561	Adopt the reform despite the protests
+562	Using Article 49.3 allows adoption without a vote.
+563	Withdraw the reform
+564	Change it substantially
+565	The labour law is adopted in 2016 using Article 49.3, after months of demonstrations.
+566	As soon as he takes office, Emmanuel Macron keeps a controversial campaign promise: refocusing the wealth tax (ISF) on real estate only (becoming the IFI) and introducing a 30% flat tax on capital income, to encourage investment in companies.
+567	Transform the wealth tax?
+568	The new government wants to encourage investment by lightening the taxation of capital.
+569	Replace the wealth tax with a tax on real-estate wealth only and tax capital at a flat rate
+570	Encourage investment, at the risk of being accused of handing gifts to the rich.
+571	Keep the wealth tax
+572	The status quo.
+573	Strengthen the wealth tax
+574	More redistribution, at the risk of taxpayers leaving.
+575	From 2018, the ISF is replaced by the real-estate wealth tax (IFI), and capital income is taxed at a flat rate of 30%.
+576	The "yellow vests" movement, born on social media in reaction to a rise in the carbon tax on fuel, turns into an unprecedented social protest, with demonstrations every Saturday for several months from November 2018.
+577	The "yellow vests"
+578	The rise in fuel tax triggers an unprecedented movement of anger, every Saturday.
+579	Cancel the carbon-tax rise and take measures for purchasing power
+580	About €10 billion to calm the anger.
+581	Keep the carbon tax
+582	Stick to the climate target, despite the crisis.
+583	Give nothing up
+584	The conflict drags on.
+585	The carbon-tax rise is cancelled and measures worth about €10 billion are announced (in-work bonus, tax-free overtime).
+586	The plan for a universal points-based pension system aims to replace the 42 existing schemes with a single system. It triggers the longest transport strike since 1968, from December 2019 to early 2020, before being suspended when the pandemic arrives.
+587	A universal points-based pension?
+588	The government wants to merge the pension schemes into a universal system. A long strike breaks out.
+589	Push ahead despite the strike
+590	A structural reform, long to put in place.
+591	Negotiate and slow down
+592	Give up
+593	The plan triggers a long strike at the end of 2019; adopted at first reading using Article 49.3, it is suspended in March 2020 because of the pandemic.
+594	Declared a global pandemic by the WHO in March 2020, Covid-19 pushes almost every country in the world to lock down its population. The phrase "whatever it costs", used by Emmanuel Macron on 12 March 2020, sums up the scale of public support for the economy.
+595	The Covid-19 pandemic
+596	A virus is spreading around the world. Hospitals are overwhelmed.
+597	Lock down and massively support the economy ("whatever it costs")
+598	Short-time working schemes and guaranteed loans protect jobs and companies.
+599	Lock down with limited support
+600	Less debt, but bankruptcies and unemployment.
+601	Avoid a lockdown
+602	A very heavy human cost.
+603	In 2020, France locks down its population and massively funds short-time working and guaranteed loans. GDP falls by about 8% and the deficit reaches about 9% of GDP.
+604	After the economic shock of 2020, the European Union releases an unprecedented joint recovery plan. In France, "France Relance" aims both to support activity in the short term and to prepare the ecological and digital transition.
+605	A recovery plan?
+606	The economy is restarting after the pandemic. Should it be supported?
+607	€100 billion recovery plan, including the ecological transition
+608	Support the recovery and prepare for the future.
+609	Moderate stimulus
+610	More cautious support.
+611	Quick return to balance
+612	The risk of stalling the recovery.
+613	The "France Relance" plan (€100 billion, including 30 for the ecological transition) supports a strong recovery in 2021.
+614	Russia's invasion of Ukraine on 24 February 2022 sends gas and electricity prices soaring in Europe, Russia being a major supplier. The tariff shield, introduced in autumn 2021 and then reinforced, protects French consumers at a very high cost to the state.
+615	Inflation and the energy crisis
+616	The war in Ukraine sends gas and electricity prices soaring.
+617	Tariff shield: limit the rise in energy prices
+618	Inflation stays contained, at a high cost.
+619	Energy voucher targeted at low-income households
+620	Cheaper, more targeted.
+621	Let prices rise
+622	Purchasing power collapses.
+623	The tariff shield limits the rise in electricity and gas prices: French inflation remains among the lowest in the eurozone, at a cost of several tens of billions of euros.
+624	As in 2003 and 2010, the funding of pensions pushes for a new reform. The 2023 reform, raising the legal age from 62 to 64, is adopted without a vote using Article 49.3 and triggers large trade-union mobilisations for several months.
+625	Raise the retirement age to 64?
+626	The government wants to raise the legal age to balance the pension schemes.
+627	Raise the legal age to 64
+628	Only extend the contribution period
+629	A more gradual effort.
+630	The pension deficit persists.
+631	The 2023 reform, adopted using Article 49.3 despite large demonstrations, gradually raises the legal age from 62 to 64.
+632	In 2024, tax revenue forecasts turn out to be far too optimistic: growth is weaker than expected, corporate tax receipts collapse, and the deficit soars well beyond the initial target. Emmanuel Macron's dissolution of the National Assembly in June 2024 plunges the country into unprecedented political instability.
+633	The deficit gets out of hand
+634	Tax revenue is much lower than expected. The deficit soars.
+635	Cancel €10 billion of appropriations during the year
+636	Quick savings, but limited.
+637	The markets and Brussels are worried.
+638	Raise taxes
+639	Contrary to the commitments made.
+640	In February 2024, €10 billion of appropriations are cancelled. Yet the 2024 deficit slips to almost 6% of GDP, and the dissolution of the Assembly in June opens a period of instability.
+641	With no absolute majority in the Assembly since the 2024 parliamentary elections, passing a budget becomes a perilous exercise: several governments follow one another, and the 2025 budget is finally adopted by force, after the Barnier government falls to a motion of censure in December 2024.
+642	A budget to reduce the deficit
+643	Without a stable majority, a budget that reduces the deficit must still be passed.
+644	Savings and exceptional contributions from large companies and very high incomes
+645	Share the effort between spending and taxes.
+646	Savings only
+647	No effort
+648	Debt keeps climbing.
+649	The 2025 budget, adopted in early 2025 after a government fell to a censure motion, combines savings and exceptional contributions from large companies and very high incomes.
+650	It is 19 May 1974.
+651	France has about 53 million inhabitants and is one of the world's five largest economies.
+652	People pay in francs. The minimum wage (SMIC) was created in 1970; in early May 1974, it stands at about 1,031 francs a month (€157 at the fixed conversion rate, but with far more purchasing power than €157 today, given inflation since then).
+653	The "Thirty Glorious Years" have just ended: since the war, living standards have risen sharply and unemployment affects only about 3% of the workforce.
+654	But since autumn 1973, oil costs four times as much: prices are rising by more than 13% a year.
+655	The age of majority is still 21; it will be lowered to 18 in July 1974.
+656	Abortion is still illegal: the Veil law will decriminalise it in January 1975. The death penalty is still in force.
+657	Television has three channels, all public; colour is gradually spreading into homes.
+658	Landline telephones are far from being in every home.
+659	The TGV high-speed train does not exist yet and Concorde has not started commercial flights (1976).
+660	Personal computers, mobile phones, the internet: none of these exist yet.
+661	In the United States, President Richard Nixon is mired in the Watergate scandal; he will resign three months later, in August 1974.
+662	France has about 53 million inhabitants. The election takes place in a climate of mourning: President Georges Pompidou has just died in office, a first under the Fifth Republic.
+663	Construction of the World Trade Center in New York has just been completed (April 1973); in France, the Montparnasse tower, the tallest tower in Paris, was inaugurated that same year, 1973.
+664	Vietnam has just signed the Paris Peace Accords (1973); the last American soldiers have left the country.
+665	French cinema is dominated by popular comedies; "Les Valseuses" comes out this year and causes a scandal.
+666	The 2CV and the Renault 4 are among the best-selling cars in France.
+667	The Minitel (a French online terminal, a forerunner of the internet) does not exist yet (it will be tested from 1978); to make a call, people often go through an operator.
+668	The single "collège" (lower secondary school for all) does not exist yet: it will be created by the Haby reform in 1975.
+669	Oil heating dominates French homes; the oil shock that has just struck will push the search for alternatives, including nuclear power.
+670	In the United States, Richard Nixon is going through the worst political crisis of his presidency.
+671	It is 10 May 1981.
+672	France has about 54 million inhabitants and remains one of the world's five largest economies.
+673	The gross monthly minimum wage is about 2,898 francs (€442 at the fixed conversion rate, but with far more purchasing power than €442 today, given inflation since then).
+674	Prices are rising by more than 13% a year: inflation is the French people's main worry, along with unemployment, which affects more than 6% of the workforce.
+675	Borrowing is very expensive: the state pays more than 15% to borrow over ten years.
+676	The death penalty still exists: it will be abolished in October 1981.
+677	Private radio stations are banned; "free radios" will be authorised in the coming months.
