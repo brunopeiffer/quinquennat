@@ -1,0 +1,225 @@
+0	Oggi · {a}-{b}
+1	Mandato di {a} · {b}-{c}
+2	La vostra lettera di missione
+3	Promemoria d'epoca: l'economia è aperta.
+4	Bilancio in pareggio, o addirittura in avanzo — un'impresa storica!
+5	Deficit sotto il 3 % — criterio europeo rispettato!
+6	Il debito cala quest'anno.
+7	Disoccupazione tornata sotto il 7 %!
+8	Crescita forte ({a} %)!
+9	Società molto pacificata.
+10	Esemplari: mani pulite.
+11	Un bel passo avanti per l'ambiente.
+12	L'economia accelera (crescita {a} %)
+13	L'attività rallenta (crescita {a} %)
+14	La crescita resta moderata ({a} %)
+15	, la disoccupazione scende al {a} %
+16	, ma la disoccupazione sale al {a} %
+17	. Il deficit si allarga ({a} % del PIL)
+18	. Il deficit è sotto controllo ({a} %)
+19	. Il deficit resta alto ({a} %)
+20	, il debito sale al {a} %.
+21	, il debito scende al {a} %.
+22	Sul fronte sociale, la coesione si rafforza
+23	Sul fronte sociale, le tensioni crescono
+24	Il clima sociale è stabile
+25	 e la vostra popolarità si logora ({a})
+26	 e l'opinione pubblica vi sostiene di più ({a})
+27	 (popolarità {a})
+28	. L'impronta ecologica peggiora.
+29	. Gli indicatori ambientali migliorano.
+30	I mercati si preoccupano per i vostri conti: lo Stato si indebita a un tasso più alto del dovuto e la spesa per interessi si appesantisce — è l'effetto palla di neve.
+31	I mercati finanziari si preoccupano per il debito: i tassi d'interesse salgono.
+32	Sfiducia dei creditori: la crescita è frenata dalla spesa per interessi.
+33	La frattura sociale è degenerata in rivolte: aspettatevi nuovi disordini l'anno prossimo.
+34	La società rumoreggia (coesione bassa o forti disuguaglianze): si preparano scioperi e movimenti sociali.
+35	È la fine: non potete più governare, il vostro mandato si ferma qui.
+36	Attenzione: una mozione di sfiducia minaccia il vostro governo.
+37	Un'aria di scandalo circonda la vostra squadra: è in gioco l'integrità.
+38	Non avete modificato nessuna leva: il bilancio è stato rinnovato identico.
+39	{a} l'imposta «{b}» ({c}{d} miliardi di euro di entrate)
+40	{a} il bilancio «{b}» ({c}{d} miliardi di euro di spese)
+41	Quest'anno avete {a}{b}.
+42	 Di fronte agli imprevisti avete scelto: {a}.
+43	{a}{b} mld€
+44	Avete {a} questa spesa: {b} all'anno.
+45	Avete {a} questo prelievo: {b} di entrate all'anno.
+46	+{a} altri
+47	Bilancio
+48	rinnovato identico
+49	Cosa avete deciso
+50	Il vostro saldo pubblico passa dal {a} % al {b} % del PIL{c}. 
+51	Promemoria: un saldo negativo (deficit) è ciò che lo Stato spende in più rispetto a quanto incassa nell'anno; deve prenderlo in prestito. 
+52	le vostre decisioni di bilancio lo hanno {a} di circa {b} punti
+53	le vostre decisioni di bilancio quasi si compensano: gli aumenti delle entrate finanziano le nuove spese (o viceversa)
+54	gli imprevisti lo hanno {a} di circa {b} punti
+55	gli interessi sul debito ({a} % → {b} % del PIL) lo hanno {c} di circa {d} punti
+56	l'aggiustamento automatico dell'economia (l'attività è stata {a} del previsto, il che cambia entrate e spese senza alcuna vostra decisione) lo ha {b} di circa {c} punti
+57	Perché? {a}. 
+58	Il debito sale dal {a} % al {b} % del PIL: finché lo Stato è in deficit si indebita, e questi prestiti si aggiungono al debito.
+59	Il debito scende dal {a} % al {b} % del PIL: il vostro deficit è abbastanza basso perché la crescita «diluisca» il debito. Bravi, è difficile!
+60	Il debito resta stabile intorno al {a} % del PIL.
+61	 Ricordate bene: il deficit è un flusso (ciò che manca quest'anno), il debito è uno stock (l'accumulo di tutti i deficit passati).
+62	 Attenzione: i mercati finanziari si preoccupano e vi prestano a un tasso più alto (nuovi prestiti: {a} % → {b} %).
+63	 Buona notizia: i mercati sono rassicurati e vi prestano a un tasso più basso (nuovi prestiti: {a} % → {b} %).
+64	 Il tasso medio del vostro debito passa dal {a} % al {b} %: ogni anno vecchi prestiti a tasso basso scadono e devono essere sostituiti da nuovi, più cari. Per questo la spesa per interessi aumenta, anche senza nuovi errori di gestione.
+65	 Oggi la Francia si indebita intorno al 4,9 % a 10 anni, mentre una parte del suo debito è stata contratta allo 0-1 % qualche anno fa.
+66	I vostri conti sono in pareggio o in avanzo
+67	Il deficit si riduce
+68	Il deficit si allarga
+69	Il deficit è stabile
+70	il debito cala
+71	il debito aumenta
+72	il debito è stabile
+73	: la crescita lo diluisce
+74	Saldo
+75	 % del PIL
+76	Debito
+77	Nuovi prestiti
+78	Tasso medio
+79	I vostri conti pubblici
+80	Le vostre decisioni
+81	Imprevisti
+82	Interessi sul debito
+83	Aggiustamento automatico
+84	L'inflazione passa dal {a} % al {b} %. 
+85	I prezzi rallentano: buona notizia per il potere d'acquisto, e i tassi d'interesse potranno scendere. 
+86	I prezzi corrono: stipendi e risparmi perdono valore e i tassi d'interesse restano alti. 
+87	L'inflazione è stabile. 
+88	È il cuore della battaglia economica dell'epoca: quando i prezzi salgono del 10 % l'anno, uno stipendio che non li segue perde il 10 % di potere d'acquisto. Per far scendere l'inflazione si può frenare la domanda (rigore), contenere prezzi e salari o difendere la moneta, a rischio di aumentare la disoccupazione nel breve periodo.
+89	Il fronte dell'inflazione
+90	I prezzi rallentano.
+91	I prezzi corrono.
+92	L'inflazione è stabile.
+93	Inflazione
+94	La crescita raggiunge il {a} % e la disoccupazione passa dal {b} % al {c} %. 
+95	Nel complesso il vostro bilancio ha sostenuto l'attività: più spese o meno tasse è una politica di rilancio. Crea attività, ma allarga il deficit. 
+96	Nel complesso il vostro bilancio ha frenato l'attività: meno spese o più tasse è una politica di rigore. Spesso è il prezzo da pagare, nel breve periodo, per ridurre il deficit. 
+97	I vostri investimenti (istruzione, ricerca, infrastrutture) preparano il futuro: il loro effetto sulla crescita aumenterà negli anni successivi. 
+98	L'aumento dei contributi a carico dei datori di lavoro rende le assunzioni più care: le imprese assumono meno. 
+99	Da ricordare: quando l'attività accelera, le imprese assumono e la disoccupazione cala; quando rallenta, sale (è la legge di Okun).
+100	Crescita e occupazione
+101	Il vostro bilancio ha sostenuto l'attività, al prezzo di un deficit più pesante.
+102	Il vostro bilancio ha frenato l'attività: è il prezzo da pagare, nel breve periodo, per ridurre il deficit.
+103	Il vostro bilancio è stato neutro per l'attività.
+104	Crescita
+105	Disoccupazione
+106	{a} di «{b}»
+107	(indice di uguaglianza {a} → {b})
+108	Le disuguaglianze calano {a} grazie a {b}{c}. Ridistribuire significa prendere di più ai più agiati o dare di più ai più modesti. 
+109	Le disuguaglianze calano {a}. 
+110	Le disuguaglianze aumentano {a} a causa di {b}: queste scelte pesano proporzionalmente di più sulle famiglie modeste. 
+111	Le disuguaglianze aumentano {a}. 
+112	La società si tende (coesione {a} → {b}): i francesi sentono gli sforzi richiesti. 
+113	La società è più unita (coesione {a} → {b}). 
+114	La vostra popolarità cala ({a} → {b}): gli aumenti delle tasse e i tagli sono impopolari, anche quando sono necessari.
+115	La vostra popolarità cresce ({a} → {b}).
+116	La vostra popolarità è stabile ({a}).
+117	 Sappiate anche che il potere «si logora»: la popolarità cala un po' ogni anno, qualunque cosa si faccia.
+118	disuguaglianze in calo
+119	disuguaglianze in aumento
+120	società più unita
+121	società più tesa
+122	popolarità in aumento
+123	popolarità in calo
+124	Società e opinione pubblica
+125	Pochi cambiamenti nella società e nell'opinione pubblica.
+126	Uguaglianza
+127	Coesione
+128	Popolarità
+129	Il deficit resta alto. Per ridurlo ci sono due strade: aumentare le entrate o ridurre le spese. Cercate quelle che pesano meno sulle famiglie modeste e sulla crescita.
+130	I vostri conti sono sani: avete margine per investire nel futuro (istruzione, ricerca, transizione ecologica).
+131	La disoccupazione sale: evitate di appesantire il costo del lavoro e pensate agli investimenti, che creano posti di lavoro.
+132	Le disuguaglianze sono forti: le imposte progressive (reddito, patrimonio) e gli aiuti ai più modesti permettono di ridurle.
+133	La società è tesa: tagli troppo brutali potrebbero scatenare scioperi o rivolte.
+134	Tenete d'occhio il tasso dei nuovi prestiti: se continua a salire, gli interessi mangeranno una parte crescente del vostro bilancio.
+135	Ricordate: ogni anno il vostro debito si rifinanzia a un tasso più alto. Prima si riduce il deficit, meno la spesa per interessi volerà.
+136	La vostra situazione è equilibrata: mantenete la rotta e restate attenti agli imprevisti.
+137	Il mio consiglio per l'anno prossimo
+138	Costretti alle dimissioni
+139	Nessuno vi sostiene più: manifestazioni di massa, una maggioranza che vi abbandona, richieste di dimissioni. Lasciate il potere prima della fine del mandato. Senza la fiducia dei cittadini non si può governare.
+140	Il paese ingovernabile
+141	Rivolte, blocchi, sciopero generale: il paese è paralizzato e dovete lasciare il potere prima della fine del mandato. Senza coesione sociale, nessuna riforma regge.
+142	Caduti per uno scandalo
+143	Minato dagli scandali, il vostro governo cade prima del tempo. L'onestà è il fondamento della fiducia democratica.
+144	Grave crisi di bilancio
+145	Il debito è sfuggito di mano, i mercati hanno mollato. Il paese finisce sotto tutela di bilancio. Governare significa innanzitutto tenere i conti.
+146	La frattura sociale ha avuto la meglio sul vostro mandato. Senza coesione, nessuna riforma regge.
+147	Rieletti con un trionfo
+148	Conti in ordine, paese pacificato: gli elettori vi rinnovano ampiamente la loro fiducia. Un mandato di riferimento.
+149	Rieletti
+150	Un bilancio contrastato, ma sufficiente per vincere al secondo turno. Governare significa scegliere.
+151	Sconfitti nonostante la popolarità
+152	Eravate apprezzati, ma il vostro bilancio (debito, deficit, occupazione) era troppo debole: gli elettori volevano risultati concreti. L'immobilismo non paga.
+153	Sconfitti al secondo turno
+154	Nonostante le riforme, l'opinione pubblica ha preferito voltare pagina. Gli sforzi di bilancio pagano raramente nel breve periodo.
+155	Bocciati dalle urne
+156	Il paese ha sanzionato il vostro mandato. L'impopolarità delle scelte ha avuto l'ultima parola.
+157	{a}, il vostro deficit medio è stato del {b} % del PIL
+158	il debito è passato dal {a} % al {b} % (+{c} punti)
+159	il debito è sceso dal {a} % al {b} %
+160	il debito è rimasto stabile ({a} %)
+161	la disoccupazione è scesa al {a} %
+162	la disoccupazione è salita al {a} %
+163	la disoccupazione si attesta al {a} %
+164	e la vostra integrità intaccata ({a}/100) ha alimentato gli scandali
+165	Il vostro debito pubblico è passato dal {a} % al {b} % del PIL. Il meccanismo è semplice: ogni anno in cui lo Stato spende più di quanto incassa (il vostro deficit medio: {c} % del PIL), la differenza si aggiunge al debito. E più il debito è alto, più pesano gli interessi da pagare — è l'«effetto palla di neve», che rende il risanamento sempre più difficile. Per memoria, le regole europee (criteri di Maastricht) puntano a un deficit sotto il 3 % del PIL e a un debito sotto il 60 %.
+166	Avete ridotto il debito, dal {a} % al {b} % del PIL — è raro e difficile. Richiede un deficit sotto controllo (il vostro: {c} % in media) e una crescita che «diluisce» il debito in un PIL più grande. Regola chiave: appena il deficit scende sotto il ~3 % del PIL, il debito tende a stabilizzarsi, poi a scendere, quando l'economia cresce.
+167	Il vostro debito è rimasto nel complesso stabile intorno al {a} % del PIL, con un deficit medio del {b} %. Stabilizzare il debito senza ridurlo significa già evitare l'effetto palla di neve — ma la Francia resta nettamente sopra le soglie europee (deficit 3 %, debito 60 %).
+168	Le vostre finanze pubbliche
+169	La disoccupazione è scesa al {a} %. 
+170	La disoccupazione è salita al {a} %. 
+171	La disoccupazione si attesta al {a} %. 
+172	Occupazione e crescita vanno di pari passo (è la legge di Okun): quando l'attività accelera, le imprese assumono; quando rallenta, la disoccupazione sale. Ma non tutte le leve agiscono allo stesso modo: investimenti e istruzione alimentano la crescita di domani (effetto di offerta), mentre un forte aumento delle tasse frena la domanda nel breve periodo, e appesantire i contributi rende più caro il lavoro.
+173	La società è rimasta pacificata (coesione {a}/100). Spesa sociale, servizi pubblici e redistribuzione vi contribuiscono: riducono le disuguaglianze e attutiscono le crisi. 
+174	La coesione sociale è peggiorata ({a}/100). Tagli troppo forti agli aiuti, ai servizi pubblici o ai trasferimenti agli enti locali spaccano la società e possono scatenare scioperi e rivolte. 
+175	La coesione sociale è nella media ({a}/100). 
+176	È la scelta centrale di chi governa: ridurre la spesa risana i conti, ma ogni euro risparmiato ha un costo sociale per qualcuno.
+177	Le vostre scelte per la società
+178	Etica e fiducia
+179	La vostra integrità ne ha sofferto ({a}/100). Cedere alle lobby o insabbiare una faccenda rende nel breve periodo, ma mina la fiducia democratica: la trasparenza protegge meglio del segreto, e gli scandali finiscono per scoppiare — spesso nel momento peggiore.
+180	Transizione ecologica
+181	Avete investito per il clima ({a}/100): un costo immediato, ma un beneficio di lungo periodo — meno dipendenza energetica e una transizione avviata.
+182	L'ambiente è stato trascurato ({a}/100): risparmi nel breve periodo, ma un conto ecologico e sanitario rimandato alle generazioni future.
+183	Da ricordare
+184	Governare significa scegliere. Un bilancio non è mai un semplice foglio di calcolo: ogni spesa va finanziata, ogni risparmio ha un costo sociale, ogni aumento delle tasse pesa sull'attività. Non esiste la scelta perfetta, solo equilibri da trovare. Il buon governante non è chi accontenta tutti, ma chi concilia conti sostenibili, occupazione e coesione del paese.
+185	Per saperne di più
+186	Economia
+187	Società
+188	Politica
+189	Società e vita politica
+190	Nella realtà
+191	Il contesto storico
+192	Lo sapevate?
+193	Sostenete Quinquennat
+194	Gioco gratuito, senza pubblicità. Una donazione aiuta a mantenerlo in vita.
+195	Una luce resta accesa. È la vostra.
+196	Avreste fatto meglio di loro?
+197	In classe? Inserite il codice dato dal vostro insegnante
+198	es. TG2-2012
+199	Unirsi alla classe
+200	Codice non riconosciuto: deve finire con l'anno del mandato (es. -2012).
+201	Tutta la classe gioca allora la stessa epoca, con gli stessi imprevisti. Insegnanti: scegliete NOME-ANNO, dove l'anno è quello di inizio del mandato (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 o 2027).
+202	Oppure scegliete liberamente la vostra epoca
+203	Prendete il posto di un presidente, con la situazione e le crisi reali del suo mandato.
+204	Settennato
+205	Quinquennato
+206	Oggi
+207	Riprendi la partita
+208	Classifica
+209	Trofei
+210	← Cambia epoca
+211	Oggi: tocca a voi
+212	Al posto di {a}
+213	Deficit
+214	Tasso d'interesse
+215	Cosa è successo prima
+216	Durante il vostro mandato affronterete i grandi eventi reali dell'epoca. Alla fine scoprirete che cosa ha fatto il vero presidente e confronterete i vostri risultati con i suoi. Gli importi sono convertiti in euro.
+217	Date un nome alla vostra squadra
+218	I Riformatori
+219	Scegliete la vostra dottrina
+220	Solo un orientamento: restate liberi di fare tutte le vostre scelte dopo.
+221	Scegliete il vostro livello
+222	Gli obiettivi e la difficoltà sono gli stessi: cambia solo il numero di comandi e di indicatori mostrati.
+223	leve ·
+224	Questo codice di classe impone l'epoca «

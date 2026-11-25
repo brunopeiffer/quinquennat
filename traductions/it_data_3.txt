@@ -1,0 +1,135 @@
+415	Abbassare le tasse
+416	Restituire denaro ai contribuenti sostiene la domanda.
+417	Ridurre il deficit
+418	Approfittare degli anni buoni per risanare i conti.
+419	Aumentare la spesa pubblica
+420	Rafforzare i servizi pubblici.
+421	Il governo usa il surplus per abbassare diverse imposte, tra cui l'IVA, riportata al 19,6 % nell'aprile 2000.
+422	Abbassare l'imposta sul reddito era una promessa centrale della campagna di Jacques Chirac nel 2002, in un contesto di ripresa economica dopo il rallentamento del 2001.
+423	Abbassare l'imposta sul reddito?
+424	Il taglio dell'imposta sul reddito era una promessa elettorale. Ma la crescita rallenta.
+425	Abbassare l'imposta sul reddito del 5 %
+426	Un taglio che favorisce soprattutto le famiglie che pagano l'imposta.
+427	Priorità alla riduzione del deficit
+428	Rinunciare a una promessa per tenere i conti in ordine.
+429	Abbassare piuttosto i contributi sui salari bassi
+430	Favorire l'occupazione poco qualificata.
+431	Dal 2002 l'imposta sul reddito cala del 5 %, come promesso in campagna elettorale.
+432	L'ondata di caldo dell'agosto 2003 è la più mortale che la Francia abbia conosciuto da un secolo: le temperature superano i 40 °C per diversi giorni e il sistema sanitario, colto alla sprovvista (in particolare per la mancanza di personale in pieno agosto), è sommerso.
+433	L'ondata di caldo dell'agosto 2003
+434	Un'ondata di caldo eccezionale colpisce la Francia. Molti anziani muoiono.
+435	Piano canicola e «giornata di solidarietà» lavorata per finanziare l'assistenza agli anziani
+436	Una giornata di lavoro in più non retribuita finanzia l'assistenza alla non autosufficienza.
+437	Finanziare l'assistenza agli anziani in deficit
+438	Un aiuto rapido, a credito.
+439	L'emozione nel paese è immensa.
+440	L'ondata di caldo dell'agosto 2003 causa circa 15.000 morti. Nel 2004 viene creata una «giornata di solidarietà» lavorata per finanziare l'assistenza agli anziani.
+441	La riforma Fillon del 2003 è la prima grande riforma delle pensioni dopo quella del 1993 (che riguardava solo il settore privato). Vuole rispondere all'invecchiamento della popolazione e all'allungamento della speranza di vita.
+442	Riformare le pensioni dei dipendenti pubblici?
+443	L'invecchiamento della popolazione minaccia l'equilibrio delle pensioni.
+444	Portare a 40 anni il periodo contributivo dei dipendenti pubblici
+445	Allineare pubblico e privato, nonostante gli scioperi.
+446	Aumentare i contributi
+447	Far pagare di più i lavoratori.
+448	Non riformare
+449	Il deficit delle pensioni si allarga.
+450	La riforma Fillon (2003) allinea gradualmente il periodo contributivo dei dipendenti pubblici a quello del privato, nonostante grandi scioperi.
+451	La morte di due adolescenti, Zyed Benna e Bouna Traoré, folgorati mentre si nascondevano da un controllo di polizia a Clichy-sous-Bois, scatena tre settimane di rivolte urbane in molte città francesi, le più importanti dal maggio 1968.
+452	Le rivolte del novembre 2005
+453	Dopo la morte di due adolescenti, scoppiano rivolte in molte periferie.
+454	Fermezza (stato d'emergenza) e piano per l'occupazione nei quartieri
+455	Ristabilire l'ordine e agire sulle cause.
+456	Solo un piano per i quartieri
+457	Affrontare le cause, a rischio di sembrare lassisti.
+458	Solo la fermezza
+459	L'ordine torna, i problemi restano.
+460	Dopo tre settimane di rivolte viene dichiarato lo stato d'emergenza e vengono annunciate misure per l'occupazione dei giovani dei quartieri.
+461	Il contratto di primo impiego (CPE), pensato per facilitare l'assunzione dei giovani allentando le regole sul licenziamento, provoca un vasto movimento di protesta di studenti universitari e liceali nella primavera 2006, che per ampiezza ricorda le mobilitazioni del 1968 e del 1986.
+462	Il contratto di primo impiego (CPE)
+463	Un nuovo contratto per i giovani sotto i 26 anni, più facile da interrompere, scatena grandi manifestazioni studentesche.
+464	Mantenere il CPE
+465	Tenere duro di fronte alla piazza.
+466	Ritirare il CPE
+467	Uscire dalla crisi rinunciando alla riforma.
+468	Modificarlo profondamente
+469	Un compromesso difficile.
+470	Di fronte alle manifestazioni, il CPE, pur approvato, viene ritirato nell'aprile 2006.
+471	La legge «lavoro, occupazione, potere d'acquisto» (TEPA), votata già nell'estate 2007, concretizza lo slogan elettorale di Nicolas Sarkozy «lavorare di più per guadagnare di più». Lo scudo fiscale, che limita le imposte dirette al 50 % dei redditi, fa particolarmente discutere.
+472	Il «pacchetto fiscale»
+473	Il nuovo governo vuole «lavorare di più per guadagnare di più» e alleggerire le tasse.
+474	Detassare gli straordinari, rafforzare lo scudo fiscale, alleggerire le successioni
+475	Tagli fiscali costosi, distribuiti in modo diseguale.
+476	Misure mirate al potere d'acquisto delle famiglie modeste
+477	Meno costoso, più redistributivo.
+478	Priorità al deficit
+479	Rinunciare alle promesse fiscali.
+480	La legge TEPA (agosto 2007) detassa gli straordinari, rafforza lo scudo fiscale (imposte limitate al 50 % dei redditi) e alleggerisce l'imposta di successione.
+481	Il fallimento della banca americana Lehman Brothers, il 15 settembre 2008, scatena il panico sui mercati finanziari mondiali: le banche, non sapendo più chi detiene titoli tossici, smettono di prestarsi denaro tra loro. È il culmine della crisi dei «subprime», nata negli Stati Uniti nel 2007.
+482	La crisi finanziaria mondiale
+483	Il fallimento della banca Lehman Brothers scatena il panico. Le banche non si prestano più denaro tra loro.
+484	Garantire e sostenere le banche
+485	Evitare il crollo del sistema bancario, con denaro pubblico.
+486	Lasciar fallire le banche
+487	Il rischio di una depressione come nel 1929.
+488	Nazionalizzare le banche in difficoltà
+489	Lo Stato prende il controllo, e i rischi.
+490	Nell'autunno 2008 lo Stato garantisce i prestiti interbancari e fornisce capitale alle banche per evitare il crollo del sistema finanziario.
+491	Il 2009 è la peggiore recessione mondiale dalla Seconda guerra mondiale: il commercio internazionale crolla e quasi tutti i paesi sviluppati vedono la produzione calare fortemente.
+492	2009: la recessione
+493	La produzione cala fortemente e la disoccupazione sale.
+494	Piano di rilancio (investimenti pubblici, incentivi alla rottamazione)
+495	Attutire la crisi con la spesa pubblica.
+496	Rigore immediato
+497	Ridurre il deficit in piena crisi aggrava la recessione.
+498	Taglio temporaneo dell'IVA
+499	Sostenere i consumi attraverso i prezzi.
+500	Viene lanciato un piano di rilancio da 26 miliardi di euro (investimenti pubblici, incentivi alla rottamazione). Il PIL cala comunque di quasi il 3 % nel 2009.
+501	Come nel 2003, l'invecchiamento demografico spinge a una nuova riforma delle pensioni. Quella del 2010 porta l'età legale da 60 a 62 anni, provocando grandi manifestazioni in autunno.
+502	Alzare l'età della pensione?
+503	I regimi pensionistici sono in forte deficit dopo la crisi.
+504	Portare l'età legale da 60 a 62 anni
+505	Un risparmio duraturo, molto contestato.
+506	Far pagare i lavoratori.
+507	Il deficit delle pensioni si accumula.
+508	La riforma del 2010 porta gradualmente l'età legale della pensione da 60 a 62 anni, nonostante grandi manifestazioni.
+509	La crisi del debito greco, emersa alla fine del 2009, si propaga ad altri paesi europei (Irlanda, Portogallo, Spagna, Italia) e minaccia l'esistenza stessa dell'eurozona. I mercati finanziari dubitano della capacità di diversi Stati, tra cui la Francia, di rimborsare il proprio debito.
+510	La crisi dell'eurozona
+511	La Grecia è sull'orlo del fallimento. I mercati dubitano di diversi paesi europei, tra cui la Francia.
+512	Piani di austerità (aumenti delle tasse e risparmi)
+513	Rassicurare i mercati, al prezzo della crescita.
+514	Lasciar correre il deficit
+515	Il rischio di un aumento dei tassi d'interesse.
+516	Aiutare la Grecia senza sforzi di bilancio
+517	La solidarietà europea ha un costo.
+518	Il governo Fillon adotta due piani di austerità (agosto e novembre 2011). Nel gennaio 2012 l'agenzia Standard & Poor's toglie alla Francia il rating «AAA».
+519	François Hollande viene eletto nel maggio 2012 con la promessa di riequilibrare i conti pubblici attraverso la giustizia fiscale. Appena insediato, il governo Ayrault aumenta fortemente le tasse sui redditi alti e sulle grandi imprese.
+520	Risanare i conti
+521	Il deficit raggiunge il 5 % del PIL. Il nuovo governo vuole ridurlo in fretta.
+522	Con aumenti delle tasse sulle famiglie agiate e sulle imprese
+523	Entrate rapide, ma un freno alla crescita.
+524	Con tagli alla spesa
+525	Meno tasse, ma meno servizi.
+526	Le regole europee non saranno rispettate.
+527	Nel 2012-2013 le tasse aumentano fortemente: nuovo scaglione al 45 % dell'imposta sul reddito e tassa temporanea del 75 % sulle retribuzioni oltre un milione di euro.
+528	Di fronte al peggioramento della competitività delle imprese francesi, segnalato in particolare dal rapporto Gallois (novembre 2012), il governo crea il CICE (credito d'imposta per la competitività e l'occupazione) per ridurre il costo del lavoro senza toccare direttamente i contributi sociali.
+529	Abbassare il costo del lavoro?
+530	Le imprese francesi perdono competitività e la disoccupazione sale.
+531	Creare un credito d'imposta per la competitività e l'occupazione (CICE)
+532	Circa 20 miliardi di euro l'anno per abbassare il costo del lavoro.
+533	Abbassare direttamente i contributi a carico dei datori di lavoro
+534	Lo stesso obiettivo, in modo più semplice.
+535	Non fare nulla
+536	La competitività continua a peggiorare.
+537	Il credito d'imposta per la competitività e l'occupazione (CICE) entra in vigore nel 2013: circa 20 miliardi di euro l'anno di riduzione del costo del lavoro.
+538	Annunciato da François Hollande nel gennaio 2014, il patto di responsabilità segna una svolta verso una politica più favorevole alle imprese, con grande disappunto di una parte della sinistra che vi vede un tradimento.
+539	Il patto di responsabilità
+540	La disoccupazione supera il 10 %. Bisogna spingersi oltre nel taglio degli oneri sociali?
+541	Nuovi tagli degli oneri finanziati con 50 miliardi di risparmi
+542	Una svolta verso l'offerta, contestata nella maggioranza.
+543	Rilanciare la domanda
+544	Sostenere i consumi.
+545	Mantenere la rotta attuale
+546	Nessuna nuova riforma.
+547	Il patto di responsabilità (2014) prevede nuovi tagli dei contributi a carico dei datori di lavoro, finanziati con 50 miliardi di euro di risparmi in tre anni.
+548	La Francia è colpita da due ondate di attentati islamisti nel 2015: contro Charlie Hebdo e l'Hyper Cacher a gennaio, poi al Bataclan, allo Stade de France e sulle terrazze dei caffè parigini a novembre, con 130 morti. Lo stato d'emergenza viene dichiarato per la prima volta dalla guerra d'Algeria.
+549	Gli attentati del 2015

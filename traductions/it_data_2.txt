@@ -1,0 +1,130 @@
+285	Dopo le legislative del 1986 governa una maggioranza opposta al presidente. Vuole privatizzare grandi imprese.
+286	Lasciare che il governo privatizzi
+287	Le vendite portano denaro allo Stato e riducono il debito.
+288	Opporsi alle privatizzazioni
+289	Il presidente ha pochi poteri di fronte alla maggioranza.
+290	Accettare privatizzazioni limitate
+291	Un compromesso.
+292	Si apre la coabitazione: il governo di Jacques Chirac privatizza grandi imprese (Saint-Gobain, Paribas, TF1…). Il presidente rifiuta di firmare i decreti, che passano allora per via legislativa.
+293	Il 19 ottobre 1987, soprannominato «lunedì nero», le borse mondiali perdono più del 20 % in una sola seduta, il calo più forte dal 1929. Contrariamente ai timori dell'epoca, non porterà a una recessione mondiale.
+294	Il crollo di borsa dell'ottobre 1987
+295	Le borse mondiali crollano in pochi giorni.
+296	Mantenere il sangue freddo e lasciare che i mercati si stabilizzino
+297	Un crollo di borsa non provoca sempre una recessione.
+298	Lanciare un piano di sostegno
+299	Una precauzione costosa.
+300	Sospendere le privatizzazioni
+301	Vendere in un mercato che crolla rende meno.
+302	Il crollo dell'ottobre 1987 non provoca una recessione: la crescita resta solida nel 1988. Il programma di privatizzazioni viene rallentato.
+303	Prima del 1988 le persone senza risorse e senza diritto al sussidio di disoccupazione non avevano alcuna rete di sicurezza garantita. Il RMI, voluto dal governo di Michel Rocard, è l'antenato dell'attuale RSA (il reddito minimo creato nel 2009).
+304	Creare un reddito minimo?
+305	La povertà e l'esclusione aumentano. Bisogna garantire un reddito minimo?
+306	Creare un reddito minimo d'inserimento
+307	Una rete di sicurezza per i più poveri.
+308	Rafforzare gli aiuti esistenti
+309	Meno ambizioso, meno costoso.
+310	Non creare nulla
+311	L'esclusione continua ad aumentare.
+312	Il reddito minimo d'inserimento (RMI) viene creato nel dicembre 1988, votato quasi all'unanimità.
+313	L'imposta sulle grandi fortune (IGF), creata nel 1982, era stata abolita dal governo Chirac nel 1987 in nome della competitività. La sua ricreazione con un nuovo nome, l'ISF (imposta patrimoniale di solidarietà), simboleggia il ritorno della sinistra al potere dopo la coabitazione.
+314	Tassare le grandi fortune?
+315	L'imposta sulle grandi fortune è stata abolita nel 1987. Bisogna crearne una nuova?
+316	Creare un'imposta patrimoniale di solidarietà
+317	Un'imposta redistributiva simbolica, dal gettito modesto.
+318	Tassare di più le successioni
+319	Un altro modo di tassare il patrimonio.
+320	Non tassare la ricchezza
+321	Le differenze di patrimonio si allargano.
+322	L'imposta patrimoniale di solidarietà (ISF) viene creata nel 1989, in sostituzione dell'imposta sulle grandi fortune abolita nel 1987.
+323	Il 2 agosto 1990 l'Iraq di Saddam Hussein invade il Kuwait, il vicino ricco di petrolio. Una coalizione internazionale guidata dagli Stati Uniti, a cui la Francia partecipa (operazione Daguet), libera il Kuwait nel febbraio 1991.
+324	La guerra del Golfo
+325	L'Iraq invade il Kuwait. Il petrolio vola e si forma una coalizione internazionale.
+326	Partecipare alla coalizione e sostenere l'economia
+327	Un impegno militare ha un costo per il bilancio.
+328	Partecipare e risparmiare altrove
+329	Tenere il bilancio nonostante la guerra.
+330	Restare in disparte isola il paese sulla scena internazionale.
+331	La Francia partecipa alla coalizione internazionale (1991). L'impennata del petrolio è breve, ma la crescita rallenta.
+332	Prima del 1991 la previdenza sociale francese era finanziata quasi esclusivamente da contributi sui salari, il che rendeva più caro il lavoro. La CSG (contributo sociale generalizzato), creata dal governo Rocard, estende il finanziamento a tutti i redditi (salari, ma anche pensioni, redditi da capitale…).
+333	Finanziare la previdenza sociale in un altro modo?
+334	La previdenza sociale è finanziata soprattutto da contributi sui salari, il che pesa sull'occupazione.
+335	Creare un contributo su tutti i redditi (CSG)
+336	Far contribuire anche i redditi da capitale e le pensioni.
+337	Aumentare i contributi a carico dei lavoratori
+338	Questo rende il lavoro ancora più caro.
+339	Indebitarsi
+340	Scaricare il problema sulle generazioni future.
+341	Il contributo sociale generalizzato (CSG) viene creato nel 1991 con un'aliquota dell'1,1 %: si applica a quasi tutti i redditi, e non solo ai salari.
+342	Il trattato di Maastricht, firmato nel febbraio 1992, crea l'Unione europea e pone le basi della futura moneta unica. Fissa criteri severi che i paesi candidati dovranno rispettare: deficit pubblico sotto il 3 % del PIL, debito sotto il 60 %.
+343	Il trattato di Maastricht
+344	L'Europa prepara una moneta unica. Per entrarvi serviranno un deficit inferiore al 3 % del PIL e un debito inferiore al 60 %.
+345	Impegnarsi verso la moneta unica e le sue regole
+346	Una moneta forte e stabile, ma vincoli di bilancio.
+347	Rifiutare il trattato
+348	Mantenere la sovranità monetaria, a rischio di isolamento.
+349	Firmare, ma rinviare lo sforzo di bilancio
+350	Le regole finiranno per imporsi.
+351	Il trattato di Maastricht viene approvato con un referendum nel settembre 1992, di misura (circa il 51 % di «sì»).
+352	Il 1993 è il peggior anno economico francese dal 1945: il PIL cala, la disoccupazione supera l'11 % e una crisi valutaria colpisce il Sistema monetario europeo in estate. Édouard Balladur, nuovo primo ministro di coabitazione, deve agire in fretta.
+353	1993: recessione e crisi valutaria
+354	La Francia entra in recessione. La disoccupazione vola e il deficit sfugge di mano.
+355	Grande prestito nazionale, aumento della CSG (contributo su tutti i redditi) e riforma delle pensioni
+356	Un mix di finanziamento straordinario e di riforme.
+357	Rilancio in deficit
+358	Attutire la crisi lasciando correre il deficit.
+359	Aumenti immediati delle tasse
+360	Ridurre il deficit in piena recessione la aggrava.
+361	Il governo di Édouard Balladur lancia un grande prestito nazionale (110 miliardi di franchi), porta la CSG al 2,4 % e riforma le pensioni del settore privato (periodo contributivo portato gradualmente a 40 anni).
+362	A un anno dalla scadenza di Maastricht (1997), la Francia deve ridurre il deficit sotto il 3 % del PIL per sperare di entrare nell'euro. L'aumento dell'IVA, votato già nell'estate 1995, è uno dei primi gesti del nuovo governo Juppé.
+363	Ridurre il deficit per l'euro
+364	Il deficit supera il 5 % del PIL, lontano dall'obiettivo del 3 % fissato per entrare nell'euro.
+365	Aumentare l'IVA di 2 punti
+366	L'IVA rende in fretta, ma pesa sulle famiglie modeste.
+367	Ridurre la spesa
+368	Risparmi, al prezzo di servizi pubblici ridotti.
+369	Rinviare lo sforzo
+370	L'obiettivo dell'euro si allontana.
+371	Nell'agosto 1995 l'aliquota ordinaria dell'IVA passa dal 18,6 % al 20,6 % per ridurre il deficit e preparare l'euro.
+372	Il piano Juppé vuole riformare a fondo la previdenza sociale e allineare i regimi pensionistici speciali (SNCF, le ferrovie nazionali; RATP, i trasporti di Parigi…) al regime generale. Nel dicembre 1995 scatena il più lungo movimento di sciopero dal 1968, paralizzando i trasporti per tre settimane.
+373	Riforma della previdenza sociale e grandi scioperi
+374	Il governo Juppé presenta una riforma della previdenza sociale e dei regimi pensionistici speciali. Il paese è paralizzato dagli scioperi.
+375	Mantenere l'intero piano
+376	Tenere duro, a rischio di un conflitto lungo.
+377	Ritirare la riforma dei regimi speciali, mantenere quella della previdenza sociale
+378	Un compromesso per uscire dal conflitto.
+379	Ritirare tutto
+380	La pace sociale, senza riforma.
+381	Dopo tre settimane di scioperi nel dicembre 1995, il governo ritira la riforma dei regimi speciali ma mantiene quella della previdenza sociale (creazione della CRDS, un prelievo per rimborsare il debito sociale).
+382	Dopo lo scioglimento a sorpresa dell'Assemblea nazionale da parte di Jacques Chirac nell'aprile 1997, le elezioni legislative portano la sinistra al potere: è la terza coabitazione. Lionel Jospin, nuovo primo ministro, deve risanare i conti perché la Francia entri nell'euro fin dal suo lancio, il 1° gennaio 1999.
+383	Qualificarsi per l'euro
+384	Per entrare nell'euro il deficit deve scendere sotto il 3 % del PIL già nel 1997.
+385	Sovrattassa straordinaria sull'imposta delle grandi imprese
+386	Uno sforzo temporaneo a carico delle imprese.
+387	Tagliare la spesa
+388	Uno sforzo a carico dei servizi pubblici.
+389	Accettare di mancare l'euro
+390	La Francia resterebbe fuori dalla moneta unica.
+391	Dopo lo scioglimento del 1997, il governo Jospin introduce una sovrattassa straordinaria sull'imposta sulle società. Il deficit scende sotto il 3 % e la Francia si qualifica per l'euro nel 1998.
+392	Ridurre l'orario di lavoro per condividere l'occupazione è una vecchia idea della sinistra, già sperimentata con le 39 ore nel 1982. Le leggi Aubry, dal nome della ministra del Lavoro Martine Aubry, estendono le 35 ore a quasi tutte le imprese.
+393	Le 35 ore?
+394	La disoccupazione supera il 10 %. Bisogna ridurre l'orario di lavoro per condividere l'occupazione?
+395	Passare a 35 ore con aiuti alle imprese
+396	Condividere il lavoro, con sgravi contributivi per compensare.
+397	Lasciare che ogni settore negozi
+398	Un approccio più flessibile e più lento.
+399	Mantenere le 39 ore
+400	Nessun costo, nessun effetto.
+401	Le leggi Aubry (1998 e 2000) fissano l'orario legale di lavoro a 35 ore, con sgravi contributivi per le imprese.
+402	Le tempeste Lothar (26 dicembre) e Martin (27 dicembre 1999) colpiscono la Francia con venti che superano in alcuni punti i 200 km/h. Abbattono l'equivalente di tre anni di raccolto di legname e lasciano milioni di famiglie senza elettricità per diverse settimane.
+403	Le tempeste del dicembre 1999
+404	Due tempeste devastano la Francia: foreste distrutte, milioni di famiglie senza elettricità.
+405	Grande piano di aiuti ai sinistrati e alle foreste
+406	La solidarietà nazionale di fronte alle catastrofi.
+407	Aiuti limitati
+408	Un sostegno minimo.
+409	Affidarsi alle assicurazioni
+410	Molti danni non sono assicurati.
+411	Le tempeste Lothar e Martin (dicembre 1999) causano danni enormi; lo Stato stanzia aiuti d'emergenza e un piano per le foreste.
+412	Alla fine degli anni Novanta la crescita economica è forte (più del 3 % l'anno) e le entrate fiscali superano ampiamente le previsioni di bilancio. Questo surplus inatteso, soprannominato «il tesoretto», alimenta un dibattito politico sul suo utilizzo.
+413	Il «tesoretto» fiscale
+414	Grazie alla forte crescita, le tasse rendono più del previsto. Che fare di questo surplus?

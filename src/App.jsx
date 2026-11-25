@@ -847,7 +847,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 /* ============================================================
    LANGUES — le français est la langue source : il sert de clé dans les fichiers src/i18n/<langue>.js
    ============================================================ */
-const LANGS = { fr: "Français", en: "English" };   // ajouter de / it / es quand leur dictionnaire est prêt
+const LANGS = { fr: "Français", en: "English", it: "Italiano" };   // ajouter de / es quand leur dictionnaire est prêt
 const LOCALES = { fr: "fr-FR", en: "en-GB", de: "de-DE", it: "it-IT", es: "es-ES" };
 const DICT_LOADERS = { en: () => import("./i18n/en.js"), de: () => import("./i18n/de.js"), it: () => import("./i18n/it.js"), es: () => import("./i18n/es.js") };
 let LANG = "fr", DICT = {};
@@ -889,7 +889,7 @@ const fmt = (n, d = 0) => (n ?? 0).toLocaleString(LOCALES[LANG] || "fr-FR", { ma
 
 // Équivalence concrète d'un montant en Md€ : euros par habitant et par an
 const parHabitant = (md) => (md * 1000) / POP_FR;   // €/habitant/an
-const eqHab = (md) => `${md >= 0 ? "+" : ""}${fmt(parHabitant(md))} €/habitant`;
+const eqHab = (md) => tr("{a} €/habitant", { a: `${md >= 0 ? "+" : ""}${fmt(parHabitant(md))}` });
 
 // Objectifs affichés en permanence (repères pour l'élève)
 const OBJECTIFS = [
@@ -3746,7 +3746,7 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
         </div>); })()}
       {game.chain && <div data-chain-note="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, color: C.dim, fontSize: 12.5, lineHeight: 1.55 }}>{tr("Mandat enchaîné : son score n'entre pas dans le classement de la classe, car votre départ dépendait de votre mandat précédent.")}</div>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
-        {[[tr("Économie"), sc.eco, "55 %"], [tr("Social"), sc.social, "30 %"], [tr("Politique"), sc.politique, "15 %"], ["SCORE", sc.total, "final"]].map(([l, v, w], i) => (
+        {[[tr("Économie"), sc.eco, "55 %"], [tr("Social"), sc.social, "30 %"], [tr("Politique"), sc.politique, "15 %"], [tr("SCORE"), sc.total, tr("final")]].map(([l, v, w], i) => (
           <div key={l} style={{ background: i === 3 ? C.goldFill : C.card, borderRadius: 12, padding: "12px 10px", textAlign: "center", border: `1px solid ${i === 3 ? C.gold : C.line}` }}>
             <div style={{ fontSize: 10.5, color: i === 3 ? "var(--on-accent)" : C.dim, textTransform: "uppercase", letterSpacing: ".04em" }}>{l} <span style={{ opacity: .7 }}>{w}</span></div>
             <div style={{ fontFamily: "monospace", fontSize: 26, fontWeight: 600, color: i === 3 ? "var(--on-accent)" : indScoreCol(v) }}>{i === 3 ? <CountUp to={v} /> : v}</div>

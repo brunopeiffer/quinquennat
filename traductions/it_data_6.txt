@@ -1,0 +1,150 @@
+828	La crescita è discreta, ma le nubi si addensano. Mantenete la rotta dei conti pubblici e proteggete l'occupazione se il cielo si oscura.
+829	L'economia è aperta e la finanza globalizzata: un crollo americano (subprime) si propaga a tutto il sistema, attraverso le banche e il commercio mondiale. Dal 2005 si è installato un deficit commerciale.
+830	Debito < 75 %
+831	Disoccupazione < 10,5 %
+832	Deficit < 4 %
+833	L'eurozona vacilla, il debito è balzato in alto e la disoccupazione supera il 9 %. Riportate il deficit verso il 3 %, invertite la curva della disoccupazione e non lasciate correre il debito.
+834	La Francia ha perso quote di mercato all'export rispetto alla Germania: la competitività di costo è al centro del dibattito (credito d'imposta CICE, patto di responsabilità). L'euro forte non aiuta.
+835	Deficit < 3,5 %
+836	Disoccupazione < 9,5 %
+837	Debito < 95 %
+838	Il paese è uscito dalla crisi dell'eurozona ma resta diviso. Riformate senza infiammare la società: occupazione, deficit, coesione.
+839	Il deficit commerciale è strutturale (deindustrializzazione) e la guerra commerciale tra Cina e Stati Uniti perturba gli scambi. La pandemia rivelerà la dipendenza dalle catene di approvvigionamento mondiali.
+840	Società pacificata (≥ 40)
+841	L'inflazione riparte, i tassi risalgono e il debito è alto. Proteggete il potere d'acquisto senza lasciar correre i conti pubblici.
+842	L'aumento dei prezzi è in gran parte importato: gas e petrolio dopo l'invasione dell'Ucraina, euro debole rispetto al dollaro. Il deficit commerciale tocca un record nel 2022: la bolletta energetica pesa sull'economia.
+843	Inflazione < 2,5 %
+844	Debito record, deficit sopra il 5 %, tassi d'interesse vicini al 5 %: il margine di manovra è stretto. Stabilizzate i conti, senza lasciar salire la disoccupazione.
+845	La Francia dipende dai mercati per finanziarsi e dai partner per esportare: un tasso d'interesse più alto o una guerra commerciale si ripercuotono in fretta sul bilancio.
+846	Debito ≤ 125 %
+847	Disoccupazione < 8,3 %
+848	Scoperta
+849	L'essenziale del bilancio: 12 leve e 6 indicatori. Ideale per una prima partita.
+850	Intermedio
+851	16 leve e 8 indicatori: si aggiungono i contributi dei datori di lavoro, la sicurezza, gli enti locali e le sovvenzioni.
+852	Completo
+853	Tutte le 20 leve e i 10 indicatori: la simulazione completa.
+854	IVA
+855	Imposta sui consumi. Rende molto ma è regressiva (pesa di più sulle famiglie modeste).
+856	Imposta sul reddito (aliquote progressive)
+857	Progressiva: i redditi alti pagano proporzionalmente di più. Redistributiva ma impopolare.
+858	CSG (contributo sociale proporzionale)
+859	Prelievo ad aliquota unica su quasi tutti i redditi. Rende molto, poco progressivo.
+860	Imposta sulle società (IS)
+861	Tassa gli utili delle imprese. Se troppo alta, danneggia la competitività e gli investimenti.
+862	Contributi a carico dei datori di lavoro
+863	Finanziano la previdenza sociale. Una voce enorme, ma ogni aumento rende più caro il lavoro (disoccupazione).
+864	Contributi a carico dei lavoratori
+865	Trattenuti sullo stipendio: ogni aumento riduce lo stipendio netto e il potere d'acquisto.
+866	Imposta patrimoniale (ISF / IFI)
+867	Tassa i patrimoni molto grandi. Molto redistributiva e piuttosto popolare, ma rende poco e può spingere i grandi contribuenti a trasferirsi all'estero.
+868	Imposta di successione e donazione
+869	Tassa ciò che si riceve in eredità o in dono. Limita la trasmissione delle disuguaglianze da una generazione all'altra, ma è molto impopolare, anche tra le famiglie modeste.
+870	Fiscalità ecologica (accisa sui carburanti, carbon tax)
+871	Tassa l'energia e il carbonio. Incentiva la transizione ma può scatenare una rivolta fiscale.
+872	Pensioni
+873	La prima voce di spesa. Ogni taglio (età, importo) è politicamente esplosivo.
+874	Sanità / Ospedali
+875	Investire poco crea deserti medici e satura i pronto soccorso; alto costo sociale differito.
+876	Istruzione
+877	Spesa pubblica per l'istruzione (Stato + enti locali). Investimento nel capitale umano: rendimento di lungo periodo sulla crescita.
+878	Aiuti e redditi minimi (RSA, sussidio casa, bonus lavoro)
+879	Forte moltiplicatore: versati a famiglie modeste, vengono spesi quasi interamente.
+880	Investimenti e ricerca (ecologia, infrastrutture, R&S)
+881	Il moltiplicatore più forte: spinge la crescita di domani, ma rende poco subito.
+882	Difesa e sovranità
+883	Sovranità e posti di lavoro industriali. Costosa, con un effetto trainante sull'industria.
+884	Sicurezza e giustizia
+885	Ordine pubblico e giustizia. Rassicura l'opinione pubblica; un eccesso puramente repressivo può tendere la società.
+886	Stipendi e organici pubblici (mancato rimpiazzo dei pensionamenti)
+887	Stipendi dei dipendenti pubblici. Non sostituire chi va in pensione fa risparmiare molto, ma riduce l'occupazione pubblica e il servizio reso (un'idea di Retailleau/Lisnard).
+888	Agenzie ed enti dello Stato
+889	Lo Stato finanzia centinaia di agenzie ed enti pubblici (lavoro, sanità, ambiente…). Ridurre questo bilancio significa fondere quelli che fanno lo stesso lavoro o sopprimerne alcuni: si risparmia, ma alcuni compiti possono essere svolti peggio.
+890	Sovvenzioni (imprese e associazioni)
+891	Aiuti alle imprese e alle associazioni. Tagliarli fa risparmiare in fretta, ma frena l'attività e il tessuto associativo.
+892	Trasferimenti agli enti locali
+893	Gli enti locali realizzano circa il 70 % degli investimenti pubblici. Ridurre i trasferimenti fa risparmiare, ma riduce i servizi locali e gli investimenti.
+894	Rigore di bilancio
+895	alla maniera dell'Argentina di Milei
+896	Ridurre la spesa e il debito prima di tutto. I mercati si fidano di voi, la società è più fragile.
+897	Il debito pesa meno sulla crescita, ma la coesione è più difficile da mantenere.
+898	Solidarietà ed ecologia
+899	modello nordico / Lula
+900	Servizi pubblici estesi e transizione ecologica, finanziati con le tasse. Coesione forte, debito da tenere d'occhio.
+901	La spesa sociale e per l'istruzione rafforza di più la coesione.
+902	Competitività liberale
+903	alla maniera di Macron / dell'Irlanda
+904	Abbassare le tasse sulle imprese per attirare attività. Crescita spinta, entrate da ricostruire.
+905	Gli investimenti e i tagli agli oneri sociali spingono di più la crescita.
+906	Sovranità nazionale
+907	Priorità all'industria, alla difesa e alle frontiere. Popolare, ma tensioni con i partner.
+908	La spesa per la difesa rende di più in popolarità e attività.
+909	Crisi
+910	Sociale
+911	Internazionale
+912	Opportunità
+913	Lobby
+914	Dilemma etico
+915	Sanità
+916	Clima
+917	Ondata di caldo eccezionale
+918	Una cupola di calore si installa. Ospedali saturi, scuole chiuse, anziani in pericolo.
+919	Piano d'emergenza per il caldo (climatizzatori, ospedali)
+920	Spesa pubblica congiunturale: una risposta rapida protegge la popolazione ma aumenta il deficit nell'immediato.
+921	Raccomandazioni e trasporti gratuiti
+922	Una risposta poco costosa ma giudicata timida in caso di tragedia.
+923	Non stanziare nulla di speciale
+924	L'inazione di fronte a un rischio sanitario costa cara in popolarità.
+925	Attacco informatico ai servizi pubblici
+926	Un attacco paralizza il fisco, l'assicurazione sanitaria e diversi ospedali.
+927	Investire massicciamente nella cybersicurezza
+928	L'investimento immateriale (sicurezza, digitale) protegge l'economia e la fiducia.
+929	Pagare il riscatto in silenzio
+930	Una soluzione rapida, ma che incoraggia il crimine e indebolisce lo Stato di diritto.
+931	Arrangiarsi con i mezzi a disposizione
+932	Investire poco nella protezione espone a perdite economiche ripetute.
+933	Epidemia virale mondiale
+934	Un nuovo virus si diffonde. Bisogna fermare l'economia per salvare vite?
+935	Lockdown rigido + «costi quel che costi»
+936	Shock grave: lo Stato sostiene l'economia con il debito (cassa integrazione, aiuti). Effetto di stabilizzatore automatico.
+937	Restrizioni mirate, economia aperta
+938	Scelta tra salute ed economia: preservare il PIL può costare vite e dividere il paese.
+939	Lasciar circolare il virus, immunità di gregge
+940	Una scelta radicale dal costo umano e politico altissimo.
+941	Impennata dei prezzi dell'energia
+942	Una guerra all'estero fa raddoppiare il prezzo del gas. Famiglie e imprese sono strangolate.
+943	Scudo tariffario finanziato dallo Stato
+944	Sovvenzionare i prezzi protegge il potere d'acquisto ma costa decine di miliardi di euro.
+945	Bonus energia mirato alle famiglie modeste
+946	Un aiuto mirato costa meno di un aiuto universale, con un bilancio limitato.
+947	Accelerare le rinnovabili e la sobrietà energetica
+948	Una risposta strutturale: riduce la dipendenza nel lungo periodo, ma non dà sollievo subito.
+949	Movimento sociale contro una tassa
+950	Una nuova carbon tax sui carburanti scatena blocchi in tutto il paese.
+951	Ritirare la tassa
+952	Fare marcia indietro calma la piazza ma indebolisce la credibilità dell'azione per il clima.
+953	Mantenere + ridistribuire il gettito
+954	La fiscalità ecologica è accettata meglio se il gettito viene ridistribuito (giustizia fiscale).
+955	Mantenere e reprimere i blocchi
+956	La fermezza può degenerare e danneggiare a lungo la coesione sociale.
+957	Riforma delle pensioni
+958	Il sistema pensionistico è in deficit. Alzare l'età della pensione farebbe risparmiare molto.
+959	Portare l'età della pensione a 64 anni
+960	Riforma strutturale: migliora i conti in modo duraturo ma è molto impopolare.
+961	Aumentare invece i contributi
+962	Un'altra leva di equilibrio: pesare sul lavoro piuttosto che sull'età.
+963	Lo status quo lascia correre un deficit che peserà sulle generazioni future.
+964	Attentato terroristico
+965	Un attacco colpisce una grande città. Il paese è sotto shock ed esige risposte.
+966	Piano di sicurezza massiccio + stato d'emergenza
+967	Sicurezza contro libertà: una scelta democratica delicata in tempo di crisi.
+968	Rafforzare l'intelligence con discrezione
+969	Una risposta misurata, meno spettacolare ma spesso più efficace.
+970	Fare appello all'unità senza misure forti
+971	L'opinione pubblica si aspetta atti concreti dopo un trauma collettivo.
+972	Minaccia di delocalizzazione
+973	Un grande gruppo industriale minaccia di chiudere una fabbrica e trasferirsi all'estero.
+974	Versare aiuti per trattenerla
+975	Aiutare un'impresa privata con denaro pubblico: efficace ma discutibile (azzardo morale).
+976	Negoziare una riconversione del sito
+977	Accompagnare la transizione industriale invece di sovvenzionare l'esistente.

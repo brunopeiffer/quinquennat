@@ -1922,5 +1922,6 @@ export default {
  " ; et ": "; and ",
  " ; ": "; ",
  "mais": "but",
- "à": "to"
+ "à": "to",
+ "{a} €/habitant": "{a} €/inhabitant"
 };

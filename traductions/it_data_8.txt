@@ -1,0 +1,148 @@
+1148	Applicare il bilancio a base zero a tutto lo Stato
+1149	La «base zero» obbliga a giustificare ogni euro: forte potenziale di risparmio, ma pesante da attuare e fonte di conflitti con le amministrazioni.
+1150	Revisione mirata delle voci più grandi
+1151	Una revisione parziale: risparmi più modesti, ma più condivisi e rapidi.
+1152	Rinnovare i bilanci come sempre
+1153	Il rinnovo automatico (spesa storica) è semplice ma lascia correre le spese diventate inefficienti.
+1154	Un campione industriale da sostenere
+1155	Un'impresa nazionale può diventare leader mondiale delle batterie se lo Stato investe.
+1156	Investire nel campione nazionale
+1157	La politica industriale scommette sul futuro: rischiosa ma potenzialmente vincente.
+1158	Solo un prestito garantito
+1159	Sostenere senza spendere direttamente (garanzia pubblica).
+1160	Lasciar finanziare il privato
+1161	Il non interventismo lascia rischi e guadagni al mercato.
+1162	Equilibrista
+1163	Finire con un bilancio in pareggio o in avanzo.
+1164	Taglia-debito
+1165	Ridurre il debito di almeno 6 punti di PIL nel corso del mandato.
+1166	Piena occupazione
+1167	Riportare la disoccupazione sotto il 6 %.
+1168	Mani pulite
+1169	Mantenere un'integrità di almeno 90.
+1170	Presidenza verde
+1171	Raggiungere 70 nell'ambiente.
+1172	Unificatore
+1173	Mantenere una coesione di almeno 75.
+1174	Giustizia sociale
+1175	Raggiungere un indice di uguaglianza di almeno 65.
+1176	Motore della crescita
+1177	Finire con una crescita superiore al 2 %.
+1178	Plebiscito
+1179	Essere rieletti con un trionfo.
+1180	Percorso netto
+1181	Ottenere un punteggio di almeno 75.
+1182	Saldo
+1183	del PIL
+1184	Differenza tra ciò che lo Stato incassa (entrate) e ciò che spende, in % del PIL. Negativo = deficit: spende più di quanto guadagna. Obiettivo: avvicinarsi a 0, o addirittura a un avanzo.
+1185	Debito
+1186	Totale di tutti i deficit passati, espresso in % del PIL. Più è alto, più pesano gli interessi da pagare (effetto palla di neve). La regola europea punta al 60 %.
+1187	Disoccupazione
+1188	della forza lavoro
+1189	Quota della popolazione attiva senza lavoro. Cala quando l'economia crea posti di lavoro (crescita) e sale quando rallenta: è la legge di Okun.
+1190	Crescita
+1191	all'anno
+1192	Variazione del PIL, la ricchezza prodotta nel paese. Se è forte crea posti di lavoro ed entrate; se è debole o negativa, è la recessione.
+1193	Inflazione
+1194	Aumento generale dei prezzi in un anno. Se è troppo alta, erode il potere d'acquisto e fa salire i tassi d'interesse; era il grande problema degli anni Settanta e Ottanta. Accelera quando l'economia si surriscalda.
+1195	Coesione
+1196	Misura l'unità e la pace sociale del paese. Rafforzata dai servizi pubblici e dalla redistribuzione; indebolita dai tagli di bilancio e dalle disuguaglianze. Se è troppo bassa, porta alle rivolte.
+1197	Uguaglianza
+1198	Misura l'uguaglianza tra i più ricchi e i più modesti: più l'indice è alto, più la società è egualitaria. Le imposte progressive (sul reddito, sul patrimonio) e gli aiuti la aumentano; le imposte che pesano su tutti allo stesso modo (IVA) e i tagli sociali la fanno scendere.
+1199	Ambiente
+1200	Stato della transizione ecologica. Migliora con gli investimenti verdi e la tassazione del carbonio; peggiora poco a poco se la si ignora.
+1201	Popolarità
+1202	Sostegno dell'opinione pubblica. Decisiva il giorno delle elezioni. Si consuma naturalmente con il tempo («logoramento del potere»).
+1203	Integrità
+1204	Onestà del vostro governo. Intaccata dai compromessi (cedere a una lobby, insabbiare una faccenda). Un'integrità troppo bassa finisce per scatenare scandali.
+1205	Economia
+1206	Società e ambiente
+1207	Vita politica
+1208	interessi sul debito
+1209	altre spese
+1210	altre entrate
+1211	Pensioni e aiuti sociali
+1212	pensioni e aiuti
+1213	sanità
+1214	Funzionamento dello Stato ed enti locali
+1215	funzionamento dello Stato
+1216	istruzione
+1217	Investimenti, ricerca e imprese
+1218	Difesa, sicurezza e giustizia
+1219	difesa e sicurezza
+1220	Contributi sociali («oneri»)
+1221	contributi sociali
+1222	CSG (contributo sociale)
+1223	Imposta sul reddito
+1224	imposta sul reddito
+1225	Altre imposte (patrimonio, successioni, ecologia)
+1226	altre imposte
+1227	Imposta sulle società
+1228	imposta sulle società
+1229	Tutto ciò che i francesi comprano costa un po' di più. Le famiglie modeste, che spendono quasi tutto il loro reddito, lo sentono di più.
+1230	I prezzi nei negozi scendono un po': tutti guadagnano potere d'acquisto, soprattutto le famiglie modeste.
+1231	Le famiglie che guadagnano di più pagano di più: l'imposta sul reddito è progressiva (più si guadagna, più l'aliquota è alta).
+1232	I contribuenti, soprattutto i più agiati, tengono più soldi; lo Stato ridistribuisce meno.
+1233	Un prelievo con la stessa aliquota su quasi tutti i redditi (stipendi, pensioni…): il reddito netto di ciascuno cala un po'.
+1234	Stipendi e pensioni netti aumentano un po' per tutti.
+1235	Le imprese pagano più tasse sugli utili: resta loro meno denaro per investire e assumere, e alcune possono trasferirsi all'estero.
+1236	Le imprese tengono più utili: questo può incoraggiarle a investire e a stabilirsi in Francia.
+1237	Assumere un dipendente costa di più alle imprese: esitano di più ad assumere.
+1238	Un dipendente costa meno all'impresa: questo favorisce le assunzioni, ma la previdenza sociale riceve meno denaro.
+1239	Lo stipendio netto (ciò che il dipendente riceve davvero sul conto) cala: meno potere d'acquisto.
+1240	Lo stipendio netto aumenta: i dipendenti hanno più potere d'acquisto.
+1241	I patrimoni molto grandi pagano di più. È molto redistributivo, ma rende poco (qualche miliardo di euro) e alcuni grandi contribuenti possono trasferirsi all'estero.
+1242	Le grandi fortune sono tassate meno: il divario tra i più ricchi e gli altri si allarga.
+1243	Eredità e donazioni sono tassate di più: questo limita la trasmissione delle disuguaglianze da una generazione all'altra, ma è molto impopolare.
+1244	Le eredità sono tassate meno: le famiglie trasmettono di più, ma le disuguaglianze di patrimonio si perpetuano.
+1245	Benzina, gas ed energia inquinante costano di più: questo spinge a inquinare meno, ma chi dipende dall'auto lo vive male (come durante il movimento dei «gilet gialli» nel 2018).
+1246	Carburante ed energia costano meno: sollievo per gli automobilisti, ma meno incentivi a inquinare meno.
+1247	Le pensioni aumentano: milioni di persone ne beneficiano, ma è già la prima voce della spesa pubblica.
+1248	Le pensioni aumentano più lentamente (o l'età della pensione sale): pensionati e futuri pensionati sono scontenti.
+1249	Più mezzi per gli ospedali e le cure: meno attesa al pronto soccorso, più personale sanitario.
+1250	Meno mezzi per la sanità: ospedali sotto pressione, attese più lunghe, deserti medici.
+1251	Più insegnanti e migliori condizioni di studio: è un investimento per il futuro, che rende nel lungo periodo.
+1252	Meno mezzi per la scuola: classi più affollate. Il risparmio è immediato, ma il futuro dei giovani ne soffre.
+1253	L'RSA (reddito minimo), il sussidio per la casa e il bonus per i lavoratori a basso reddito aumentano: le famiglie modeste spendono quasi tutto questo denaro, il che fa lavorare anche i negozi.
+1254	Gli aiuti ai più modesti calano: lo Stato risparmia, ma povertà e disuguaglianze aumentano.
+1255	Lo Stato finanzia trasporti, transizione ecologica, ricerca: questo crea posti di lavoro oggi e crescita domani.
+1256	Meno investimenti pubblici: risparmio immediato, ma meno crescita e meno posti di lavoro in futuro.
+1257	Più mezzi per le forze armate: il paese è più protetto e l'industria della difesa assume.
+1258	Meno mezzi per le forze armate: lo Stato risparmia, ma la Francia è meno attrezzata di fronte alle minacce.
+1259	Più poliziotti, giudici e mezzi per la giustizia: i francesi si sentono più sicuri.
+1260	Meno mezzi per la polizia e la giustizia: procedure più lente, senso di insicurezza.
+1261	Lo Stato assume o aumenta gli stipendi dei dipendenti pubblici: più posti pubblici e servizi pubblici più presenti.
+1262	Non si sostituiscono tutti i dipendenti pubblici che vanno in pensione: grande risparmio, ma servizi pubblici meno presenti (sportelli, scuole, ospedali…).
+1263	Più mezzi per le agenzie pubbliche (lavoro, sanità, ambiente…): svolgono meglio i loro compiti.
+1264	Si fondono le agenzie che si sovrappongono e se ne sopprimono alcune: lo Stato risparmia, ma alcuni servizi (assistenza ai disoccupati, sanità, ambiente) possono peggiorare.
+1265	Più aiuti alle imprese e alle associazioni: sostegno all'attività e alla vita locale (società sportive, cultura…).
+1266	Meno aiuti alle imprese e alle associazioni: risparmio rapido, ma alcune attività rallentano o chiudono.
+1267	Più denaro per comuni e regioni: più servizi di prossimità (scuole, trasporti, impianti sportivi…).
+1268	Meno denaro per comuni e regioni: riducono i servizi o aumentano le tasse locali.
+1269	Il tasso a cui lo Stato si indebita oggi, a 10 anni (si parla di «OAT a 10 anni», il titolo di Stato francese). Si applica solo ai NUOVI prestiti. Sale quando i prestatori dubitano della solidità dei conti pubblici (debito alto, forte deficit, inflazione) e scende quando sono rassicurati.
+1270	Il costo medio di TUTTO il debito in essere: un mix di vecchi prestiti a tasso basso e di nuovi prestiti a tassi più alti. Si muove lentamente: ogni anno alcuni vecchi prestiti scadono e vengono sostituiti da prestiti ai tassi di mercato. Spesa per interessi dello Stato = tasso medio × debito.
+1271	Ho ritrovato un lavoro dopo due anni di ricerca. Finalmente si respira.
+1272	Karim, 34 anni, operaio
+1273	La mia fabbrica ha chiuso e cerco ancora. Che cosa è stato fatto per noi?
+1274	Sophie, 45 anni, ex operatrice
+1275	I prezzi si calmano: alla cassa si sente.
+1276	Marie, 67 anni, pensionata
+1277	La spesa costa sempre di più. Arrivare a fine mese è dura.
+1278	Nadia, 38 anni, madre di famiglia
+1279	Lo Stato ha ripreso in mano i suoi conti: è rassicurante.
+1280	Pierre, 52 anni, imprenditore
+1281	Il deficit si allarga: lasciamo il conto ai nostri figli.
+1282	Claire, 41 anni, insegnante
+1283	Il debito cala: vuol dire meno tasse domani.
+1284	Louis, 29 anni, ingegnere
+1285	Il debito esplode e nessuno dice come lo ripagheremo.
+1286	Hélène, 58 anni, contabile
+1287	Il paese sembra pacificato: riusciamo di nuovo a parlarci.
+1288	Yasmine, 31 anni, infermiera
+1289	Sono tutti arrabbiati: non ci capiamo più.
+1290	Michel, 49 anni, artigiano
+1291	Siete rieletti con un trionfo
+1292	Siete rieletti
+1293	Siete sconfitti
+1294	Non siete rieletti
+1295	Lasciate il potere

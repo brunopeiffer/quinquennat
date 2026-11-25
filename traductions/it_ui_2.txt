@@ -1,0 +1,223 @@
+445	A questo ritmo il debito sale al {a} % del PIL — rischio di crisi di bilancio. 
+446	Pensate ad aumentare le entrate o a ridurre le spese.
+447	Previsione prima degli eventi — le 3 carte dell'anno rimescoleranno tutto.
+448	Il saldo riparte ogni anno dalla sua base: le vostre scelte di bilancio durature restano, ma gli shock una tantum dell'anno scorso non si ripetono. Solo il
+449	deficit
+450	disoccupazione
+451	coesione
+452	uguaglianza
+453	Lo Stato incassa circa {a} miliardi di euro in più all'anno (≈ {b} € per abitante): il deficit diminuisce.
+454	Lo Stato perde circa {a} miliardi di euro all'anno (≈ {b} € per abitante): il deficit aumenta.
+455	Costa circa {a} miliardi di euro in più all'anno (≈ {b} € per abitante): il deficit aumenta.
+456	Lo Stato risparmia circa {a} miliardi di euro all'anno (≈ {b} € per abitante): il deficit diminuisce.
+457	la crescita accelera
+458	la crescita rallenta
+459	la disoccupazione aumenta
+460	la disoccupazione cala
+461	la vostra popolarità sale
+462	la vostra popolarità scende
+463	la società è più unita
+464	il malcontento cresce
+465	l'ambiente migliora
+466	l'ambiente peggiora
+467	le disuguaglianze aumentano
+468	le disuguaglianze diminuiscono
+469	Vedi il cruscotto (i dati di partenza)
+470	Il vostro cruscotto
+471	I dati chiave della Francia: economia, società, vita politica. Toccate un indicatore per capire cosa misura.
+472	per la società e la vita politica,
+473	più il valore è alto, meglio è
+474	. Per l'economia, una freccia
+475	segnala un miglioramento (debito, disoccupazione e inflazione sono migliori quando scendono).
+476	L'evoluzione dall'inizio del vostro mandato
+477	Ogni punto è la fine di un anno: guardate in che direzione va il paese.
+478	↻ Rivedi il tracciato
+479	la linea tratteggiata dorata ricorda il valore di
+480	partenza
+481	del vostro mandato. Per debito, disoccupazione, inflazione e tassi, scendere sotto
+482	questa linea è una buona notizia; per il PIL è il contrario.
+483	💶 Bilancio:
+484	👀 In concreto:
+485	👍 Buona notizia:
+486	⚠️ Ma attenzione:
+487	Spiegazione
+488	Diminuisci
+489	Aumenta
+490	{a}{b} mld€/anno
+491	Vedi tutti i dettagli ▾
+492	Riduci ▴
+493	Evento
+494	Dossier storico · ucronia
+495	Evento storico reale
+496	Crisi mondiale immaginata
+497	Scenario immaginato
+498	Situazione immaginata (non storica)
+499	Perché questa crisi?
+500	Perché questo scenario?
+501	Cosa decidete?
+502	Una sola risposta possibile: toccate una proposta, poi confermate.
+503	Proposte
+504	La vostra scelta: {a}. Potete ancora cambiare idea.
+505	Prima toccate una delle proposte qui sopra.
+506	Nessuna proposta scelta per ora.
+507	Conferma la mia scelta
+508	Saldo (ogni anno)
+509	Intacca fortemente la vostra integrità — rischio di scandalo più avanti.
+510	I grafici dell'evoluzione appariranno alla fine del primo anno.
+511	Debito (% del PIL)
+512	partenza {a}
+513	PIL (mld€)
+514	PIL nominale (in euro correnti): cresce con la crescita
+515	l'inflazione dell'epoca.
+516	Entrate e spese (mld€)
+517	Disoccupazione (%)
+518	Inflazione (%)
+519	Aumento generale dei prezzi in un anno. Oltre il 5 %, il potere d'acquisto si scioglie in fretta.
+520	Tasso dei nuovi prestiti (%)
+521	Prezzo a cui lo Stato si indebita oggi (OAT a 10 anni). Sale se i mercati si preoccupano, scende se sono rassicurati.
+522	Tasso medio del debito (%)
+523	Tasso pagato su tutto il debito. Raggiunge poco a poco il tasso dei nuovi prestiti, man mano che i vecchi prestiti a buon mercato vengono sostituiti.
+524	Perché il saldo si è mosso (in punti di PIL)
+525	Variazione del saldo
+526	È piuttosto favorevole.
+527	È piuttosto sfavorevole.
+528	Da tenere d'occhio.
+529	Pochi cambiamenti.
+530	Le altre decisioni dell'anno
+531	di spese
+532	di entrate
+533	all'anno
+534	Quest'anno:
+535	Vedi questo deficit su 1.000 € spesi →
+536	Capire questi dati
+537	Bilancio {a}
+538	Cosa hanno cambiato le vostre decisioni quest'anno
+539	Lo stato della Francia alla fine dell'anno. Le frecce mostrano cosa è cambiato dall'inizio dell'anno.
+540	una freccia ▲ o ▼ indica la variazione dall'inizio dell'anno; è
+541	quando è un miglioramento,
+542	quando è un peggioramento (debito, disoccupazione e inflazione sono migliori quando scendono). Per la società e la vita politica,
+543	La parola al vostro consigliere
+544	Bilancio dell'anno
+545	Consiglio per l'anno prossimo:
+546	Allerta
+547	Dati anno per anno
+548	Fine del mandato
+549	Elezione presidenziale
+550	Passa al {a}
+551	I dati anno per anno
+552	Tutti i valori alla fine di ogni anno concluso. Le curve sono nel bilancio dell'anno.
+553	Nessun anno ancora concluso. La tabella si riempirà alla fine di ogni anno.
+554	Andamento
+555	Torna al gioco
+556	Voi:
+557	Avversario:
+558	Il giorno del voto
+559	Dopo
+560	anni, i francesi giudicano il vostro bilancio…
+561	Dicono la loro ·
+562	Ore 20: le prime proiezioni
+563	I seggi chiudono
+564	1ª proiezione
+565	Troppo vicino per concludere…
+566	2ª proiezione
+567	Si attende il risultato ufficiale…
+568	Scopri il verdetto
+569	Salta
+570	Risultato delle elezioni
+571	Siete rieletti
+572	Siete sconfitti
+573	% dei voti
+574	Cosa spiega questo risultato
+575	Restate al comando
+576	Rieletti, potete proseguire con un nuovo mandato (
+577	). Il paese viene ripreso così come l'avete lasciato, e gli eventi sono scenari immaginati a partire dalle tendenze attuali.
+578	Rieletti, potete proseguire con il mandato successivo (
+579	). Il paese porta il segno delle vostre scelte: metà del vostro scarto rispetto alla storia viene trasmessa.
+580	Prosegui: mandato
+581	Questi scenari sono immaginari: non sono previsioni.
+582	Versione di prova: è disponibile solo il passaggio 1974 → 1981.
+583	Mandato concatenato: il suo punteggio non entra nella classifica della classe, perché la vostra partenza dipendeva dal mandato precedente.
+584	Lettera di missione:
+585	Nuovo trofeo sbloccato!
+586	{a} nuovi trofei sbloccati!
+587	Il bilancio didattico del vostro mandato
+588	Classifica —
+589	Nessun punteggio registrato per ora.
+590	Gioca ancora
+591	Home
+592	Saldo pubblico (% del PIL)
+593	Il vostro mandato di fronte alla storia
+594	Avreste fatto meglio di {a}?
+595	Fate meglio su
+596	su 4
+597	rispetto
+598	alla storia reale (la vostra partenza era diversa: vedi «La vostra eredità»)
+599	al vero mandato
+600	Voi
+601	✓ meglio
+602	peggio
+603	Attenzione: il confronto è indicativo. Il vero presidente ha affrontato anche altri vincoli (maggioranza parlamentare, congiuntura mondiale, coabitazione…).
+604	Di fronte ai grandi eventi: le vostre scelte e quelle della storia
+605	Stessa scelta della storia
+606	Scelta diversa
+607	In realtà:
+608	Le vostre
+609	decisioni di fronte agli eventi
+610	I vostri trofei
+611	{a} / {b} sbloccati — rigiocate per ottenerli tutti!
+612	Indietro
+613	Classifica — {a}
+614	{a} partita/e registrata/e · livello {b}
+615	Nessuna partita registrata con questo codice.
+616	Lingua
+617	I dati chiave della Francia all'inizio dell'anno: economia, società, vita politica. Toccate un indicatore per capire cosa misura.
+618	Anno da consiglieri — non conta
+619	Il vostro {a}º mandato · {b}-{c}
+620	Mandato
+621	Anno
+622	aumentato
+623	abbassato
+624	ridotto
+625	, e {a} altra/e modifica/che
+626	appesantito
+627	alleggerito
+628	 (un avanzo!)
+629	migliorato
+630	peggiorato
+631	migliore
+632	peggiore
+633	l'aumento
+634	il taglio
+635	, che compensa l'effetto di {b} (che pesa soprattutto sulle famiglie modeste)
+636	Il vostro mandato si è fermato dopo {a} anni su {c}. In questo periodo
+637	In {a} anni
+638	QUINQUENNAT
+639	indicatori
+640	anni.
+641	 · {a}º mandato
+642	anni
+643	bilancio
+644	punteggio
+645	debito
+646	scatti
+647	A cosa sono serviti questi soldi?
+648	Da dove venivano i soldi?
+649	su
+650	pt
+651	cioè
+652	si accumula.
+653	verde
+654	sotto
+655	OPPURE
+656	e
+657	rossa
+658	con
+659	obiettivo
+660	raggiunto
+661	indicatore
+662	% del lordo
+663	 e 
+664	; e 
+665	; 
+666	ma
+667	a

@@ -1,0 +1,128 @@
+550	La Francia è colpita da attentati sanguinosi.
+551	Rafforzare fortemente la sicurezza, anche a costo di superare gli obiettivi di deficit
+552	La sicurezza prima delle regole di bilancio.
+553	Rafforzare la sicurezza a bilancio invariato
+554	Ridistribuire i mezzi esistenti.
+555	Misure limitate
+556	L'opinione pubblica si aspetta una risposta forte.
+557	Dopo gli attentati del 2015 viene dichiarato lo stato d'emergenza e vengono rafforzati i mezzi della polizia, della giustizia e delle forze armate.
+558	La legge sul lavoro, sostenuta dalla ministra Myriam El Khomri, vuole dare più spazio alla contrattazione aziendale rispetto alla legge. Provoca mesi di manifestazioni nella primavera 2016 e viene adottata senza voto grazie all'articolo 49.3 della Costituzione (che permette al governo di far passare una legge senza voto, a meno che non venga rovesciato da una mozione di sfiducia).
+559	Riformare il codice del lavoro?
+560	Una riforma del diritto del lavoro, più favorevole alla contrattazione nelle imprese, provoca mesi di manifestazioni.
+561	Adottare la riforma nonostante le proteste
+562	Il ricorso all'articolo 49.3 permette l'adozione senza voto.
+563	Ritirare la riforma
+564	Modificarla fortemente
+565	La legge sul lavoro viene adottata nel 2016 grazie all'articolo 49.3, dopo mesi di manifestazioni.
+566	Appena insediato, Emmanuel Macron mantiene una promessa elettorale controversa: limitare l'imposta patrimoniale (ISF) al solo patrimonio immobiliare (diventando l'IFI) e introdurre una flat tax del 30 % sui redditi da capitale, per incoraggiare gli investimenti nelle imprese.
+567	Trasformare l'imposta patrimoniale?
+568	Il nuovo governo vuole incoraggiare gli investimenti alleggerendo la tassazione del capitale.
+569	Sostituire l'ISF con un'imposta sul solo patrimonio immobiliare e tassare il capitale con un'aliquota unica
+570	Favorire gli investimenti, a rischio di essere accusati di fare regali ai ricchi.
+571	Mantenere l'ISF
+572	Lo status quo.
+573	Rafforzare l'ISF
+574	Più redistribuzione, a rischio di partenze di contribuenti.
+575	Dal 2018 l'ISF viene sostituita dall'imposta sul patrimonio immobiliare (IFI), e i redditi da capitale sono tassati con un'aliquota unica del 30 %.
+576	Il movimento dei «gilet gialli», nato sui social network in reazione a un aumento della carbon tax sui carburanti, si trasforma in una protesta sociale senza precedenti, con manifestazioni ogni sabato per diversi mesi a partire dal novembre 2018.
+577	I «gilet gialli»
+578	L'aumento della tassa sui carburanti scatena un movimento di rabbia senza precedenti, ogni sabato.
+579	Annullare l'aumento della carbon tax e prendere misure per il potere d'acquisto
+580	Circa 10 miliardi di euro per placare la rabbia.
+581	Mantenere la carbon tax
+582	Mantenere l'obiettivo climatico, nonostante la crisi.
+583	Non cedere su nulla
+584	Il conflitto si impantana.
+585	L'aumento della carbon tax viene annullato e vengono annunciate misure per circa 10 miliardi di euro (bonus per i lavoratori a basso reddito, straordinari detassati).
+586	Il progetto di sistema pensionistico universale a punti vuole sostituire i 42 regimi esistenti con un sistema unico. Provoca il più lungo sciopero dei trasporti dal 1968, dal dicembre 2019 all'inizio del 2020, prima di essere sospeso con l'arrivo della pandemia.
+587	Una pensione universale a punti?
+588	Il governo vuole fondere i regimi pensionistici in un sistema universale. Scoppia un lungo sciopero.
+589	Andare avanti nonostante lo sciopero
+590	Una riforma strutturale, lunga da mettere in atto.
+591	Negoziare e rallentare
+592	Rinunciare
+593	Il progetto provoca un lungo sciopero alla fine del 2019; adottato in prima lettura con l'articolo 49.3, viene sospeso nel marzo 2020 a causa della pandemia.
+594	Dichiarato pandemia mondiale dall'OMS nel marzo 2020, il Covid-19 spinge quasi tutti i paesi del mondo a confinare la popolazione. La formula «costi quel che costi», pronunciata da Emmanuel Macron il 12 marzo 2020, riassume la portata del sostegno pubblico all'economia.
+595	La pandemia di Covid-19
+596	Un virus si diffonde in tutto il mondo. Gli ospedali sono sommersi.
+597	Confinare e sostenere massicciamente l'economia («costi quel che costi»)
+598	Cassa integrazione e prestiti garantiti proteggono posti di lavoro e imprese.
+599	Confinare con aiuti limitati
+600	Meno debito, ma fallimenti e disoccupazione.
+601	Evitare il lockdown
+602	Un costo umano molto pesante.
+603	Nel 2020 la Francia confina la popolazione e finanzia massicciamente la cassa integrazione e i prestiti garantiti. Il PIL cala di circa l'8 % e il deficit raggiunge circa il 9 % del PIL.
+604	Dopo lo shock economico del 2020, l'Unione europea vara un piano di rilancio comune senza precedenti. In Francia, «France Relance» punta sia a sostenere l'attività nel breve periodo sia a preparare la transizione ecologica e digitale.
+605	Un piano di rilancio?
+606	L'economia riparte dopo la pandemia. Bisogna accompagnarla?
+607	Piano di rilancio da 100 miliardi di euro, compresa la transizione ecologica
+608	Accompagnare la ripresa e preparare il futuro.
+609	Rilancio moderato
+610	Un sostegno più prudente.
+611	Ritorno rapido al pareggio
+612	Il rischio di soffocare la ripresa.
+613	Il piano «France Relance» (100 miliardi di euro, di cui 30 per la transizione ecologica) accompagna una forte ripresa nel 2021.
+614	L'invasione dell'Ucraina da parte della Russia, il 24 febbraio 2022, fa esplodere i prezzi del gas e dell'elettricità in Europa, essendo la Russia un fornitore importante. Lo scudo tariffario, introdotto già nell'autunno 2021 e poi rafforzato, protegge i consumatori francesi a un costo molto alto per lo Stato.
+615	L'inflazione e la crisi energetica
+616	La guerra in Ucraina fa esplodere i prezzi del gas e dell'elettricità.
+617	Scudo tariffario: limitare l'aumento dei prezzi dell'energia
+618	L'inflazione resta contenuta, a un costo elevato.
+619	Bonus energia mirato alle famiglie modeste
+620	Meno caro, più mirato.
+621	Lasciar salire i prezzi
+622	Il potere d'acquisto crolla.
+623	Lo scudo tariffario limita l'aumento dei prezzi dell'elettricità e del gas: l'inflazione francese resta tra le più basse dell'eurozona, a un costo di diverse decine di miliardi di euro.
+624	Come nel 2003 e nel 2010, il finanziamento delle pensioni spinge a una nuova riforma. Quella del 2023, che porta l'età legale da 62 a 64 anni, viene adottata senza voto grazie all'articolo 49.3 e provoca grandi mobilitazioni sindacali per diversi mesi.
+625	Portare l'età della pensione a 64 anni?
+626	Il governo vuole alzare l'età legale per riequilibrare i regimi pensionistici.
+627	Portare l'età legale a 64 anni
+628	Allungare solo il periodo contributivo
+629	Uno sforzo più graduale.
+630	Il deficit delle pensioni persiste.
+631	La riforma del 2023, adottata con l'articolo 49.3 nonostante grandi manifestazioni, porta gradualmente l'età legale da 62 a 64 anni.
+632	Nel 2024 le previsioni di entrate fiscali si rivelano decisamente troppo ottimistiche: la crescita è più debole del previsto, il gettito dell'imposta sulle società crolla e il deficit vola ben oltre l'obiettivo iniziale. Lo scioglimento dell'Assemblea nazionale da parte di Emmanuel Macron, nel giugno 2024, getta il paese in un'instabilità politica senza precedenti.
+633	Il deficit sfugge di mano
+634	Le entrate fiscali sono molto più basse del previsto. Il deficit vola.
+635	Annullare 10 miliardi di stanziamenti in corso d'anno
+636	Risparmi rapidi, ma limitati.
+637	I mercati e Bruxelles si preoccupano.
+638	Aumentare le tasse
+639	Contrario agli impegni presi.
+640	Nel febbraio 2024 vengono annullati 10 miliardi di euro di stanziamenti. Il deficit 2024 sfugge comunque di mano, arrivando a quasi il 6 % del PIL, e lo scioglimento dell'Assemblea a giugno apre un periodo di instabilità.
+641	Senza maggioranza assoluta all'Assemblea dalle elezioni legislative del 2024, votare un bilancio diventa un esercizio pericoloso: si succedono diversi governi, e il bilancio 2025 viene infine adottato a fatica, dopo la caduta del governo Barnier con una mozione di sfiducia nel dicembre 2024.
+642	Un bilancio per ridurre il deficit
+643	Senza una maggioranza stabile, bisogna comunque votare un bilancio che riduca il deficit.
+644	Risparmi e contributi straordinari delle grandi imprese e dei redditi molto alti
+645	Distribuire lo sforzo tra spese e tasse.
+646	Solo risparmi
+647	Nessuno sforzo
+648	Il debito continua a salire.
+649	Il bilancio 2025, adottato all'inizio del 2025 dopo la caduta di un governo con una mozione di sfiducia, combina risparmi e contributi straordinari delle grandi imprese e dei redditi molto alti.
+650	Siamo al 19 maggio 1974.
+651	La Francia conta circa 53 milioni di abitanti ed è una delle cinque prime potenze economiche del mondo.
+652	Si paga in franchi. Il salario minimo (SMIC) è stato creato nel 1970; all'inizio di maggio 1974 ammonta a circa 1.031 franchi al mese (157 € al tasso di conversione fisso, ma con un potere d'acquisto ben superiore a 157 € di oggi, vista l'inflazione da allora).
+653	I «Trenta gloriosi» sono appena finiti: dalla guerra il tenore di vita è cresciuto molto e la disoccupazione riguarda solo il 3 % circa della popolazione attiva.
+654	Ma dall'autunno 1973 il petrolio costa quattro volte di più: i prezzi aumentano di oltre il 13 % l'anno.
+655	La maggiore età è ancora fissata a 21 anni; passerà a 18 anni nel luglio 1974.
+656	L'aborto è ancora vietato: la legge Veil lo depenalizzerà nel gennaio 1975. La pena di morte è ancora in vigore.
+657	La televisione ha tre canali, tutti pubblici; il colore si diffonde poco a poco nelle case.
+658	Il telefono fisso è lontano dall'essere presente in tutte le case.
+659	Il TGV (treno ad alta velocità) non esiste ancora e il Concorde non ha iniziato i voli commerciali (1976).
+660	Personal computer, cellulare, internet: niente di tutto questo esiste ancora.
+661	Negli Stati Uniti il presidente Richard Nixon è invischiato nello scandalo Watergate; si dimetterà tre mesi dopo, nell'agosto 1974.
+662	La Francia conta circa 53 milioni di abitanti. L'elezione si svolge in un clima di lutto: il presidente Georges Pompidou è appena morto in carica, una prima volta nella Quinta Repubblica.
+663	Il cantiere del World Trade Center di New York è appena terminato (aprile 1973); in Francia la tour Montparnasse, la torre più alta di Parigi, viene inaugurata nello stesso anno, il 1973.
+664	Il Vietnam ha appena firmato gli accordi di pace di Parigi (1973); gli ultimi soldati americani hanno lasciato il paese.
+665	Il cinema francese è dominato dalle commedie popolari; «I santissimi» (Les Valseuses) esce quest'anno e fa scandalo.
+666	La 2 CV e la Renault 4 sono tra le auto più vendute in Francia.
+667	Il Minitel (un terminale online francese, antenato di internet) non esiste ancora (sarà sperimentato dal 1978); per telefonare si passa spesso da una centralinista.
+668	La scuola media unica non esiste ancora: sarà creata dalla riforma Haby nel 1975.
+669	Il riscaldamento a gasolio domina nelle case francesi; lo shock petrolifero appena arrivato spingerà a cercare alternative, tra cui il nucleare.
+670	Negli Stati Uniti, Richard Nixon attraversa la peggiore crisi politica della sua presidenza.
+671	Siamo al 10 maggio 1981.
+672	La Francia conta circa 54 milioni di abitanti e resta una delle cinque prime potenze economiche del mondo.
+673	Il salario minimo (SMIC) mensile lordo è di circa 2.898 franchi (442 € al tasso di conversione fisso, ma con un potere d'acquisto ben superiore a 442 € di oggi, vista l'inflazione da allora).
+674	I prezzi aumentano di oltre il 13 % l'anno: l'inflazione è la grande preoccupazione dei francesi, insieme alla disoccupazione che colpisce più del 6 % della popolazione attiva.
+675	Indebitarsi costa molto: lo Stato si finanzia a oltre il 15 % a dieci anni.
+676	La pena di morte esiste ancora: sarà abolita nell'ottobre 1981.
+677	Le radio private sono vietate; le «radio libere» saranno autorizzate nei mesi successivi.

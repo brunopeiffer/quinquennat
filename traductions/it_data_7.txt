@@ -1,0 +1,170 @@
+978	Lasciar fare al mercato
+979	Il liberalismo accetta le chiusure; il costo sociale locale può essere pesante.
+980	Crollo di borsa e panico bancario
+981	I mercati crollano, una grande banca vacilla. Incombe il rischio sistemico.
+982	Salvare la banca con denaro pubblico
+983	Salvare le banche evita il crollo ma fa pagare il contribuente per il privato (2008).
+984	Garantire i depositi, far perdere gli azionisti
+985	Proteggere i risparmiatori senza salvare gli azionisti: più giusto, più rischioso.
+986	Il non intervento può trasformare una crisi finanziaria in una depressione.
+987	Guerra alle porte dell'Europa
+988	Scoppia un grande conflitto. Alleati e opinione pubblica chiedono un impegno della Francia.
+989	Aiuti militari e accoglienza dei rifugiati
+990	La solidarietà internazionale ha un costo di bilancio e sociale immediato.
+991	Solo aiuti umanitari
+992	Una posizione prudente, a volte giudicata insufficiente dagli alleati.
+993	Restare neutrali
+994	La neutralità protegge il bilancio ma isola diplomaticamente.
+995	La rivoluzione dell'intelligenza artificiale
+996	Un'ondata tecnologica sconvolge l'economia. Posti di lavoro minacciati, enormi guadagni di produttività.
+997	Grande piano di formazione e regolazione
+998	Accompagnare il progresso tecnico (formazione) trasforma una minaccia in un guadagno di produttività.
+999	Lasciare che il mercato si adatti da solo
+1000	La crescita senza redistribuzione può allargare le disuguaglianze (distruzione creatrice).
+1001	Tassare i robot per finanziare i perdenti
+1002	Un'idea discussa: ridistribuire i guadagni dell'automazione verso i posti di lavoro distrutti.
+1003	Scoperta di un giacimento strategico
+1004	Importanti risorse (litio, gas) vengono scoperte sul territorio.
+1005	Sfruttamento nazionale rapido
+1006	Una manna immediata per il bilancio, al prezzo di un costo ambientale.
+1007	Sfruttamento regolato ed ecologico
+1008	Conciliare risorsa e ambiente: più lento, più sostenibile.
+1009	Lasciarlo nel sottosuolo (proteggerlo)
+1010	Rinunciare a una risorsa in nome del clima: una scelta di lungo periodo assunta.
+1011	Organizzazione dei Giochi olimpici
+1012	La Francia ospita le Olimpiadi. Una vetrina mondiale ma un bilancio colossale.
+1013	In grande: infrastrutture e prestigio
+1014	I grandi eventi spingono l'attività e l'orgoglio nazionale, ma spesso i costi sfuggono di mano.
+1015	Versione sobria e controllata
+1016	Tenere sotto controllo la spesa pubblica approfittando comunque della vetrina.
+1017	Rinunciare
+1018	Evitare il rischio per il bilancio ma perdere un'occasione di prestigio.
+1019	Sciopero generale dei servizi pubblici
+1020	Insegnanti, personale sanitario e ferrovieri incrociano le braccia insieme per i salari.
+1021	Aumentare gli stipendi pubblici
+1022	La massa salariale pubblica è una voce importante; l'aumento sostiene la domanda.
+1023	Bonus straordinario una tantum
+1024	Un bonus costa meno di un aumento permanente della retribuzione pubblica.
+1025	Tenere duro, nessuna concessione
+1026	Un conflitto lungo disorganizza l'economia e rovina il clima sociale.
+1027	Rivolte urbane
+1028	Una tragedia scatena notti di rivolta. Negozi bruciati, tensione al culmine.
+1029	Piano per i quartieri (lavoro, scuole)
+1030	Affrontare le cause (disoccupazione, servizi) piuttosto che i sintomi.
+1031	Ristabilire l'ordine con la forza
+1032	La risposta securitaria calma nel breve periodo ma alimenta il risentimento.
+1033	Entrambe: fermezza + investimenti
+1034	Combinare ordine e giustizia sociale: un equilibrio difficile ma spesso necessario.
+1035	Siccità e crisi agricola
+1036	I raccolti crollano. Gli agricoltori manifestano, i prezzi alimentari salgono.
+1037	Indennizzare gli agricoltori
+1038	Sostenere un settore colpito; gli aiuti agricoli sono una questione politica forte.
+1039	Investire nell'irrigazione sostenibile
+1040	Adattare l'agricoltura al cambiamento climatico (investimento strutturale).
+1041	Lasciare che il mercato adegui i prezzi
+1042	L'aumento dei prezzi alimentari colpisce prima i più poveri (inflazione).
+1043	Impennata dell'inflazione
+1044	I prezzi volano, il potere d'acquisto cala. La rabbia cresce.
+1045	Indicizzare gli aiuti e il salario minimo (SMIC) all'inflazione
+1046	Proteggere il potere d'acquisto sostiene la domanda ma può alimentare l'inflazione (spirale prezzi-salari).
+1047	Blocco temporaneo di alcuni prezzi
+1048	Il controllo dei prezzi dà sollievo nel breve periodo ma crea carenze se dura.
+1049	Lasciar agire la banca centrale (tassi)
+1050	L'aumento dei tassi calma l'inflazione frenando l'attività (il compromesso della BCE).
+1051	Ospedale pubblico al punto di rottura
+1052	Mancano letti, personale sanitario esausto, pronto soccorso saturi.
+1053	Piano di investimenti ospedalieri
+1054	La sanità è una voce importante; investire poco ha un costo sociale e sanitario differito.
+1055	Riorganizzare senza spendere di più
+1056	L'efficienza a mezzi invariati ha dei limiti di fronte alla domanda di cure.
+1057	Aprire al privato
+1058	La privatizzazione della sanità divide: guadagni di efficienza contro uguaglianza di accesso.
+1059	La lobby dell'energia propone un patto
+1060	Un colosso degli idrocarburi propone di investire 10 miliardi di euro nel paese… in cambio dell'autorizzazione di un progetto controverso e del finanziamento della vostra comunicazione.
+1061	Accettare il patto
+1062	Una lobby scambia posti di lavoro con favori; è in gioco l'integrità della decisione pubblica.
+1063	Negoziare contropartite ecologiche
+1064	Regolare una lobby invece di cedere: preservare l'interesse generale.
+1065	Rifiutare con fermezza
+1066	Resistere ai gruppi di pressione rafforza la fiducia democratica nel lungo periodo.
+1067	Lobby farmaceutica
+1068	Un'azienda farmaceutica propone un vaccino strategico a prezzo alto, in cambio di un brevetto esclusivo e di uno sgravio fiscale.
+1069	Firmare il contratto esclusivo
+1070	Dipendere da un monopolio privato per la salute pubblica pone un problema di sovranità.
+1071	Esigere una licenza aperta
+1072	Difendere il bene comune di fronte agli interessi privati (la salute è un bene pubblico).
+1073	Finanziare un vaccino pubblico
+1074	L'investimento pubblico nella ricerca riduce la dipendenza, a un costo iniziale elevato.
+1075	Lobby agroindustriale
+1076	Il settore chiede di riautorizzare un pesticida vietato per «salvare i raccolti». Sostiene molti posti di lavoro nelle campagne.
+1077	Riautorizzare il pesticida
+1078	Cedere a una lobby contro il parere scientifico: un classico conflitto tra interessi privati e salute pubblica.
+1079	Aiutare il settore a convertirsi al biologico
+1080	Transizione agroecologica: costosa ma sostenibile.
+1081	Mantenere il divieto senza aiuti
+1082	Difendere l'ambiente senza accompagnamento sociale crea dei perdenti.
+1083	Lobby finanziaria
+1084	Le banche chiedono una deregolamentazione per «liberare il credito e la crescita».
+1085	Deregolamentare ampiamente
+1086	La deregolamentazione spinge l'attività ma aumenta il rischio di crisi (la lezione del 2008).
+1087	Allentare al margine, mantenere le salvaguardie
+1088	Cercare l'equilibrio tra finanziamento dell'economia e stabilità finanziaria.
+1089	Rifiutare e rafforzare la vigilanza
+1090	Regolare la finanza protegge l'economia reale dagli eccessi speculativi.
+1091	Sorveglianza di massa
+1092	I vostri servizi propongono un sistema di sorveglianza generalizzata che ridurrebbe la criminalità… al prezzo delle libertà.
+1093	Attivare la sorveglianza
+1094	Sicurezza contro libertà: un dilemma fondamentale delle democrazie.
+1095	Versione sotto il controllo di un giudice
+1096	Il controllo giudiziario protegge lo Stato di diritto pur mantenendo uno strumento di sicurezza.
+1097	Rinunciare al dispositivo
+1098	Preservare le libertà ha a volte un costo politico immediato.
+1099	Un amico per un posto chiave
+1100	Un alleato politico vi chiede di nominare una persona poco qualificata a un importante incarico pubblico.
+1101	Accettare la nomina
+1102	Il favoritismo (clientelismo) mina la fiducia nell'azione pubblica.
+1103	Proporre un incarico secondario
+1104	Un compromesso che limita i danni senza resistere del tutto.
+1105	Rifiutare in nome del merito
+1106	Difendere l'integrità può costare sostegni politici.
+1107	Uno scandalo sta per scoppiare
+1108	Un giornalista indaga su un appalto pubblico dubbio firmato dalla vostra squadra.
+1109	Insabbiare la faccenda
+1110	Nascondere aggrava la colpa; in democrazia la trasparenza protegge meglio del segreto.
+1111	Ammettere e rimediare pubblicamente
+1112	La confessione e il rimedio ripristinano la fiducia nel medio periodo.
+1113	Aprire un'indagine indipendente
+1114	Affidare il controllo a un soggetto terzo indipendente rafforza la credibilità.
+1115	Braccio di ferro con l'Unione europea
+1116	Bruxelles esige che riduciate il deficit, pena sanzioni.
+1117	Rispettare la regola del 3 %
+1118	Il Patto di stabilità impone un deficit < 3 % del PIL: la disciplina di bilancio ha un costo sociale.
+1119	Negoziare una proroga
+1120	La negoziazione europea permette di diluire nel tempo lo sforzo di bilancio.
+1121	Ignorare e accettare le sanzioni
+1122	Sfidare l'UE a volte piace all'opinione pubblica ma isola e costa in credibilità.
+1123	Crisi migratoria
+1124	Migliaia di persone arrivano alle frontiere. Il paese si divide sulla linea da seguire.
+1125	Accoglienza organizzata e integrazione
+1126	L'immigrazione ha un costo iniziale di integrazione e un contributo economico di lungo periodo.
+1127	Quote e controlli rafforzati
+1128	Una politica di equilibrio, spesso criticata da entrambe le parti.
+1129	Chiusura delle frontiere
+1130	La chiusura piace a una parte dell'opinione pubblica ma contrasta con gli impegni umanitari.
+1131	Lotta all'evasione fiscale
+1132	Un rapporto rivela miliardi di imposte evase da grandi imprese e privati facoltosi. L'opinione pubblica chiede conto.
+1133	Grande piano di controlli fiscali (assumere ispettori)
+1134	Recuperare le imposte evase è popolare e porta un guadagno reale, ma limitato: servono ispettori, tempo, e una parte dell'evasione resta irrecuperabile. Da solo non colma mai il deficit.
+1135	Alcuni controlli mirati e mediatizzati
+1136	Uno sforzo modesto ma rapido e condiviso; il rendimento per il bilancio resta basso.
+1137	L'inazione di fronte all'evasione fiscale è molto mal percepita e alimenta il senso di ingiustizia.
+1138	Dibattito sulle frodi ai sussidi
+1139	L'opposizione chiede un grande piano contro le prestazioni sociali versate indebitamente (RSA, il reddito minimo; sussidi…). Il tema divide.
+1140	Rafforzare fortemente i controlli sui beneficiari
+1141	Le somme recuperate sono basse: le frodi ai sussidi sono molto inferiori all'evasione fiscale. E controlli troppo zelanti stigmatizzano i più modesti.
+1142	Incrociare le banche dati senza stigmatizzare
+1143	Un approccio tecnico e misurato: un piccolo guadagno, senza ferire la coesione.
+1144	Ricordare che le frodi ai sussidi sono marginali
+1145	Corretto nei fatti, ma una parte dell'opinione pubblica lo vede come lassismo.
+1146	Rivedere tutte le spese (bilancio a base zero)
+1147	I vostri consiglieri propongono di smettere di rinnovare automaticamente i bilanci: ogni spesa dovrebbe essere giustificata da zero, ogni anno.

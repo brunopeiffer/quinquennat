@@ -1,0 +1,220 @@
+225	»: è quella che giocherete.
+226	Classe
+227	: tutta la classe gioca questa epoca con gli stessi imprevisti.
+228	Entrate nel palazzo (con l'anno da consiglieri)
+229	Saltate l'anno da consiglieri
+230	Prima di cominciare, completate:
+231	il nome della squadra
+232	la dottrina
+233	Prima di governare… un consiglio
+234	Un antipasto che non conta
+235	Siamo nel
+236	. Prima delle elezioni bisogna ancora votare un
+237	ultimo bilancio
+238	, e la squadra al potere cerca uno sguardo nuovo. La vostra reputazione è arrivata fino al palazzo: vi si chiede,
+239	, di proporre questo bilancio usando alcune leve chiave. Non vi impegna a nulla: è un allenamento prima della vostra campagna.
+240	Scoprirete come funziona il bilancio con
+241	alcune leve semplici
+242	, poi affronterete
+243	2 imprevisti
+244	. Poi vi candiderete alle elezioni per il vostro vero mandato di
+245	Scoprite il bilancio
+246	Avete il senso dell'equilibrio: il deficit si è ridotto. La squadra uscente è convinta che abbiate la stoffa di un presidente.
+247	Il deficit si è allargato… Governare non è così semplice! Per fortuna quest'anno non contava: ora sapete cosa vi aspetta.
+248	Un bilancio prudente, senza grandi sconvolgimenti. Avete capito il principio: ogni scelta ha un costo.
+249	Bilancio del vostro anno da consiglieri
+250	Cosa avrebbe prodotto il vostro bilancio
+251	Verdetto:
+252	È ora di lanciarvi nella campagna.
+253	Candidarmi alle elezioni
+254	Giorno delle elezioni…
+255	Eletti!
+256	I francesi votano per scegliere il nuovo presidente…
+257	Congratulazioni, {a}! Il paese vi affida le chiavi per {b} anni.
+258	Inizia il mio mandato
+259	La vostra eredità
+260	Il paese viene ripreso
+261	così come l'avete lasciato
+262	: stesse politiche, stessi margini di manovra. Gli eventi di questo mandato sono
+263	scenari immaginati
+264	a partire dalle tendenze attuali: non sono previsioni.
+265	La storia è andata avanti, ma il vostro mandato l'ha deviata.
+266	Metà del vostro scarto rispetto alla realtà
+267	si trasmette a questo nuovo mandato; il resto torna alla situazione storica.
+268	Indicatore
+269	Inizio {a}
+270	Storia
+271	Partenza {a}
+272	La vostra fine
+273	Partenza
+274	La vostra missione
+275	{a} · dottrina {b}{c}
+276	Siete
+277	rieletti
+278	: il vostro
+279	º mandato
+280	inizia nel
+281	e dura
+282	Siete appena stati eletti: guiderete la Francia per
+283	, a partire dal
+284	, al posto di
+285	Ogni anno voterete un
+286	(ciò che lo Stato incassa e spende), poi affronterete
+287	3 eventi
+288	imprevisti. Alla fine i francesi voteranno.
+289	All'inizio: un
+290	deficit del
+291	(lo Stato spende più di quanto incassa) e un
+292	debito del
+293	del PIL
+294	; l'inflazione è al
+295	e lo Stato si indebita al
+296	. Il vostro obiettivo: risanare i conti
+297	senza spaccare la società
+298	. Attenzione, tutto è collegato — nessuna decisione è gratuita.
+299	I vostri obiettivi
+300	Come venite valutati
+301	Sociale
+302	Il
+303	decide la classifica tra le squadre. Ma la vostra
+304	rielezione
+305	dipende soprattutto dalla vostra
+306	popolarità
+307	il giorno del voto!
+308	Per saperne di più sui dati usati
+309	Il gioco simula
+310	la spesa pubblica della Francia
+311	— l'insieme delle amministrazioni pubbliche: lo
+312	Stato
+313	, la
+314	previdenza sociale
+315	(pensioni, sanità, disoccupazione) e gli
+316	enti locali
+317	. Non è quindi solo «il bilancio dello Stato» in senso stretto: è il perimetro usato quando si parla del
+318	deficit pubblico
+319	(~5,4 % del PIL) e del
+320	(~119 %). La spesa
+321	privata
+322	delle famiglie e delle imprese non è inclusa.
+323	I dati di partenza sono
+324	ordini di grandezza arrotondati
+325	, tratti da fonti pubbliche (INSEE, l'istituto di statistica francese; il disegno di legge di bilancio; la Corte dei conti).
+326	La vostra epoca (
+327	% del PIL, deficit
+328	%, disoccupazione
+329	%, inflazione
+330	%, tasso d'interesse
+331	%. Gli importi sono convertiti in euro dell'epoca (PIL ≈
+332	miliardi di euro). I riferimenti qui sotto sono quelli della Francia di oggi, per confronto.
+333	PIL ≈ 3.000 mld€
+334	Debito ≈ 119 % del PIL
+335	Entrate ≈ 1.450 mld€
+336	Deficit ≈ 5,4 % del PIL
+337	Spese ≈ 1.600 mld€
+338	Disoccupazione ≈ 8,3 %
+339	Nuovi prestiti ≈ 4,9 % (OAT, titolo di Stato a 10 anni, nov. 2026)
+340	Tasso medio del debito ≈ 2,0 %
+341	Inflazione ≈ 3,4 % su un anno (ott. 2026)
+342	Crescita 2026 ≈ 0,5 %
+343	Entrate
+344	: IVA ~211 · imposta sul reddito ~95 · CSG (contributo sociale) ~130 · imposta sulle società ~58 · contributi ~610 mld€
+345	Spese
+346	: pensioni ~340 · sanità ~300 · istruzione ~155 (Stato + enti locali) · difesa ~50 mld€
+347	Questi dati rendono il gioco credibile; non sono una previsione ufficiale.
+348	Entrate in carica
+349	Mercati finanziari
+350	Tasso a cui lo Stato si indebita oggi (OAT a 10 anni)
+351	Tasso medio pagato su tutto il debito (vecchi prestiti compresi)
+352	Tasso medio del debito
+353	Spesa per interessi
+354	mld€/anno
+355	Altre spese (non modificabili nel gioco)
+356	Altre entrate (non modificabili nel gioco)
+357	Prestiti (il deficit)
+358	Grafico a blocchi: a cosa servono 1.000 € di spesa dello Stato
+359	mld€ ·
+360	% del totale
+361	spesi dallo Stato: toccate una voce per isolarla
+362	mld€
+363	Le tre voci più grandi (
+364	) rappresentano
+365	su 1.000 €.
+366	Gli interessi sul debito assorbono
+367	: denaro che non finanzia alcun servizio pubblico.
+368	I
+369	restanti raggruppano spese che il gioco non vi permette di modificare.
+370	Come leggere:
+371	ogni quadratino vale 1 € su 1.000 € spesi. Ogni blocco raggruppa una voce: più è grande, più pesa. Toccate un blocco per isolarlo.
+372	Le prime tre fonti (
+373	) forniscono
+374	vengono dai prestiti: è il deficit.
+375	L'anno scorso:
+376	quest'anno).
+377	Colmare questo deficit con la sola IVA richiederebbe circa
+378	: l'IVA passerebbe da
+379	mld€ (+
+380	Le entrate superano le spese di
+381	: è un avanzo.
+382	di «altre entrate» raggruppano entrate che il gioco non vi permette di modificare.
+383	Torna al bilancio
+384	Il bilancio in 1.000 €
+385	Nessun anno ancora concluso.
+386	presi in prestito su 1.000 € spesi: toccate una fonte per isolarla
+387	presi in prestito: le entrate superano le spese (avanzo)
+388	presi in prestito: il bilancio è in pareggio
+389	Dove vanno i soldi
+390	Da dove vengono i soldi
+391	Bilancio {a}: immaginate che lo Stato abbia speso 1.000 € quest'anno. {b}
+392	Scegliete la rappresentazione
+393	Grafico a blocchi: da dove vengono i soldi che spende lo Stato (imposte, contributi, prestiti)
+394	🧭 La vostra missione, passo dopo passo
+395	Passo
+396	👇 Le leve sono qui sotto.
+397	Le vostre entrate
+398	Regolate le vostre entrate (imposte)
+399	Scheda Entrate: toccate + per aumentare un'imposta, − per abbassarla. Modificatene quante volete: ogni imposta aumentata riduce il deficit, ma pesa su qualcuno.
+400	Vai alle entrate
+401	Le vostre spese
+402	Regolate le vostre spese
+403	Scheda Spese: toccate − per risparmiare, + per spendere di più. Regolate quante voci volete: ogni scelta ha un costo sociale.
+404	Vai alle spese
+405	Conferma
+406	Proponi questo bilancio
+407	Conferma il bilancio
+408	Confermate il vostro bilancio
+409	Potete ancora modificare entrate e spese. Seguite il risultato nella barra «Saldo previsto»; quando vi convince, premete «{a}».
+410	L'ultimo bilancio del presidente
+411	Bilancio {a}
+412	Anno da consiglieri (non conta) — aiutate il presidente uscente con alcune leve chiave.
+413	Anno {a}/{b} — regolate a scatti. Le aliquote restano da un anno all'altro.
+414	Il bilancio parte con un
+415	% di deficit
+416	. Provate a ridurlo — ma attenzione, ogni scelta ha un costo sociale.
+417	Tutte le leve sono qui, e un riquadro giallo spiega l'effetto di ogni decisione. Dal 2º anno giocate senza rete!
+418	👉 Passo
+419	Saldo previsto quest'anno
+420	senza modifiche: {a} %
+421	rispetto a «senza modifiche» (
+422	Conferma comunque
+423	Proponi
+424	Non avete aperto la scheda
+425	Vedi
+426	● da vedere
+427	Codice colore degli effetti:
+428	■ verde = migliora la situazione del paese
+429	■ rosso = la peggiora
+430	(la freccia indica se l'indicatore sale ↑ o scende ↓)
+431	Vedi le
+432	leve rimanenti
+433	Effetto netto sul saldo (cumulato)
+434	all'anno
+435	. Dateci un'occhiata prima di confermare — è metà del vostro bilancio!
+436	Saldo totale
+437	Debito nel {a}
+438	Saldo primario
+439	− spesa per interessi
+440	mld€; tasso medio
+441	%, nuovi prestiti al
+442	%) = saldo totale
+443	a fine mandato se mantenete questa rotta.
+444	Deficit molto alto ({a} %). 
