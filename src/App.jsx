@@ -2058,6 +2058,18 @@ function Note({ text }) {
 }
 
 /* ---------- Écran d'accueil ---------- */
+const KOFI_URL = "https://ko-fi.com/quinquennat";
+function SoutienLink({ style }) {
+  return (
+    <div data-soutien="1" style={{ textAlign: "center", ...style }}>
+      <a href={KOFI_URL} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 999, border: `1px solid ${C.gold}`, color: C.gold, fontSize: 13.5, fontWeight: 500, textDecoration: "none" }}>
+        <span aria-hidden="true">☕</span>Soutenir Quinquennat
+      </a>
+      <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6 }}>Jeu gratuit, sans publicité. Un don aide à le faire vivre.</div>
+    </div>
+  );
+}
+
 function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
   const [cc, setCc] = useState("");
   const ccEra = parseClassCode(cc);
@@ -2115,6 +2127,7 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
         <Btn onClick={() => onLeaderboard("CLASSE")}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Classement</Btn>
         <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Trophées</Btn>
       </div>
+      {!cc.trim() && <SoutienLink style={{ marginTop: 34 }} />}
     </div>
   );
 }
@@ -3686,6 +3699,7 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
         <Btn kind="primary" onClick={onReplay}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Rejouer</Btn>
         <Btn onClick={onHome}><Icon n="home" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Accueil</Btn>
       </div>
+      {game.code === "CLASSE" && <SoutienLink style={{ marginTop: 26 }} />}
     </div>
   );
 }
