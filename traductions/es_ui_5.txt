@@ -1,0 +1,68 @@
+600	Vosotros
+601	✓ mejor
+602	peor
+603	Atención: la comparación es orientativa. El verdadero presidente también afrontó otras restricciones (mayoría parlamentaria, coyuntura mundial, cohabitación…).
+604	Ante los grandes acontecimientos: vuestras decisiones y las de la historia
+605	La misma decisión que la historia
+606	Decisión distinta
+607	En realidad:
+608	Vuestras
+609	decisiones ante los acontecimientos
+610	Vuestros trofeos
+611	{a} / {b} desbloqueados: ¡volved a jugar para conseguirlos todos!
+612	Volver
+613	Clasificación — {a}
+614	{a} partida(s) registrada(s) · nivel {b}
+615	No hay ninguna partida registrada con este código.
+616	Idioma / Language
+617	Las cifras clave de Francia al principio del año: economía, sociedad, vida política. Tocad un indicador para entender lo que mide.
+618	Año de consejo: no cuenta
+619	Vuestro {a}.º mandato · {b}-{c}
+620	Mandato
+621	Año
+622	aumentado
+623	bajado
+624	reducido
+625	, y {a} cambio(s) más
+626	subido
+627	aligerado
+628	 (¡un superávit!)
+629	mejorado
+630	empeorado
+631	mejor
+632	peor
+633	la subida
+634	la bajada
+635	, que compensa el efecto de {b} (que pesa sobre todo sobre los hogares modestos)
+636	Vuestro mandato terminó tras {a} de {c} años. En ese periodo
+637	En {a} años
+638	QUINQUENNAT
+639	indicadores
+640	años.
+641	 · {a}.º mandato
+642	años
+643	presupuesto
+644	puntuación
+645	deuda
+646	pasos
+647	¿Para qué ha servido este dinero?
+648	¿De dónde venía el dinero?
+649	de
+650	pt
+651	es decir
+652	se acumula.
+653	verde
+654	por debajo de
+655	O
+656	y
+657	roja
+658	con
+659	objetivo
+660	alcanzado
+661	indicador
+662	% del bruto
+663	 y 
+664	; y 
+665	; 
+666	pero
+667	a

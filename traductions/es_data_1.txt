@@ -1,0 +1,125 @@
+160	termina su septenio
+161	El septenio que termina ha estado marcado por dos crisis del petróleo (1973 y 1979). El crecimiento se ha frenado, el paro superó el millón de personas en 1977 y la inflación sigue por encima del 10 %: es la «estanflación». Los planes de austeridad de Raymond Barre, a partir de 1976, no bastaron para vencerla. En mayo de 1981, la izquierda llega al poder por primera vez en la Quinta República.
+162	François Mitterrand
+163	termina su primer septenio
+164	Tras la reactivación de 1981-1982, el Gobierno dio en 1983 el «giro hacia la austeridad» para vencer la inflación y defender el franco. De 1986 a 1988, la primera cohabitación, con Jacques Chirac como primer ministro, privatizó grandes empresas. La inflación ha bajado del 3 %, pero el paro roza el 9 %.
+165	termina su segundo septenio
+166	El septenio que termina ha vivido la guerra del Golfo (1991), la creación de la CSG (contribución social generalizada, 1991) y el Tratado de Maastricht (1992), que fija las condiciones para adoptar la moneda única: un déficit inferior al 3 % del PIB y una deuda inferior al 60 %. En 1993, Francia atravesó una recesión y se abrió una segunda cohabitación, con Édouard Balladur. El paro supera el 10 %.
+167	Jacques Chirac
+168	De 1997 a 2002, una tercera cohabitación, con Lionel Jospin como primer ministro, implantó las 35 horas. El crecimiento fue fuerte a finales de los años noventa y el paro volvió a bajar del 8 %. El 1 de enero de 2002, el euro sustituyó al franco en los monederos. El mandato presidencial pasa a partir de ahora de siete a cinco años.
+169	termina su segundo mandato
+170	El quinquenio que termina ha estado marcado por la ola de calor de 2003, la reforma de las pensiones de 2003, el «no» en el referéndum sobre la Constitución europea (2005), los disturbios urbanos de 2005 y la retirada del CPE, el contrato de primer empleo (2006). La deuda supera el 60 % del PIB. En Estados Unidos aparecen las primeras señales de la crisis de las hipotecas «subprime».
+171	Nicolas Sarkozy
+172	termina su quinquenio
+173	El quinquenio que termina se ha visto sacudido por la crisis financiera de 2008: rescate de los bancos, plan de estímulo y luego recesión en 2009. La deuda pasó de alrededor del 64 % al 91 % del PIB. La reforma de 2010 retrasó la edad legal de jubilación a los 62 años. Desde 2010, la crisis de la zona euro inquieta a los mercados; en enero de 2012, Francia perdió su calificación «AAA» en Standard & Poor's.
+174	François Hollande
+175	termina su quinquenio y ha renunciado a presentarse de nuevo
+176	El quinquenio que termina empezó con subidas de impuestos para reducir el déficit y después se orientó hacia la reducción del coste laboral (crédito fiscal CICE en 2013, pacto de responsabilidad en 2014). Francia sufrió los atentados de 2015. El paro sigue cerca del 10 % y la deuda se acerca al 100 % del PIB. Por primera vez, un presidente saliente ha renunciado a presentarse de nuevo.
+177	Emmanuel Macron
+178	termina su primer quinquenio
+179	El quinquenio que termina transformó el impuesto sobre el patrimonio (ISF) en un impuesto sobre el patrimonio inmobiliario (2018) y después afrontó el movimiento de los «chalecos amarillos» (2018-2019) y la pandemia de COVID-19 (2020), durante la cual el Estado gastó masivamente («cueste lo que cueste»). La deuda superó el 110 % del PIB. A principios de 2022, la guerra en Ucrania dispara los precios de la energía y la inflación vuelve.
+180	últimos datos conocidos (2025)
+181	termina su segundo quinquenio — la Constitución le prohíbe aspirar a un tercero
+182	Desde 2022, Francia ha vivido un fuerte repunte de la inflación, una reforma de las pensiones que sitúa la edad legal en 64 años (2023) y después inestabilidad política tras la disolución de la Asamblea en 2024. El déficit público sigue por encima del 5 % del PIB (5,4 % previsto en 2026), la deuda alcanza un récord del 119 %, el paro sube al 8,3 %, la inflación ha vuelto (3,4 % interanual) y los tipos a los que el Estado se financia a diez años se acercan al 5 %.
+183	La guerra de Yom Kipur (octubre de 1973) enfrentó a Israel con Egipto y Siria. En represalia por el apoyo occidental a Israel, los países productores de petróleo del Golfo cuadruplicaron su precio en pocos meses: es la primera «crisis del petróleo». Francia importa entonces casi todo el petróleo que consume.
+184	La primera crisis del petróleo
+185	Desde finales de 1973, el precio del petróleo se ha multiplicado por cuatro. Los precios se disparan y la actividad se frena: es la «estanflación».
+186	Frenar la economía para romper la inflación (austeridad)
+187	Reducir la demanda calma los precios, pero a costa de una desaceleración y de paro.
+188	Apoyar la actividad con gasto público (estímulo)
+189	Ante un choque de costes, el estímulo sostiene el empleo pero alimenta sobre todo la inflación.
+190	Apostar por el ahorro energético y la energía nuclear
+191	Una respuesta a largo plazo: reducir la dependencia del petróleo importado.
+192	En junio de 1974, el Gobierno adopta un plan de «enfriamiento» de la economía contra la inflación. Se mantiene el programa electronuclear lanzado en marzo de 1974.
+193	Es la primera vez desde la Segunda Guerra Mundial que la producción francesa cae durante un año entero. La crisis del petróleo de 1973 ha encarecido los costes de producción en toda Europa y la demanda mundial se hunde.
+194	1975: la recesión
+195	Por primera vez desde la guerra, la producción cae y el paro sube rápidamente.
+196	Plan de estímulo con inversión pública
+197	El estímulo sostiene la actividad, pero aumenta el déficit.
+198	Mantener la austeridad para proteger el franco
+199	La austeridad protege la moneda pero agrava la recesión.
+200	Ayudas dirigidas a las empresas en dificultades
+201	Un apoyo limitado, menos costoso pero menos eficaz.
+202	En septiembre de 1975, el Gobierno de Jacques Chirac lanza un plan de estímulo financiado con déficit. La actividad se recupera en 1976, pero la inflación sigue alta.
+203	El verano de 1976 sigue siendo uno de los más secos del siglo XX en Francia: varios meses sin lluvias significativas, ríos secos, cosechas de cereales y de forraje arrasadas. Los ganaderos, sin nada con lo que alimentar al ganado, son los más afectados.
+204	La gran sequía de 1976
+205	Un verano excepcionalmente seco arruina muchas cosechas. Los agricultores piden ayuda.
+206	Crear un impuesto extraordinario para indemnizar a los agricultores
+207	Financiar una ayuda con un impuesto específico evita aumentar el déficit.
+208	Indemnizar con deuda
+209	Una ayuda rápida, pagada con deuda.
+210	No intervenir
+211	La inacción ante una catástrofe se vive mal.
+212	El Gobierno crea un «impuesto de la sequía», un recargo extraordinario sobre el impuesto sobre la renta, para financiar la ayuda a los agricultores.
+213	Raymond Barre, economista reconocido, llega a primer ministro en agosto de 1976 con la misión prioritaria de frenar la inflación, entonces superior al 9 % anual. Su nombre quedará asociado a la austeridad presupuestaria de los años 1976-1981.
+214	Un plan contra la inflación
+215	La inflación supera el 9 % y el franco está bajo ataque. El nuevo primer ministro, Raymond Barre, propone un plan de lucha contra la subida de los precios.
+216	Congelar los precios y frenar los salarios (austeridad)
+217	La congelación de precios actúa rápido, pero no resuelve las causas de la inflación.
+218	Indexar los salarios a los precios
+219	Proteger el poder adquisitivo puede alimentar una espiral de precios y salarios.
+220	Dejar hacer y apoyar el consumo
+221	Más agradable a corto plazo, pero la inflación se instala.
+222	El plan Barre (septiembre de 1976) congela los precios durante tres meses, frena las subidas salariales y busca reequilibrar el presupuesto. Aun así, la inflación sigue cerca del 10 %.
+223	El paro, marginal durante los «Treinta Gloriosos» (menos de 500.000 personas a principios de los años setenta), se ha duplicado en pocos años por la desaceleración económica que siguió a la crisis del petróleo. Los jóvenes sin cualificación son los primeros afectados.
+224	La barrera del millón de parados
+225	El paro ha superado el millón de personas. Los jóvenes son los más afectados.
+226	Eximir de cotizaciones a las empresas que contraten a jóvenes
+227	Bajar el coste laboral de los jóvenes favorece su contratación.
+228	Lanzar grandes obras públicas
+229	La inversión pública crea empleo, a crédito.
+230	No cambiar nada
+231	El paro masivo se instala.
+232	En 1977, el primer «pacto nacional por el empleo juvenil» exime de cotizaciones sociales a las empresas que contraten a jóvenes.
+233	La revolución iraní (1978-1979), que derroca al sah e instaura una República Islámica, interrumpe las exportaciones de petróleo del país. Junto con la guerra Irán-Irak que estallará en 1980, provoca una segunda crisis del petróleo, tan brutal como la de 1973.
+234	La segunda crisis del petróleo
+235	La revolución iraní vuelve a disparar el precio del petróleo. La inflación repunta.
+236	Mantener la austeridad
+237	Sostener la moneda y el presupuesto, a costa de un paro creciente.
+238	Estimular para proteger el empleo
+239	Como en 1974, el estímulo alimenta sobre todo la inflación.
+240	Plan de ahorro energético
+241	Reducir el consumo de petróleo limita la factura.
+242	El Gobierno Barre mantiene su política de austeridad; la inflación supera el 13 % en 1980 y el paro sigue subiendo.
+243	Elegido con un programa de ruptura con la política de austeridad de Raymond Barre, François Mitterrand aplica desde el verano de 1981 el programa común de la izquierda: subida del salario mínimo (SMIC), de las prestaciones familiares y de la pensión mínima de vejez, y creación de 150.000 empleos públicos.
+244	¿Reactivar con el poder adquisitivo?
+245	El nuevo Gobierno quiere reactivar la economía mediante el consumo y el empleo público.
+246	Estímulo masivo: subida del salario mínimo, de las prestaciones y contratación pública
+247	Si una parte de la demanda se va en importaciones, el estímulo beneficia a otros países.
+248	Estímulo moderado y dirigido
+249	Menos efecto, pero menos riesgos.
+250	Prioridad a la lucha contra la inflación
+251	La austeridad desde el principio, en contra de las promesas.
+252	Desde 1981, el salario mínimo (SMIC) sube alrededor de un 10 %, aumentan las prestaciones y la pensión mínima y el Estado contrata. Una parte de la demanda beneficia a las importaciones, el déficit exterior se agrava y el franco se devalúa ya en octubre de 1981.
+253	Nacionalizar grandes sectores de la industria y de las finanzas es una promesa histórica de la izquierda francesa, defendida desde el Frente Popular de 1936. En 1982, el Estado se convierte en accionista mayoritario de grupos como Saint-Gobain, Rhône-Poulenc, Thomson o Pechiney, así como de casi todo el sector bancario.
+254	¿Nacionalizar las grandes empresas?
+255	El programa prevé nacionalizar grandes grupos industriales y bancos.
+256	Nacionalizar grandes grupos y los bancos
+257	El Estado se convierte en accionista, pero debe indemnizar a los antiguos propietarios.
+258	Tomar solo participaciones
+259	Un control parcial, menos costoso.
+260	No nacionalizar
+261	Renunciar a una promesa electoral.
+262	La ley de febrero de 1982 nacionaliza cinco grandes grupos industriales, 39 bancos y dos compañías financieras.
+263	Antes de 1982 había que esperar a los 65 años para cobrar una pensión completa (salvo excepciones). La rebaja a los 60 años es una medida emblemática del primer septenio de Mitterrand, impulsada por la ministra de Trabajo Nicole Questiaux y luego por Pierre Bérégovoy.
+264	¿La jubilación a los 60 años?
+265	La edad legal de jubilación es de 65 años. El Gobierno propone rebajarla.
+266	Rebajar la edad legal a 60 años
+267	Un avance social, pero un coste duradero para los sistemas de pensiones.
+268	Mantener los 65 años
+269	Preservar las cuentas, a costa de una promesa incumplida.
+270	Jubilaciones anticipadas según la penosidad del trabajo
+271	Un compromiso dirigido.
+272	En 1982, la edad legal de jubilación pasa de 65 a 60 años, a partir de abril de 1983.
+273	Durante casi dos años, el Gobierno dudó entre dos caminos: seguir con el estímulo de la demanda, aunque supusiera salir del Sistema Monetario Europeo (SME) y aislar a Francia, o seguir anclado a Europa a costa de un esfuerzo de austeridad. La decisión de marzo de 1983, defendida por Jacques Delors, marca un giro duradero de la política económica francesa.
+274	El franco bajo ataque: ¿cambiar de rumbo?
+275	El franco está bajo ataque y el déficit exterior se agrava. ¿Hay que salir del Sistema Monetario Europeo (SME) para seguir con el estímulo, o cambiar de rumbo? El SME une las monedas europeas entre sí: el franco debe mantenerse en una banda estrecha frente al marco alemán; si baja demasiado, hay que devaluar.
+276	Quedarse en el SME y pasar a la austeridad
+277	La austeridad hace bajar la inflación, pero el paro sube.
+278	Salir del SME y devaluar con fuerza
+279	Una devaluación devuelve competitividad, pero encarece las importaciones.
+280	Seguir con el estímulo
+281	El déficit exterior y la inflación siguen empeorando.
+282	En marzo de 1983, Francia se queda en el SME: nueva devaluación, plan de austeridad de Jacques Delors y fin de la indexación automática de los salarios a los precios. La inflación baja claramente en los años siguientes.
+283	Las elecciones legislativas de marzo de 1986 dan la mayoría a la derecha, lo que obliga a François Mitterrand a nombrar primer ministro a Jacques Chirac: es la primera «cohabitación» de la Quinta República, un presidente y un Gobierno de signo político opuesto.
+284	Cohabitación: ¿privatizar?

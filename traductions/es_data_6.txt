@@ -1,0 +1,120 @@
+760	En enero, Francia perdió su calificación «AAA» en la agencia Standard & Poor's.
+761	Los smartphones se han impuesto; Instagram existe desde 2010.
+762	En Estados Unidos, Barack Obama es presidente desde 2009.
+763	Francia tiene unos 65 millones de habitantes. François Hollande vence al presidente saliente Nicolas Sarkozy: una alternancia poco habitual tras un solo mandato.
+764	Unos días después, en Grecia, unas caóticas elecciones legislativas ilustran la crisis de confianza que sacude la zona euro.
+765	La «primavera árabe», iniciada a finales de 2010, ha derrocado varios regímenes (Túnez, Egipto, Libia) y sigue trastocando Oriente Próximo.
+766	Londres prepara los Juegos Olímpicos del verano de 2012.
+767	Facebook acaba de salir a bolsa y ya tiene más de 900 millones de usuarios en el mundo.
+768	En Francia, el debate sobre el matrimonio igualitario, promesa de campaña del nuevo presidente, se perfila como uno de los grandes proyectos del mandato.
+769	Estamos a 7 de mayo de 2017.
+770	Francia tiene unos 67 millones de habitantes y es una de las seis primeras potencias económicas del mundo.
+771	Una baguette cuesta de media 0,87 €. El salario mínimo (SMIC) bruto es de 1.480,27 € al mes.
+772	El paro supera el 9 % de la población activa y la deuda pública se acerca al 100 % del PIB.
+773	Endeudarse casi nunca ha costado tan poco: el Estado se financia a menos del 1 % a diez años.
+774	En junio de 2016, el Reino Unido votó a favor de salir de la Unión Europea (el «Brexit»).
+775	Los smartphones, las redes sociales y las plataformas de vídeo forman parte del día a día.
+776	Nadie ha oído hablar todavía de la COVID-19 ni de ChatGPT.
+777	En Estados Unidos, Donald Trump acaba de asumir la presidencia, en enero de 2017.
+778	Francia tiene unos 67 millones de habitantes. Con 39 años, Emmanuel Macron se convierte en el presidente más joven de la Quinta República, frente a Marine Le Pen, con un movimiento político creado un año antes.
+779	Su partido, La República en Marcha, aún no tiene diputados: las elecciones legislativas llegarán en junio de 2017.
+780	Donald Trump, elegido en noviembre de 2016, acaba de asumir la presidencia de Estados Unidos, lo que suscita una fuerte inquietud en Europa.
+781	La serie «Juego de tronos» llega al final de su emisión; el mundo entero la comenta cada semana.
+782	Los atentados de 2015 y 2016 (Bataclan, Niza) siguen en la memoria de todos; el estado de emergencia sigue vigente en Francia.
+783	Los coches eléctricos siguen siendo marginales; Tesla acaba de superar a General Motors en valor bursátil.
+784	Estamos a 24 de abril de 2022.
+785	Francia tiene unos 68 millones de habitantes y es la séptima economía mundial.
+786	Una baguette cuesta de media 0,93 €. El salario mínimo (SMIC) bruto es de 1.603,12 € al mes desde enero.
+787	La pandemia de COVID-19 se aleja, pero ha dejado una deuda superior al 110 % del PIB. El teletrabajo ha entrado en las costumbres.
+788	Desde febrero, la guerra en Ucrania dispara los precios de la energía: la inflación superará el 5 % en el año.
+789	ChatGPT todavía no existe: se lanzará en noviembre de 2022.
+790	En Estados Unidos, Joe Biden es presidente desde enero de 2021.
+791	Francia tiene unos 68 millones de habitantes. Emmanuel Macron es reelegido frente a Marine Le Pen, por segunda vez: algo que no ocurría desde Jacques Chirac en 2002.
+792	La invasión de Ucrania por Rusia, lanzada el 24 de febrero de 2022, domina toda la campaña y trastoca el orden europeo.
+793	Elon Musk está en plena negociación para comprar Twitter, compra que cerrará unos meses después.
+794	Los Juegos Olímpicos de Invierno de Pekín acaban de terminar (febrero de 2022); París se prepara para acoger los Juegos de verano de 2024.
+795	La variante ómicron de la COVID-19 ha provocado una nueva ola este invierno, pero las restricciones sanitarias se relajan en Francia.
+796	Estamos en mayo de 2027.
+797	Francia tiene unos 68,5 millones de habitantes y sigue siendo la séptima economía mundial.
+798	Una baguette cuesta algo más de un euro. El salario mínimo (SMIC) bruto es de unos 1.867 € al mes desde junio de 2026.
+799	La deuda alcanza el 119 % del PIB, el paro supera el 8 % y el Estado se endeuda en torno al 4,9 % a diez años.
+800	La inteligencia artificial ha llegado a las empresas, las escuelas y los hogares.
+801	Las olas de calor y las sequías se multiplican con el cambio climático.
+802	Inflación < 5 %
+803	Déficit < 3 %
+804	Deuda controlada
+805	Paro a la baja
+806	Sociedad en calma
+807	La guerra de Yom Kipur ha cuadruplicado el precio del petróleo y Francia, que importa casi todo el que consume, se empobrece. La inflación, en gran parte importada, apenas depende de vosotros. Por eso los franceses esperan otros resultados: contener el paro, mantener unas cuentas públicas sanas y preservar la cohesión del país. No podréis conseguirlo todo a la vez.
+808	El petróleo se paga en dólares: la factura energética agranda el déficit comercial e importa inflación. El franco, que salió de la «serpiente» monetaria europea en 1974, es frágil.
+809	Paro < 6 %
+810	Déficit < 2 %
+811	Sociedad en calma (≥ 50)
+812	Llegáis con un programa de estímulo y un 13 % de inflación. Los votantes quieren más justicia social, pero los mercados vigilan cada franco gastado. Limitad el paro, mantened un déficit soportable y preservad la cohesión social.
+813	Estimular en solitario, cuando los vecinos siguen siendo prudentes, dispara las importaciones: el déficit comercial se agrava y el franco se devalúa (1981, 1982 y luego 1983). De ahí surge el «giro hacia la austeridad».
+814	Paro < 7,5 %
+815	Sociedad en calma (≥ 45)
+816	El crecimiento ha vuelto, pero el paro sigue cerca del 9 %. Europa se organiza en torno al gran mercado único de 1993. Se espera de vosotros una política de empleo, unas finanzas bajo control y una deuda que siga siendo moderada.
+817	El franco está anclado al marco (SME): la Banque de France debe seguir los tipos alemanes, elevados tras la reunificación. La moneda fuerte protege contra la inflación importada, pero pesa sobre la actividad.
+818	Paro < 10 %
+819	Deuda < 45 %
+820	El Tratado de Maastricht fija reglas: déficit inferior al 3 % del PIB y deuda inferior al 60 % para entrar en el euro. El paro supera el 10 %. Clasificad a Francia sin sacrificar la cohesión social.
+821	Para entrar en el euro, Francia debe mantener un franco fuerte y unos tipos cercanos a los de Alemania: el comercio exterior va más bien bien, pero el ajuste recae sobre el empleo.
+822	Deuda < 60 %
+823	Paro < 8,5 %
+824	El euro está en los bolsillos, el crecimiento es flojo y el paro sigue alto. Respetad el Pacto de Estabilidad sin dejar de apoyar la actividad.
+825	Con la moneda única ya no es posible devaluar: la economía se juzga por su competitividad. El euro fuerte y la competencia de los países de bajo coste pesan sobre la industria.
+826	Deuda ≤ 60 %
+827	Paro < 8 %
+828	El crecimiento es correcto, pero se acumulan las nubes. Mantened el rumbo de las finanzas públicas y proteged el empleo si el cielo se oscurece.
+829	La economía está abierta y las finanzas, globalizadas: un crac estadounidense (subprime) se propaga a todo el sistema a través de los bancos y el comercio mundial. El déficit comercial se ha instalado desde 2005.
+830	Deuda < 75 %
+831	Paro < 10,5 %
+832	Déficit < 4 %
+833	La zona euro se tambalea, la deuda se ha disparado y el paro supera el 9 %. Llevad el déficit hacia el 3 %, invertid la curva del paro y no dejéis que la deuda se desboque.
+834	Francia ha perdido cuota de mercado exportador frente a Alemania: la competitividad en costes está en el centro del debate (CICE, pacto de responsabilidad). El euro fuerte no ayuda.
+835	Déficit < 3,5 %
+836	Paro < 9,5 %
+837	Deuda < 95 %
+838	El país ha salido de la crisis de la zona euro, pero sigue fracturado. Reformad sin incendiar la sociedad: empleo, déficit, cohesión.
+839	El déficit comercial es estructural (desindustrialización) y la guerra comercial entre China y Estados Unidos perturba los intercambios. La pandemia revelará la dependencia de las cadenas de suministro mundiales.
+840	Sociedad en calma (≥ 40)
+841	La inflación repunta, los tipos suben y la deuda es alta. Proteged el poder adquisitivo sin dejar que las cuentas públicas se desboquen.
+842	La subida de los precios es en gran parte importada: gas y petróleo tras la invasión de Ucrania, euro débil frente al dólar. El déficit comercial bate un récord en 2022: la factura energética pesa sobre la economía.
+843	Inflación < 2,5 %
+844	Deuda récord, déficit por encima del 5 %, tipos de interés cercanos al 5 %: el margen de maniobra es estrecho. Estabilizad las cuentas sin dejar que suba el paro.
+845	Francia depende de los mercados para financiarse y de sus socios para exportar: un tipo de interés más alto o una guerra comercial repercuten rápido en el presupuesto.
+846	Deuda ≤ 125 %
+847	Paro < 8,3 %
+848	Descubrimiento
+849	Lo esencial del presupuesto: 12 palancas y 6 indicadores. Ideal para una primera partida.
+850	Intermedio
+851	16 palancas y 8 indicadores: se añaden las cotizaciones empresariales, la seguridad, las administraciones locales y las subvenciones.
+852	Completo
+853	Las 20 palancas y los 10 indicadores: la simulación entera.
+854	IVA
+855	Impuesto sobre el consumo. Recauda mucho pero es regresivo (pesa más sobre los hogares modestos).
+856	Impuesto sobre la renta (escala progresiva)
+857	Progresivo: las rentas altas pagan proporcionalmente más. Redistributivo pero impopular.
+858	CSG (proporcional)
+859	Gravamen a tipo único sobre casi todas las rentas. Recauda mucho, poco progresivo.
+860	Impuesto de sociedades (IS)
+861	Grava los beneficios de las empresas. Demasiado alto, perjudica la competitividad y la inversión.
+862	Cotizaciones empresariales
+863	Financian la Seguridad Social. Partida enorme, pero cualquier subida encarece el coste laboral (paro).
+864	Cotizaciones de los trabajadores
+865	Se descuentan del salario: cualquier subida reduce el salario neto y el poder adquisitivo.
+866	Impuesto sobre el patrimonio (ISF / IFI)
+867	Grava los patrimonios muy grandes. Muy redistributivo y bastante popular, pero recauda poco y puede empujar a grandes contribuyentes a irse al extranjero.
+868	Impuesto de sucesiones y donaciones
+869	Grava lo que se recibe en herencia o donación. Limita la transmisión de las desigualdades de una generación a otra, pero es muy impopular, incluso entre los hogares modestos.
+870	Fiscalidad ecológica (TICPE, impuesto sobre el carbono)
+871	Grava la energía y el carbono. Incentiva la transición pero puede desencadenar una revuelta fiscal.
+872	Pensiones
+873	La primera partida de gasto. Cualquier recorte (edad, cuantía) es políticamente explosivo.
+874	Sanidad / Hospitales
+875	Invertir poco crea desiertos médicos y satura las urgencias; un coste social diferido elevado.
+876	Educación
+877	Gasto público en educación (Estado + administraciones locales). Inversión en capital humano: rendimiento a largo plazo sobre el crecimiento.
+878	Ayudas y mínimos sociales (RSA, APL, complemento de actividad)
+879	Fuerte multiplicador: al pagarse a hogares modestos, se gastan casi por completo.

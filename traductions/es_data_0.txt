@@ -1,0 +1,160 @@
+0	V. Giscard d'Estaing
+1	Golpea la crisis del petróleo
+2	F. Mitterrand
+3	Inflación del 13 %, tipos al 15 %
+4	Crecimiento recuperado y luego recesión
+5	J. Chirac
+6	Objetivo: clasificar a Francia para el euro
+7	El euro llega a los bolsillos
+8	N. Sarkozy
+9	Llega la crisis financiera
+10	F. Hollande
+11	La zona euro en plena tormenta
+12	E. Macron
+13	Chalecos amarillos y luego la pandemia
+14	Inflación y subida de los tipos
+15	Vosotros
+16	Deuda récord, tipos cercanos al 5 %
+17	Ante el paro y la inflación, una parte de la mayoría pide una reactivación a través del consumo y del empleo público.
+18	Una parte de la mayoría pide nacionalizar grandes grupos industriales y bancos.
+19	Tras las elecciones legislativas de 1986, el futuro de las grandes empresas públicas está en el centro del debate: ¿hay que privatizar algunas?
+20	La vejez se convierte en una urgencia
+21	Las numerosas generaciones del baby boom cumplen 85 años. Residencias de mayores saturadas, cuidadores a domicilio imposibles de encontrar, familias agotadas.
+22	Las personas nacidas durante el baby boom (1946-1975) llegan poco a poco a la vejez. La financiación de la dependencia (residencias, ayuda a domicilio) se debate desde hace años; en 2020 se añadió una rama de «autonomía» a la Seguridad Social francesa. Este escenario imagina el momento en que la cuestión se vuelve urgente.
+23	Gran plan público de financiación de la dependencia
+24	Una respuesta solidaria, pero un gasto duradero que pesa sobre las cuentas.
+25	Seguro de dependencia obligatorio, pagado por los hogares
+26	El coste recae en los hogares: menos gasto público, más desigualdad.
+27	Apostar por la atención a domicilio y los cuidadores familiares
+28	Poco costoso a corto plazo, pero la carga recae en las familias.
+29	Bajan los nacimientos
+30	Menos niños cada año: cierran aulas y maternidades, los alcaldes protestan, las previsiones de pensiones empeoran.
+31	El número de nacimientos en Francia baja desde hace más de diez años. Menos niños significa, a la larga, menos alumnos, menos maternidades abiertas y, más tarde, menos trabajadores para financiar las pensiones. Este escenario imagina las decisiones que eso impone a los territorios.
+32	Dejar que las entidades locales gestionen los cierres
+33	Ningún gasto nuevo, pero los territorios más frágiles se quedan atrás.
+34	Relanzar la política familiar (guarderías, permisos parentales)
+35	Un esfuerzo duradero cuyos efectos sobre la natalidad siguen siendo inciertos.
+36	Agrupar escuelas y maternidades para mantener la calidad
+37	Servicios más eficaces, pero más lejos de los habitantes.
+38	Guerra comercial
+39	Nuevos aranceles golpean las exportaciones europeas. Los industriales piden ayuda, los consumidores temen subidas de precios.
+40	Un arancel es un impuesto sobre los productos importados, que se usa para proteger una producción nacional o para presionar. Una escalada entre grandes potencias puede golpear a los exportadores europeos y encarecer algunos productos. Este escenario imagina un nuevo aumento de las tensiones comerciales.
+41	Apoyar masivamente a los exportadores (ayudas, garantías)
+42	Los empleos quedan protegidos a corto plazo, a costa de un gasto público adicional.
+43	Responder con aranceles europeos
+44	Un pulso que puede dar resultado, pero que encarece los productos importados.
+45	Negociar y aceptar concesiones
+46	Se evita la escalada, pero algunos sectores pagan el precio.
+47	Escasez de metales críticos
+48	Litio, cobre, tierras raras: el suministro se complica. Los fabricantes de baterías y de aerogeneradores dan la voz de alarma.
+49	Baterías, aerogeneradores, chips o equipos militares dependen de metales extraídos y refinados en pocos países. Una tensión en ese suministro haría subir los precios y frenaría algunas industrias. Este escenario imagina una escasez.
+50	Plan de inversión en minería y reciclaje
+51	Más autonomía, pero obras polémicas y un coste para el Estado.
+52	Imponer cuotas y un uso sobrio
+53	Menos dependencia, pero productos más caros y restricciones para todos.
+54	Comprar al mejor postor en el mercado mundial
+55	Ningún esfuerzo inmediato, pero la dependencia y los precios siguen intactos.
+56	Una agencia de calificación rebaja la nota de Francia
+57	Una gran agencia rebaja la calificación de la deuda francesa. Los tipos de interés suben, los editorialistas piden un plan de austeridad.
+58	Las agencias de calificación evalúan la capacidad de un Estado para devolver su deuda; una rebaja suele encarecer los préstamos futuros. Los efectos exactos sobre los tipos dependen del contexto y de los mercados. Este escenario imagina una nueva rebaja de la nota de Francia.
+59	Plan inmediato de recorte del gasto
+60	La señal para los mercados es fuerte, pero la factura social es dura.
+61	Subida de impuestos dirigida a las rentas más altas
+62	Un esfuerzo más equitativo, que puede frenar la inversión.
+63	Tranquilizar y contar con el crecimiento para reducir el déficit
+64	Sin austeridad, pero la deuda y los tipos pueden agravarse.
+65	El mar se come la costa
+66	Casas y carreteras caen al mar. Los alcaldes preguntan quién va a pagar para trasladar barrios enteros.
+67	Con el calentamiento, el nivel del mar sube y la erosión se acelera en algunas costas. Algunos municipios ya están identificados como expuestos a la erosión costera. Este escenario imagina el momento en que hay que decidir quién financia su traslado.
+68	Imponer normas estrictas de retroceso de las construcciones
+69	Se limitan los riesgos futuros, pero se congela el valor de los bienes existentes.
+70	Financiar el traslado de los municipios más expuestos
+71	Una solidaridad nacional costosa, pero que evita tragedias.
+72	Proteger con diques y dejar que decidan las aseguradoras
+73	Protecciones visibles, pero costes que vuelven más tarde.
+74	Se acelera el esfuerzo de defensa
+75	Los socios europeos esperan un mayor esfuerzo de defensa. Las Fuerzas Armadas piden medios y el Ministerio de Hacienda, decisiones.
+76	En 2025, los países de la OTAN se comprometieron a aumentar fuertemente su gasto en defensa durante la década. Para Francia, esto supone encontrar medios adicionales o compartir una parte con sus socios europeos. Este escenario imagina que se acerca el plazo.
+77	Compartir las compras con nuestros socios europeos
+78	Economías de escala, pero una soberanía compartida.
+79	Escalonar el esfuerzo y proteger el gasto social
+80	El presupuesto social se salva, pero la credibilidad de Francia queda tocada.
+81	Aumento masivo y duradero del presupuesto de defensa
+82	Un esfuerzo real y visible, financiado con deuda o con otros ahorros.
+83	Vídeos falsos y desinformación
+84	Circulan masivamente vídeos trucados que parecen reales. La confianza en la información se desploma, a dos años de unas presidenciales.
+85	Las herramientas de inteligencia artificial permiten fabricar imágenes, voces y vídeos muy realistas, que pueden servir para engañar, sobre todo en periodo electoral. Este escenario imagina una oleada de contenidos falsos ante unas elecciones presidenciales.
+86	Financiar la educación mediática y una unidad de verificación
+87	Una respuesta a largo plazo, de efecto lento y difuso.
+88	Imponer la trazabilidad y sancionar a las plataformas
+89	Normas claras, pero una carga para las empresas y un riesgo para la libertad de expresión.
+90	Dejar que las plataformas se autorregulen
+91	Ninguna nueva obligación, pero la confianza democrática se erosiona.
+92	Viviendas ineficientes: se acerca el plazo
+93	Vence el calendario de renovación de las viviendas que más energía consumen. Propietarios, inquilinos y artesanos piden aclaraciones.
+94	Una parte del parque de viviendas consume muchísima energía (los llamados «coladores térmicos»). La ley ya prevé un calendario progresivo que restringe el alquiler de las viviendas menos eficientes. Este escenario imagina un endurecimiento o un aplazamiento al acercarse un plazo.
+95	Aplazar los plazos
+96	Los propietarios respiran, pero la factura energética y climática sigue ahí.
+97	Gran plan de renovación muy subvencionado
+98	Los hogares reciben ayuda y el clima sale ganando, pero el gasto público es elevado.
+99	Mantener el calendario de obligaciones
+100	Un rumbo claro para el clima, pero hogares modestos en dificultades.
+101	Desiertos médicos: la situación empeora
+102	En muchos territorios, encontrar médico se ha convertido en una carrera de obstáculos. Urgencias saturadas, cargos electos movilizados.
+103	Varios millones de franceses ya no tienen médico de cabecera y algunos territorios carecen de profesionales. Las propuestas en debate van desde incentivar la instalación hasta regularla, pasando por la delegación de tareas. Este escenario imagina el agravamiento de la situación.
+104	Regular dónde se instalan los médicos
+105	Un reparto más equilibrado, pero una medida mal aceptada por la profesión.
+106	Delegar más en enfermeros y en la telemedicina
+107	Una solución poco costosa, pero la calidad de la atención sigue siendo desigual según los territorios.
+108	Contratar médicos asalariados y abrir centros de salud
+109	Una oferta sanitaria real, pero un gasto duradero y contrataciones difíciles.
+110	Crisis mundial: el crac de la deuda
+111	Un gran país desarrollado pierde la confianza de los mercados. Los tipos de interés se disparan en todas partes, algunos bancos europeos se tambalean y Francia paga más para financiar su deuda.
+112	Cuando los inversores dudan de la capacidad de un Estado para devolver lo que debe, exigen tipos más altos; la subida puede contagiar a otros países muy endeudados y debilitar a los bancos que tienen sus bonos. Este escenario imagina un pánico mundial en los mercados de deuda.
+113	Apoyar a los bancos y a la economía, cueste lo que cueste
+114	El pánico se contiene, pero la deuda sube en el peor momento.
+115	Plan europeo de garantías y normas prudenciales reforzadas
+116	Una respuesta coordinada, más lenta, que no evita una recesión.
+117	Dejar que los mercados se depuren, sin red pública
+118	Las cuentas se salvan, pero la recesión es brutal.
+119	Crisis mundial: el bloqueo de los chips
+120	Un conflicto regional corta el suministro mundial de semiconductores y perturba el transporte marítimo. Las fábricas se paran, los precios suben.
+121	Gran parte de los chips electrónicos se fabrica en muy pocos lugares y se transporta por unas pocas rutas marítimas. Una interrupción prolongada golpearía al automóvil, a la electrónica y a la industria, al tiempo que haría subir los precios. Este escenario imagina un bloqueo duradero.
+122	Plan industrial de urgencia: reservas estratégicas y ayudas a las fábricas
+123	La industria aguanta, a costa de una factura pública elevada.
+124	Racionar y priorizar (sanidad, defensa, energía), negociar acuerdos de suministro
+125	Los sectores vitales quedan protegidos, los demás esperan.
+126	Dejar que las empresas se adapten a través de los precios
+127	Ningún gasto público, pero una recesión industrial y precios altos.
+128	Crisis mundial: el año sin verano
+129	Una megasequía simultánea en varios continentes arruina las cosechas. Los precios de los alimentos se disparan y algunos países prohíben exportar.
+130	Las cosechas mundiales dependen de un pequeño número de grandes regiones agrícolas. Sequías simultáneas reducirían mucho la oferta y harían subir los precios de los alimentos, con tensiones sociales y geopolíticas. Este escenario imagina un episodio así.
+131	Ayudas masivas a los agricultores y tope a los precios de los alimentos
+132	Los hogares quedan protegidos, pero la medida es cara y se prolonga.
+133	Crear reservas, requisar y controlar las exportaciones
+134	El país se abastece, a costa de tensiones con sus socios.
+135	Dejar que los precios se ajusten
+136	Ningún gasto, pero los más modestos se quedan atrás.
+137	Crisis mundial: estalla la burbuja de la IA
+138	Las valoraciones de los gigantes de la inteligencia artificial se desploman. Despidos en cadena, fondos de pensiones afectados, crédito que se restringe.
+139	Cuando las valoraciones bursátiles suben mucho más deprisa que los beneficios esperados, un cambio de tendencia puede provocar pérdidas en cadena: empresas, ahorradores, bancos. Este escenario imagina el estallido de una burbuja en torno a la inteligencia artificial.
+140	Rescatar a los grandes grupos tecnológicos y apoyar el empleo
+141	El empleo queda amortiguado, pero el rescate de gigantes privados se acepta mal.
+142	Regular las finanzas y lanzar un gran plan de reconversión
+143	Un esfuerzo a largo plazo, pero la sacudida económica es real.
+144	Dejar que la burbuja se desinfle
+145	Las cuentas aguantan, pero el paro se dispara.
+146	Crisis mundial: el apagón de los pagos
+147	Un ciberataque mundial paraliza los sistemas de pago durante varias semanas. Cajeros vacíos, salarios bloqueados, comercios parados.
+148	Los pagos, los salarios y los intercambios entre bancos dependen de unas pocas infraestructuras digitales muy interconectadas. Un ataque con éxito podría bloquear su funcionamiento y congelar la actividad. Este escenario imagina una parálisis así.
+149	Restablecer los pagos con garantías públicas y una moneda de emergencia
+150	El golpe se amortigua, pero el Estado asume las pérdidas.
+151	Imponer protocolos de crisis y la cooperación entre bancos
+152	Una salida de la crisis más lenta, pero mejor controlada.
+153	Dejar que los bancos se las arreglen
+154	Ningún gasto público, pero la confianza queda dañada por mucho tiempo.
+155	Alain Poher
+156	presidente del Senado, ejerce la presidencia interina desde la muerte del presidente Georges Pompidou, el 2 de abril de 1974
+157	Los «Treinta Gloriosos» llegan a su fin: desde la guerra, Francia ha conocido un fuerte crecimiento y casi pleno empleo. A finales de 1973, la guerra de Yom Kipur provoca la primera crisis del petróleo: el precio del crudo se multiplica por cuatro. Los precios se disparan y la actividad se frena. El 2 de abril de 1974 muere en el cargo el presidente Georges Pompidou; Alain Poher ejerce la presidencia interina hasta las elecciones.
+158	finales de 1981; series estadísticas antiguas, comparar la deuda con prudencia
+159	Valéry Giscard d'Estaing

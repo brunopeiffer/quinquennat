@@ -1,0 +1,110 @@
+1000	El crecimiento sin redistribución puede agrandar las desigualdades (destrucción creativa).
+1001	Gravar a los robots para financiar a los perdedores
+1002	Una idea debatida: redistribuir las ganancias de la automatización hacia los empleos destruidos.
+1003	Descubrimiento de un yacimiento estratégico
+1004	Se descubren importantes recursos (litio, gas) en el territorio.
+1005	Explotación nacional rápida
+1006	Un maná presupuestario inmediato, a costa de un coste medioambiental.
+1007	Explotación regulada y ecológica
+1008	Conciliar recurso y medio ambiente: más lento, más sostenible.
+1009	Dejarlo bajo tierra (protegerlo)
+1010	Renunciar a un recurso en nombre del clima: una elección de largo plazo asumida.
+1011	Organización de los Juegos Olímpicos
+1012	Francia acoge los JJ. OO. Escaparate mundial pero presupuesto colosal.
+1013	A lo grande: infraestructuras y prestigio
+1014	Los grandes eventos impulsan la actividad y el orgullo nacional, pero a menudo se disparan en costes.
+1015	Versión sobria y controlada
+1016	Controlar el gasto público aprovechando el escaparate.
+1017	Renunciar
+1018	Evitar el riesgo presupuestario pero perder una ocasión de proyección internacional.
+1019	Huelga general de los servicios públicos
+1020	Docentes, sanitarios y ferroviarios paran a la vez por los salarios.
+1021	Revalorizar los salarios públicos
+1022	La masa salarial pública es una partida importante; la subida sostiene la demanda.
+1023	Paga extraordinaria puntual
+1024	Una paga cuesta menos que una subida permanente del sueldo base.
+1025	Resistir, ningún gesto
+1026	Un conflicto largo desorganiza la economía y daña el clima social.
+1027	Disturbios urbanos
+1028	Una tragedia desencadena noches de disturbios. Comercios quemados, tensión al máximo.
+1029	Plan para los barrios (empleo, escuelas)
+1030	Atacar las causas (paro, servicios) en lugar de los síntomas.
+1031	Restablecer el orden por la fuerza
+1032	La respuesta policial calma a corto plazo pero alimenta el resentimiento.
+1033	Las dos cosas: firmeza + inversión
+1034	Combinar orden y justicia social: un equilibrio difícil pero a menudo necesario.
+1035	Sequía y crisis agrícola
+1036	Las cosechas se hunden. Los agricultores se manifiestan, los precios de los alimentos suben.
+1037	Indemnizar a los agricultores
+1038	Apoyar a un sector damnificado; las ayudas agrícolas son un tema político muy sensible.
+1039	Invertir en regadío sostenible
+1040	Adaptar la agricultura al cambio climático (inversión estructural).
+1041	Dejar que el mercado ajuste los precios
+1042	La subida de los precios de los alimentos golpea primero a los más pobres (inflación).
+1043	Repunte de la inflación
+1044	Los precios se disparan, el poder adquisitivo retrocede. La ira crece.
+1045	Indexar las ayudas y el salario mínimo (SMIC) a la inflación
+1046	Proteger el poder adquisitivo sostiene la demanda pero puede alimentar la inflación (espiral precios-salarios).
+1047	Congelación temporal de algunos precios
+1048	El control de precios alivia a corto plazo pero crea escasez si se prolonga.
+1049	Dejar actuar al banco central (tipos)
+1050	La subida de los tipos calma la inflación frenando la actividad (arbitraje del BCE).
+1051	Hospital público al borde del colapso
+1052	Faltan camas, sanitarios agotados, urgencias saturadas.
+1053	Plan de inversión hospitalaria
+1054	La sanidad es una partida importante; invertir poco tiene un coste social y sanitario diferido.
+1055	Reorganizar sin gastar más
+1056	La eficiencia con los mismos medios tiene límites frente a la demanda de atención.
+1057	Abrir al sector privado
+1058	La privatización de la sanidad divide: ganancias de eficiencia frente a igualdad de acceso.
+1059	El lobby de la energía propone un pacto
+1060	Un gigante de los hidrocarburos propone invertir 10.000 millones de euros en el país… a cambio de autorizar un proyecto polémico y financiar vuestra comunicación.
+1061	Aceptar el pacto
+1062	Un lobby cambia empleos por favores; está en juego la integridad de la decisión pública.
+1063	Negociar contrapartidas ecológicas
+1064	Encuadrar a un lobby en lugar de ceder: preservar el interés general.
+1065	Negarse con firmeza
+1066	Resistir a los grupos de presión refuerza la confianza democrática a largo plazo.
+1067	Lobby farmacéutico
+1068	Un laboratorio ofrece una vacuna estratégica a precio alto, a cambio de una patente exclusiva y una rebaja fiscal.
+1069	Firmar el contrato exclusivo
+1070	Depender de un monopolio privado para la salud pública plantea un problema de soberanía.
+1071	Exigir una licencia abierta
+1072	Defender el bien común frente a los intereses privados (salud = bien público).
+1073	Financiar una vacuna pública
+1074	La inversión pública en investigación reduce la dependencia, con un coste inicial alto.
+1075	Lobby agroindustrial
+1076	El sector pide volver a autorizar un pesticida prohibido para «salvar las cosechas». Financia muchos empleos rurales.
+1077	Volver a autorizar el pesticida
+1078	Ceder a un lobby contra la opinión científica: un clásico del conflicto entre intereses y salud pública.
+1079	Ayudar al sector a pasarse a lo ecológico
+1080	Transición agroecológica: costosa pero duradera.
+1081	Mantener la prohibición sin ayudas
+1082	Defender el medio ambiente sin acompañamiento social crea perdedores.
+1083	Lobby financiero
+1084	Los bancos piden una desregulación para «liberar el crédito y el crecimiento».
+1085	Desregular ampliamente
+1086	La desregulación impulsa la actividad pero aumenta el riesgo de crisis (lección de 2008).
+1087	Flexibilizar en lo marginal y mantener las salvaguardias
+1088	Buscar el equilibrio entre financiación de la economía y estabilidad financiera.
+1089	Negarse y reforzar la supervisión
+1090	Regular las finanzas protege la economía real de los excesos especulativos.
+1091	Vigilancia masiva
+1092	Vuestros servicios proponen un sistema de vigilancia generalizada que reduciría la delincuencia… a costa de las libertades.
+1093	Desplegar la vigilancia
+1094	Seguridad frente a libertades: un dilema fundamental de las democracias.
+1095	Versión controlada por un juez
+1096	El control judicial protege el Estado de derecho manteniendo una herramienta de seguridad.
+1097	Renunciar al dispositivo
+1098	Preservar las libertades tiene a veces un coste político inmediato.
+1099	Un allegado para un puesto clave
+1100	Un aliado político os pide nombrar a una persona poco cualificada para un puesto público importante.
+1101	Aceptar el nombramiento
+1102	El favoritismo (clientelismo) mina la confianza en la acción pública.
+1103	Ofrecer un puesto secundario
+1104	Un compromiso que limita los daños sin resistir del todo.
+1105	Negarse en nombre del mérito
+1106	Defender la integridad puede costar apoyos políticos.
+1107	Un escándalo amenaza con estallar
+1108	Un periodista investiga un contrato público dudoso firmado por vuestro equipo.
+1109	Tapar el asunto

@@ -1,0 +1,120 @@
+880	Inversión e investigación (ecología, infraestructuras, I+D)
+881	El mayor multiplicador: impulsa el crecimiento de mañana, pero aporta poco de inmediato.
+882	Defensa y soberanía
+883	Soberanía y empleo industrial. Costoso, con efecto de arrastre sobre la industria.
+884	Seguridad y Justicia
+885	Orden público y justicia. Tranquiliza a la opinión pública; un exceso puramente represivo puede tensar la sociedad.
+886	Masa salarial y plantillas (no reposición de jubilaciones)
+887	Sueldos de los funcionarios. No reponer las jubilaciones ahorra mucho, pero reduce el empleo público y el servicio prestado (idea de Retailleau/Lisnard).
+888	Agencias y organismos del Estado
+889	El Estado financia cientos de agencias y organismos públicos (empleo, sanidad, medio ambiente…). Bajar este presupuesto supone fusionar las que hacen el mismo trabajo o suprimir algunas: se ahorra, pero algunas misiones pueden cumplirse peor.
+890	Subvenciones (empresas y asociaciones)
+891	Ayudas a las empresas y a las asociaciones. Recortarlas ahorra rápido, pero frena la actividad y el tejido asociativo.
+892	Transferencias a las administraciones locales
+893	Las administraciones locales realizan ~70 % de la inversión pública. Bajar sus transferencias ahorra, pero reduce los servicios locales y la inversión.
+894	Rigor presupuestario
+895	al estilo de la Argentina de Milei
+896	Reducir el gasto y la deuda ante todo. Los mercados confían en vosotros, la sociedad es más frágil.
+897	La deuda pesa menos sobre el crecimiento, pero la cohesión es más difícil de mantener.
+898	Solidaridad y ecología
+899	modelo nórdico / Lula
+900	Servicios públicos amplios y transición ecológica, financiados con impuestos. Cohesión fuerte, deuda que vigilar.
+901	El gasto social y en educación refuerza más la cohesión.
+902	Competitividad liberal
+903	al estilo de Macron / Irlanda
+904	Bajar los impuestos a las empresas para atraer actividad. Crecimiento impulsado, ingresos por reconstruir.
+905	La inversión y las rebajas de cargas impulsan más el crecimiento.
+906	Soberanía nacional
+907	Prioridad a la industria, la defensa y las fronteras. Popular, pero con tensiones con los socios.
+908	El gasto en defensa aporta más popularidad y actividad.
+909	Crisis
+910	Social
+911	Internacional
+912	Oportunidad
+913	Lobby
+914	Dilema ético
+915	Salud
+916	Clima
+917	Ola de calor excepcional
+918	Se instala una cúpula de calor. Hospitales saturados, escuelas cerradas, personas mayores en peligro.
+919	Plan de urgencia contra el calor (aires acondicionados, hospitales)
+920	Gasto público coyuntural: una respuesta rápida protege a la población pero agranda el déficit puntual.
+921	Recomendaciones y transporte gratuito
+922	Una respuesta poco costosa pero considerada tímida en caso de drama.
+923	No liberar nada especial
+924	La inacción ante un riesgo sanitario cuesta cara en popularidad.
+925	Ciberataque contra los servicios públicos
+926	Un ataque paraliza Hacienda, el seguro de enfermedad y varios hospitales.
+927	Invertir masivamente en ciberseguridad
+928	La inversión inmaterial (seguridad, digital) protege la economía y la confianza.
+929	Pagar discretamente el rescate
+930	Una solución rápida pero que fomenta el delito y debilita el Estado de derecho.
+931	Arreglárselas con los medios disponibles
+932	Invertir poco en protección expone a pérdidas económicas repetidas.
+933	Epidemia vírica mundial
+934	Un nuevo virus se propaga. ¿Hay que confinar la economía para salvar vidas?
+935	Confinamiento estricto + «cueste lo que cueste»
+936	Choque mayor: el Estado sostiene la economía con deuda (ERTE, ayudas). Efecto de estabilizador automático.
+937	Restricciones selectivas, economía abierta
+938	Arbitraje salud/economía: preservar el PIB puede costar vidas y dividir el país.
+939	Dejar circular el virus, inmunidad colectiva
+940	Una elección radical con un coste humano y político muy alto.
+941	Disparada de los precios de la energía
+942	Una guerra en el extranjero duplica el precio del gas. Hogares y empresas asfixiados.
+943	Escudo tarifario financiado por el Estado
+944	Subvencionar los precios protege el poder adquisitivo pero cuesta decenas de miles de millones de euros.
+945	Cheque energético dirigido a los hogares modestos
+946	Una ayuda focalizada es más barata que una ayuda universal, con presupuesto limitado.
+947	Acelerar las renovables y la sobriedad energética
+948	Respuesta estructural: reduce la dependencia a largo plazo, pero no alivia de inmediato.
+949	Movimiento social contra un impuesto
+950	Un nuevo impuesto sobre el carbono en los carburantes desencadena bloqueos en todo el país.
+951	Retirar el impuesto
+952	Recular calma la calle pero debilita la credibilidad de la acción climática.
+953	Mantenerlo + redistribuir lo recaudado
+954	La fiscalidad ecológica se acepta mejor si lo recaudado se redistribuye (justicia fiscal).
+955	Mantenerlo y reprimir los bloqueos
+956	La firmeza puede degenerar y dañar de forma duradera la cohesión social.
+957	Reforma de las pensiones
+958	El sistema de pensiones es deficitario. Retrasar la edad de jubilación ahorraría mucho.
+959	Retrasar la edad de jubilación a los 64 años
+960	Reforma estructural: mejora las cuentas de forma duradera pero es muy impopular.
+961	Subir las cotizaciones en su lugar
+962	Otra palanca de equilibrio: hacer pesar el esfuerzo sobre el trabajo en lugar de la edad.
+963	El statu quo deja crecer un déficit que pesará sobre las generaciones futuras.
+964	Atentado terrorista
+965	Un ataque golpea una gran ciudad. El país está conmocionado y exige respuestas.
+966	Plan de seguridad masivo + estado de emergencia
+967	Seguridad frente a libertades: un arbitraje democrático delicado en tiempos de crisis.
+968	Reforzar discretamente los servicios de inteligencia
+969	Una respuesta mesurada, menos espectacular pero a menudo más eficaz.
+970	Llamar a la unidad sin medidas fuertes
+971	La opinión pública espera hechos concretos tras un trauma colectivo.
+972	Amenaza de deslocalización
+973	Un gran grupo industrial amenaza con cerrar una fábrica e irse al extranjero.
+974	Pagar ayudas para retenerla
+975	Ayudar a una empresa privada con dinero público: eficaz pero discutible (riesgo moral).
+976	Negociar una reconversión de la planta
+977	Acompañar la transición industrial en lugar de subvencionar lo existente.
+978	Dejar actuar al mercado
+979	El liberalismo asume los cierres; el coste social local puede ser alto.
+980	Crac bursátil y pánico bancario
+981	Los mercados se hunden, un gran banco se tambalea. Amenaza el riesgo sistémico.
+982	Rescatar al banco con dinero público
+983	Salvar a los bancos evita el hundimiento pero hace pagar al contribuyente por el sector privado (2008).
+984	Garantizar los depósitos y dejar que pierdan los accionistas
+985	Proteger a los ahorradores sin salvar a los accionistas: más justo, más arriesgado.
+986	No intervenir puede convertir una crisis financiera en una depresión.
+987	Guerra a las puertas de Europa
+988	Estalla un gran conflicto. Los aliados y la opinión pública piden un compromiso de Francia.
+989	Ayuda militar y acogida de refugiados
+990	La solidaridad internacional tiene un coste presupuestario y social inmediato.
+991	Solo ayuda humanitaria
+992	Una postura prudente, a veces considerada insuficiente por los aliados.
+993	Permanecer neutral
+994	La neutralidad protege el presupuesto pero aísla diplomáticamente.
+995	Revolución de la inteligencia artificial
+996	Una ola tecnológica trastoca la economía. Empleos amenazados, enormes ganancias de productividad.
+997	Gran plan de formación y regulación
+998	Acompañar el progreso técnico (formación) convierte una amenaza en ganancia de productividad.
+999	Dejar que el mercado se adapte solo

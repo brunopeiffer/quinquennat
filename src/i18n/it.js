@@ -1932,5 +1932,9 @@ export default {
  "à": "a",
  "{a} €/habitant": "{a} €/abitante",
  "SCORE": "PUNTEGGIO",
- "final": "finale"
+ "final": "finale",
+ "protectionnisme": "protezionismo",
+ "% (tranche haute)": "% (aliquota massima)",
+ "objectifs": "obiettivi",
+ "atteints": "raggiunti"
 };

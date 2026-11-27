@@ -1,0 +1,120 @@
+240	Vais a descubrir cómo funciona el presupuesto con
+241	algunas palancas sencillas
+242	, y después afrontar
+243	2 imprevistos
+244	. Luego os presentaréis a la elección para vuestro verdadero mandato de
+245	Descubrir el presupuesto
+246	Tenéis sentido del equilibrio: el déficit se ha reducido. El equipo saliente está convencido de que tenéis madera de presidente.
+247	El déficit ha aumentado… ¡Gobernar no es tan sencillo! Por suerte, este año no contaba: ahora ya sabéis lo que os espera.
+248	Un presupuesto prudente, sin grandes cambios. Habéis captado el principio: cada decisión tiene un coste.
+249	Balance de vuestro consejo
+250	Lo que habría dado vuestro presupuesto
+251	Veredicto:
+252	Es hora de lanzarse a la campaña.
+253	Presentarme a la elección
+254	Día de la elección…
+255	¡Elegidos!
+256	Los franceses votan para elegir a su nuevo presidente…
+257	¡Enhorabuena, {a}! El país os confía las llaves durante {b} años.
+258	Empezar mi mandato
+259	Vuestro legado
+260	Recuperáis el país
+261	tal como lo dejasteis
+262	: las mismas políticas, el mismo margen de maniobra. Los acontecimientos de este mandato son
+263	escenarios imaginados
+264	a partir de tendencias actuales: no son previsiones.
+265	La historia ha seguido su curso, pero vuestro mandato la ha desviado.
+266	La mitad de vuestra diferencia con la realidad
+267	se transmite a este nuevo mandato; el resto vuelve a la situación histórica.
+268	Indicador
+269	Inicio {a}
+270	Historia
+271	Salida {a}
+272	Vuestro final
+273	Salida
+274	Vuestra misión
+275	{a} · doctrina {b}{c}
+276	Habéis sido
+277	reelegidos
+278	: vuestro
+279	.º mandato
+280	empieza en
+281	y dura
+282	Acabáis de ser elegidos: vais a dirigir Francia durante
+283	, a partir de
+284	, en el lugar de
+285	Cada año aprobaréis un
+286	(lo que el Estado ingresa y gasta), y después afrontaréis
+287	3 acontecimientos
+288	imprevistos. Al final, los franceses votarán.
+289	Al principio: un
+290	déficit del
+291	(el Estado gasta más de lo que ingresa) y una
+292	deuda del
+293	del PIB
+294	; la inflación alcanza el
+295	y el Estado se endeuda al
+296	. Vuestro objetivo: sanear las cuentas
+297	sin romper la sociedad
+298	. Atención: todo está conectado; ninguna decisión es gratuita.
+299	Vuestros objetivos
+300	Cómo se os puntúa
+301	Social
+302	La
+303	decide la clasificación entre equipos. Pero vuestra
+304	reelección
+305	depende sobre todo de vuestra
+306	popularidad
+307	el día de la votación.
+308	Saber más sobre las cifras utilizadas
+309	El juego simula
+310	el gasto público de Francia
+311	— el conjunto de las administraciones públicas: el
+312	Estado
+313	, la
+314	Seguridad Social
+315	(pensiones, sanidad, desempleo) y las
+316	administraciones locales
+317	. Así que no es solo «el presupuesto del Estado» en sentido estricto: es el perímetro que se usa cuando se habla del
+318	déficit público
+319	(~5,4 % del PIB) y de la
+320	(~119 %). El gasto
+321	privado
+322	de los hogares y las empresas no figura en él.
+323	Las cifras de partida son
+324	órdenes de magnitud redondeados
+325	, procedentes de fuentes públicas (INSEE, proyecto de ley de presupuestos, Tribunal de Cuentas).
+326	Vuestra época (
+327	% del PIB, déficit
+328	%, paro
+329	%, inflación
+330	%, tipo de interés
+331	%. Los importes están convertidos en euros de la época (PIB ≈
+332	mil millones de euros). Las referencias de abajo son las de la Francia actual, para comparar.
+333	PIB ≈ 3 billones de €
+334	Deuda ≈ 119 % del PIB
+335	Ingresos ≈ 1,45 billones de €
+336	Déficit ≈ 5,4 % del PIB
+337	Gasto ≈ 1,6 billones de €
+338	Paro ≈ 8,3 %
+339	Nuevos préstamos ≈ 4,9 % (bono OAT a 10 años, nov. 2026)
+340	Tipo medio de la deuda ≈ 2,0 %
+341	Inflación ≈ 3,4 % interanual (oct. 2026)
+342	Crecimiento 2026 ≈ 0,5 %
+343	Ingresos
+344	: IVA ~211 · impuesto sobre la renta ~95 · CSG ~130 · impuesto de sociedades ~58 · cotizaciones ~610 mil M€
+345	Gasto
+346	: pensiones ~340 · sanidad ~300 · educación ~155 (Estado + administraciones locales) · defensa ~50 mil M€
+347	Estas cifras hacen creíble el juego; no son una previsión oficial.
+348	Tomar posesión
+349	Mercados financieros
+350	Tipo al que el Estado se endeuda hoy (OAT a 10 años)
+351	Tipo medio pagado por toda la deuda (préstamos antiguos incluidos)
+352	Tipo medio de la deuda
+353	Carga de la deuda
+354	mil M€/año
+355	Otros gastos (no modificables en el juego)
+356	Otros ingresos (no modificables en el juego)
+357	Endeudamiento (el déficit)
+358	Gráfico de bloques: para qué sirven 1.000 € de gasto del Estado
+359	mil M€ ·

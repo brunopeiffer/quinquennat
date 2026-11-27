@@ -1,0 +1,120 @@
+480	partida
+481	de vuestro mandato. Para la deuda, el paro, la inflación y los tipos, quedar
+482	esta línea es una buena noticia; para el PIB, es lo contrario.
+483	💶 Presupuesto:
+484	👀 En concreto:
+485	👍 Buena noticia:
+486	⚠️ Pero atención:
+487	Explicación
+488	Disminuir
+489	Aumentar
+490	{a}{b} mil M€/año
+491	Ver el detalle completo ▾
+492	Reducir ▴
+493	Acontecimiento
+494	Expediente histórico · ucronía
+495	Acontecimiento histórico real
+496	Crisis mundial imaginada
+497	Escenario imaginado
+498	Situación imaginada (no histórica)
+499	¿Por qué esta crisis?
+500	¿Por qué este escenario?
+501	¿Qué decidís?
+502	Una sola respuesta posible: tocad una propuesta y después validad.
+503	Propuestas
+504	Vuestra elección: {a}. Todavía podéis cambiar de opinión.
+505	Tocad primero una propuesta de arriba.
+506	Todavía no habéis elegido ninguna propuesta.
+507	Validar mi elección
+508	Saldo (cada año)
+509	Daña mucho vuestra integridad: riesgo de escándalo más adelante.
+510	Los gráficos de evolución aparecerán al final del primer año.
+511	Deuda (% del PIB)
+512	partida {a}
+513	PIB (mil M€)
+514	PIB nominal (en euros corrientes): aumenta con el crecimiento
+515	la inflación de la época.
+516	Ingresos frente a gasto (mil M€)
+517	Paro (%)
+518	Inflación (%)
+519	Subida general de los precios en un año. Por encima del 5 %, el poder adquisitivo se derrite rápidamente.
+520	Tipo de los nuevos préstamos (%)
+521	Precio al que el Estado se endeuda hoy (OAT a 10 años). Sube si los mercados se inquietan y baja si están tranquilos.
+522	Tipo medio de la deuda (%)
+523	Tipo pagado por toda la deuda. Se acerca poco a poco al tipo de los nuevos préstamos, a medida que se sustituyen los préstamos antiguos baratos.
+524	Por qué se ha movido el saldo (en puntos del PIB)
+525	Variación del saldo
+526	Es más bien favorable.
+527	Es más bien desfavorable.
+528	A vigilar.
+529	Pocos cambios.
+530	Las demás decisiones del año
+531	de gasto
+532	de ingresos
+533	al año
+534	Este año:
+535	Ver este déficit por cada 1.000 € gastados →
+536	Entender estas cifras
+537	Balance {a}
+538	Lo que han cambiado vuestras decisiones este año
+539	El estado de Francia al final del año. Las flechas muestran lo que ha cambiado desde el principio del año.
+540	una flecha ▲ o ▼ indica la variación desde el principio del año; es
+541	cuando es una mejora,
+542	cuando es un empeoramiento (la deuda, el paro y la inflación son mejores cuando bajan). Para la sociedad y la vida política,
+543	La opinión de vuestro asesor
+544	Balance del año
+545	Consejo para el año que viene:
+546	Alerta
+547	Cifras año por año
+548	Fin del mandato
+549	Elección presidencial
+550	Pasar a {a}
+551	Las cifras año por año
+552	Todos los valores al final de cada año terminado. Las curvas están en el balance del año.
+553	Todavía no ha terminado ningún año. La tabla se irá llenando al final de cada año.
+554	Evolución
+555	Volver al juego
+556	Vosotros:
+557	Adversario:
+558	El día de la votación
+559	Tras
+560	años, los franceses juzgan vuestro balance…
+561	Opinan ·
+562	20:00: las primeras estimaciones
+563	Cierran los colegios electorales
+564	1.ª estimación
+565	Demasiado ajustado para concluir…
+566	2.ª estimación
+567	Se espera el resultado oficial…
+568	Descubrir el veredicto
+569	Saltar
+570	Resultado de la elección
+571	Habéis sido reelegidos
+572	Habéis sido derrotados
+573	% de los votos
+574	Lo que explica este resultado
+575	Seguís al mando
+576	Reelegidos, podéis continuar con un nuevo mandato (
+577	). Recuperáis el país tal como lo dejasteis, y los acontecimientos son escenarios imaginados a partir de tendencias actuales.
+578	Reelegidos, podéis continuar con el mandato siguiente (
+579	). El país conserva la huella de vuestras decisiones: se transmite la mitad de vuestra diferencia con la historia.
+580	Continuar: mandato
+581	Estos escenarios son ficticios: no son previsiones.
+582	Versión de prueba: solo está disponible el paso 1974 → 1981.
+583	Mandato encadenado: su puntuación no entra en la clasificación de la clase, porque vuestro punto de partida dependía de vuestro mandato anterior.
+584	Carta de misión:
+585	¡Nuevo trofeo desbloqueado!
+586	¡{a} nuevos trofeos desbloqueados!
+587	El balance pedagógico de vuestro mandato
+588	Clasificación —
+589	Todavía no hay ninguna puntuación registrada.
+590	Volver a jugar
+591	Inicio
+592	Saldo público (% del PIB)
+593	Vuestro mandato frente a la historia
+594	¿Lo habríais hecho mejor que {a}?
+595	Lo hacéis mejor en
+596	de 4
+597	respecto
+598	a la historia real (vuestro punto de partida era distinto: ver «Vuestro legado»)
+599	al mandato real

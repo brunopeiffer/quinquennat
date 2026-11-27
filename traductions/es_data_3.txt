@@ -1,0 +1,135 @@
+425	Bajar el impuesto sobre la renta un 5 %
+426	Una bajada que beneficia sobre todo a los hogares que pagan el impuesto.
+427	Prioridad a la reducción del déficit
+428	Renunciar a una promesa para mantener las cuentas.
+429	Bajar en su lugar las cotizaciones sobre los salarios bajos
+430	Favorecer el empleo poco cualificado.
+431	Ya en 2002, el impuesto sobre la renta baja un 5 %, conforme a las promesas de campaña.
+432	La ola de calor de agosto de 2003 es la más mortífera que ha conocido Francia en un siglo: las temperaturas superan los 40 °C durante varios días y el sistema sanitario, desprevenido (sobre todo por la falta de personal en pleno agosto), se ve desbordado.
+433	La ola de calor de agosto de 2003
+434	Una ola de calor excepcional golpea Francia. Mueren muchas personas mayores.
+435	Plan contra el calor y «jornada de solidaridad» trabajada para financiar la ayuda a las personas mayores
+436	Una jornada de trabajo adicional no remunerada financia la dependencia.
+437	Financiar la ayuda a las personas mayores con déficit
+438	Una ayuda rápida, a crédito.
+439	La conmoción en el país es inmensa.
+440	La ola de calor de agosto de 2003 causa unas 15.000 muertes. En 2004 se crea una «jornada de solidaridad» trabajada para financiar la ayuda a las personas mayores.
+441	La reforma Fillon de 2003 es la primera gran reforma de las pensiones desde la de 1993 (que solo afectaba al sector privado). Pretende responder al envejecimiento de la población y al aumento de la esperanza de vida.
+442	¿Reformar las pensiones de los funcionarios?
+443	El envejecimiento de la población amenaza el equilibrio de las pensiones.
+444	Ampliar a 40 años el periodo de cotización de los funcionarios
+445	Equiparar el sector público y el privado, a pesar de las huelgas.
+446	Subir las cotizaciones
+447	Hacer pagar más a los trabajadores en activo.
+448	No reformar
+449	El déficit de las pensiones aumenta.
+450	La reforma Fillon (2003) equipara progresivamente el periodo de cotización de los funcionarios con el del sector privado, a pesar de importantes huelgas.
+451	La muerte de dos adolescentes, Zyed Benna y Bouna Traoré, electrocutados mientras se escondían de un control policial en Clichy-sous-Bois, desencadena tres semanas de disturbios urbanos en muchas ciudades francesas, los más importantes desde mayo de 1968.
+452	Los disturbios de noviembre de 2005
+453	Tras la muerte de dos adolescentes, estallan disturbios en muchos barrios periféricos.
+454	Firmeza (estado de emergencia) y plan de empleo en los barrios
+455	Restablecer el orden y actuar sobre las causas.
+456	Solo un plan para los barrios
+457	Tratar las causas, con riesgo de parecer permisivo.
+458	Solo firmeza
+459	El orden vuelve, los problemas siguen.
+460	Tras tres semanas de disturbios, se declara el estado de emergencia y se anuncian medidas para el empleo de los jóvenes de los barrios.
+461	El contrato de primer empleo (CPE), destinado a facilitar la contratación de jóvenes flexibilizando las reglas de despido, provoca un amplio movimiento de protesta de universitarios y estudiantes de secundaria en la primavera de 2006, comparable por su magnitud a las movilizaciones de 1968 y 1986.
+462	El contrato de primer empleo (CPE)
+463	Un nuevo contrato para los menores de 26 años, más fácil de rescindir, desencadena grandes manifestaciones estudiantiles.
+464	Mantener el CPE
+465	Resistir frente a la calle.
+466	Retirar el CPE
+467	Salir de la crisis renunciando a la reforma.
+468	Modificarlo profundamente
+469	Un compromiso difícil.
+470	Ante las manifestaciones, el CPE, aunque ya aprobado, se retira en abril de 2006.
+471	La ley «trabajo, empleo, poder adquisitivo» (TEPA), aprobada ya en el verano de 2007, concreta el eslogan de campaña de Nicolas Sarkozy «trabajar más para ganar más». El escudo fiscal, que limita los impuestos directos al 50 % de los ingresos, es especialmente polémico.
+472	El «paquete fiscal»
+473	El nuevo poder quiere «trabajar más para ganar más» y aligerar los impuestos.
+474	Desgravar las horas extra, reforzar el escudo fiscal, aligerar las herencias
+475	Bajadas de impuestos costosas y repartidas de forma desigual.
+476	Medidas centradas en el poder adquisitivo de los hogares modestos
+477	Menos costoso, más redistributivo.
+478	Prioridad al déficit
+479	Renunciar a las promesas fiscales.
+480	La ley TEPA (agosto de 2007) desgrava las horas extra, refuerza el escudo fiscal (impuestos limitados al 50 % de los ingresos) y aligera el impuesto de sucesiones.
+481	La quiebra del banco estadounidense Lehman Brothers, el 15 de septiembre de 2008, desata el pánico en los mercados financieros mundiales: los bancos, sin saber ya quién tiene activos tóxicos, dejan de prestarse entre sí. Es el punto culminante de la crisis de las hipotecas «subprime», nacida en Estados Unidos en 2007.
+482	La crisis financiera mundial
+483	La quiebra del banco Lehman Brothers desata el pánico. Los bancos ya no se prestan entre sí.
+484	Garantizar y apoyar a los bancos
+485	Evitar el hundimiento del sistema bancario, con dinero público.
+486	Dejar quebrar a los bancos
+487	El riesgo de una depresión como la de 1929.
+488	Nacionalizar los bancos en dificultades
+489	El Estado toma el control, y los riesgos.
+490	En otoño de 2008, el Estado garantiza los préstamos entre bancos y les aporta fondos propios para evitar el hundimiento del sistema financiero.
+491	2009 es la peor recesión mundial desde la Segunda Guerra Mundial: el comercio internacional se hunde y casi todos los países desarrollados ven caer fuertemente su producción.
+492	2009: la recesión
+493	La producción cae con fuerza y el paro se dispara.
+494	Plan de estímulo (inversión pública, plan renove de coches)
+495	Amortiguar la crisis con gasto público.
+496	Austeridad inmediata
+497	Reducir el déficit en plena crisis agrava la recesión.
+498	Bajada temporal del IVA
+499	Sostener el consumo a través de los precios.
+500	Se lanza un plan de estímulo de 26.000 millones de euros (inversión pública, plan renove de coches). Aun así, el PIB cae casi un 3 % en 2009.
+501	Como en 2003, el envejecimiento demográfico impulsa una nueva reforma de las pensiones. La de 2010 eleva la edad legal de jubilación de 60 a 62 años, lo que provoca importantes manifestaciones en otoño.
+502	¿Retrasar la edad de jubilación?
+503	Los sistemas de pensiones tienen un fuerte déficit tras la crisis.
+504	Retrasar la edad legal de 60 a 62 años
+505	Un ahorro duradero, muy contestado.
+506	Hacer pagar a los trabajadores en activo.
+507	El déficit de las pensiones se acumula.
+508	La reforma de 2010 eleva progresivamente la edad legal de jubilación de 60 a 62 años, a pesar de importantes manifestaciones.
+509	La crisis de la deuda griega, revelada a finales de 2009, se extiende a otros países europeos (Irlanda, Portugal, España, Italia) y amenaza la propia existencia de la zona euro. Los mercados financieros dudan de la capacidad de varios Estados, entre ellos Francia, para devolver su deuda.
+510	La crisis de la zona euro
+511	Grecia está al borde de la quiebra. Los mercados dudan de varios países europeos, entre ellos Francia.
+512	Planes de austeridad (subidas de impuestos y recortes)
+513	Tranquilizar a los mercados, a costa del crecimiento.
+514	Dejar crecer el déficit
+515	El riesgo de una subida de los tipos de interés.
+516	Ayudar a Grecia sin esfuerzo presupuestario
+517	La solidaridad europea tiene un coste.
+518	El Gobierno Fillon adopta dos planes de austeridad (agosto y noviembre de 2011). En enero de 2012, la agencia Standard & Poor's retira a Francia su calificación «AAA».
+519	François Hollande es elegido en mayo de 2012 con la promesa de reequilibrar las finanzas públicas mediante la justicia fiscal. Desde su llegada, el Gobierno Ayrault sube fuertemente los impuestos sobre las rentas altas y las grandes empresas.
+520	Sanear las cuentas
+521	El déficit alcanza el 5 % del PIB. El nuevo poder quiere reducirlo rápidamente.
+522	Con subidas de impuestos a los hogares acomodados y a las empresas
+523	Ingresos rápidos, pero un freno al crecimiento.
+524	Con recortes del gasto
+525	Menos impuestos, pero menos servicios.
+526	No se cumplirán las reglas europeas.
+527	En 2012-2013, los impuestos suben con fuerza: nuevo tramo del 45 % en el impuesto sobre la renta e impuesto temporal del 75 % sobre las remuneraciones de más de un millón de euros.
+528	Ante el deterioro de la competitividad de las empresas francesas, señalado en particular por el informe Gallois (noviembre de 2012), el Gobierno crea el CICE para reducir el coste laboral sin tocar directamente las cotizaciones sociales.
+529	¿Bajar el coste laboral?
+530	Las empresas francesas pierden competitividad y el paro sube.
+531	Crear un crédito fiscal para la competitividad y el empleo (CICE)
+532	Unos 20.000 millones de euros al año para bajar el coste laboral.
+533	Bajar directamente las cotizaciones empresariales
+534	El mismo objetivo, de forma más sencilla.
+535	No hacer nada
+536	La competitividad sigue deteriorándose.
+537	El crédito fiscal para la competitividad y el empleo (CICE) entra en vigor en 2013: unos 20.000 millones de euros al año de rebaja del coste laboral.
+538	Anunciado por François Hollande en enero de 2014, el pacto de responsabilidad marca un giro hacia una política más favorable a las empresas, para disgusto de una parte de la izquierda que lo ve como una traición.
+539	El pacto de responsabilidad
+540	El paro supera el 10 %. ¿Hay que ir más lejos en la rebaja de cargas sociales?
+541	Nuevas rebajas de cargas financiadas con 50.000 millones de recortes
+542	Un giro hacia la oferta, contestado dentro de la mayoría.
+543	Reactivar la demanda
+544	Sostener el consumo.
+545	Mantener el rumbo actual
+546	Ninguna reforma nueva.
+547	El pacto de responsabilidad (2014) prevé nuevas rebajas de cotizaciones empresariales, financiadas con 50.000 millones de euros de recortes en tres años.
+548	Francia sufre dos oleadas de atentados islamistas en 2015: contra Charlie Hebdo y el Hyper Cacher en enero, y después en el Bataclan, el Stade de France y las terrazas de París en noviembre, con 130 muertos. Se declara el estado de emergencia por primera vez desde la guerra de Argelia.
+549	Los atentados de 2015
+550	Francia sufre atentados mortíferos.
+551	Reforzar mucho la seguridad, aunque se superen los objetivos de déficit
+552	La seguridad antes que las reglas presupuestarias.
+553	Reforzar la seguridad con el mismo presupuesto
+554	Redistribuir los medios existentes.
+555	Medidas limitadas
+556	La opinión pública espera una respuesta firme.
+557	Tras los atentados de 2015, se declara el estado de emergencia y se refuerzan los medios de la policía, la justicia y las fuerzas armadas.
+558	La ley de Trabajo, impulsada por la ministra Myriam El Khomri, quiere dar más peso a la negociación en la empresa frente a la ley. Provoca meses de manifestaciones en la primavera de 2016 y se aprueba sin votación gracias al artículo 49.3 de la Constitución.
+559	¿Reformar el código laboral?

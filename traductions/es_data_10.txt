@@ -1,0 +1,86 @@
+1210	otros ingresos
+1211	Pensiones y ayudas sociales
+1212	pensiones y ayudas
+1213	sanidad
+1214	Funcionamiento del Estado y administraciones locales
+1215	funcionamiento del Estado
+1216	educación
+1217	Inversión, investigación y empresas
+1218	Defensa, seguridad y justicia
+1219	defensa y seguridad
+1220	Cotizaciones sociales («cargas»)
+1221	cotizaciones sociales
+1222	CSG
+1223	Impuesto sobre la renta
+1224	impuesto sobre la renta
+1225	Otros impuestos (patrimonio, sucesiones, ecología)
+1226	otros impuestos
+1227	Impuesto de sociedades
+1228	impuesto de sociedades
+1229	Todo lo que compran los franceses cuesta un poco más. Los hogares modestos, que gastan casi todos sus ingresos, son los que más lo notan.
+1230	Los precios bajan un poco en las tiendas: todo el mundo gana poder adquisitivo, sobre todo los hogares modestos.
+1231	Los hogares que más ganan pagan más: el impuesto sobre la renta es progresivo (cuanto más se gana, más alto es el tipo).
+1232	Los contribuyentes, sobre todo los más acomodados, se quedan con más dinero; el Estado redistribuye menos.
+1233	Un gravamen al mismo tipo sobre casi todas las rentas (salarios, pensiones…): los ingresos netos de cada uno bajan un poco.
+1234	Los salarios y las pensiones netos suben un poco para todo el mundo.
+1235	Las empresas pagan más impuestos sobre sus beneficios: les queda menos dinero para invertir y contratar, y algunas pueden irse al extranjero.
+1236	Las empresas conservan más beneficios: eso puede animarlas a invertir y a instalarse en Francia.
+1237	Contratar a un trabajador cuesta más a las empresas: dudan más a la hora de contratar.
+1238	Un trabajador cuesta menos a la empresa: eso favorece la contratación, pero la Seguridad Social recibe menos dinero.
+1239	El salario neto (lo que el trabajador cobra de verdad en su cuenta) baja: menos poder adquisitivo.
+1240	El salario neto sube: los trabajadores tienen más poder adquisitivo.
+1241	Los patrimonios muy grandes pagan más. Es muy redistributivo, pero recauda poco (unos pocos miles de millones de euros) y algunos grandes contribuyentes pueden instalarse en el extranjero.
+1242	Las grandes fortunas pagan menos impuestos: la distancia entre los más ricos y los demás aumenta.
+1243	Las herencias y las donaciones pagan más impuestos: eso limita la transmisión de las desigualdades de una generación a otra, pero es muy impopular.
+1244	Las herencias pagan menos impuestos: las familias transmiten más, pero las desigualdades de patrimonio se perpetúan.
+1245	La gasolina, el gas y la energía contaminante cuestan más: eso empuja a contaminar menos, pero quienes dependen del coche lo viven mal (como en el movimiento de los «chalecos amarillos» de 2018).
+1246	El carburante y la energía cuestan menos: alivio para los conductores, pero menos incentivo para contaminar menos.
+1247	Las pensiones de los jubilados suben: millones de personas se benefician, pero ya es la primera partida del gasto público.
+1248	Las pensiones suben más despacio (o se retrasa la edad de jubilación): jubilados y futuros jubilados están descontentos.
+1249	Más medios para los hospitales y la atención sanitaria: menos espera en urgencias, más personal sanitario.
+1250	Menos medios para la sanidad: hospitales bajo presión, esperas más largas, desiertos médicos.
+1251	Más profesores y mejores condiciones de estudio: es una inversión de futuro, que rinde a largo plazo.
+1252	Menos medios para la escuela: clases más llenas. El ahorro es inmediato, pero el futuro de los jóvenes se resiente.
+1253	El RSA, las APL y el complemento de actividad suben: los hogares modestos gastan casi todo ese dinero, lo que también da trabajo a los comercios.
+1254	Las ayudas a los más modestos bajan: el Estado ahorra, pero la pobreza y las desigualdades aumentan.
+1255	El Estado financia transportes, la transición ecológica y la investigación: eso crea empleo hoy y crecimiento mañana.
+1256	Menos inversión pública: ahorro inmediato, pero menos crecimiento y empleo en el futuro.
+1257	Más medios para el ejército: el país está mejor protegido y la industria de defensa contrata.
+1258	Menos medios para el ejército: el Estado ahorra, pero Francia está peor equipada frente a las amenazas.
+1259	Más policías, jueces y medios para la justicia: los franceses se sienten más seguros.
+1260	Menos medios para la policía y la justicia: procedimientos más lentos, sensación de inseguridad.
+1261	El Estado contrata funcionarios o les sube el sueldo: más empleo público y servicios públicos más presentes.
+1262	No se reponen todos los funcionarios que se jubilan: gran ahorro, pero servicios públicos menos presentes (ventanillas, escuelas, hospitales…).
+1263	Más medios para las agencias públicas (empleo, sanidad, medio ambiente…): cumplen mejor sus misiones.
+1264	Se fusionan las agencias que se solapan y se suprimen algunas: el Estado ahorra, pero algunos servicios (acompañamiento de los parados, sanidad, medio ambiente) pueden empeorar.
+1265	Más ayudas a las empresas y a las asociaciones: apoyo a la actividad y a la vida local (clubes, cultura…).
+1266	Menos ayudas a las empresas y a las asociaciones: ahorro rápido, pero algunas actividades se frenan o cierran.
+1267	Más dinero para los municipios y las regiones: más servicios de proximidad (escuelas, transportes, instalaciones deportivas…).
+1268	Menos dinero para los municipios y las regiones: reducen sus servicios o suben los impuestos locales.
+1269	El tipo al que el Estado se endeuda hoy, a 10 años (se habla del «OAT a 10 años», el bono francés). Solo se aplica a los NUEVOS préstamos. Sube cuando los prestamistas dudan de la solidez de las finanzas públicas (deuda alta, gran déficit, inflación) y baja cuando están tranquilos.
+1270	El coste medio de TODA la deuda viva: una mezcla de préstamos antiguos a tipos bajos y de préstamos nuevos a tipos más altos. Se mueve despacio: cada año vencen préstamos antiguos que se sustituyen por préstamos a los tipos del mercado. La carga de intereses del Estado = tipo medio × deuda.
+1271	He encontrado trabajo después de dos años buscando. Por fin respiramos.
+1272	Karim, 34 años, obrero
+1273	Mi fábrica cerró y sigo buscando. ¿Qué se ha hecho por nosotros?
+1274	Sophie, 45 años, ex operaria
+1275	Los precios se calman: en la caja se nota.
+1276	Marie, 67 años, jubilada
+1277	La compra me cuesta cada vez más. Los finales de mes son duros.
+1278	Nadia, 38 años, madre de familia
+1279	El Estado ha retomado el control de sus cuentas: es tranquilizador.
+1280	Pierre, 52 años, empresario
+1281	El déficit aumenta: les dejamos la cuenta a nuestros hijos.
+1282	Claire, 41 años, profesora
+1283	La deuda baja: eso significa menos impuestos mañana.
+1284	Louis, 29 años, ingeniero
+1285	La deuda se dispara y nadie dice cómo se va a devolver.
+1286	Hélène, 58 años, contable
+1287	El país parece en calma: volvemos a conseguir hablar entre nosotros.
+1288	Yasmine, 31 años, enfermera
+1289	Todo el mundo está enfadado: ya no nos entendemos.
+1290	Michel, 49 años, artesano
+1291	Sois reelegidos de forma triunfal
+1292	Sois reelegidos
+1293	Sois derrotados
+1294	No sois reelegidos
+1295	Dejáis el poder

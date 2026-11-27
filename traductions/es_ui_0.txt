@@ -1,0 +1,120 @@
+0	Hoy · {a}-{b}
+1	Mandato de {a} · {b}-{c}
+2	Vuestra carta de misión
+3	Recordatorio de la época: la economía está abierta.
+4	Presupuesto equilibrado, o incluso con superávit: ¡una hazaña histórica!
+5	Déficit por debajo del 3 %: ¡criterio europeo cumplido!
+6	La deuda baja este año.
+7	¡El paro vuelve a estar por debajo del 7 %!
+8	¡Fuerte crecimiento ({a} %)!
+9	Sociedad muy en calma.
+10	Ejemplaridad: manos limpias.
+11	Un buen avance ecológico.
+12	La economía se acelera (crecimiento {a} %)
+13	La actividad se frena (crecimiento {a} %)
+14	El crecimiento sigue siendo moderado ({a} %)
+15	, el paro baja al {a} %
+16	, pero el paro sube al {a} %
+17	. El déficit aumenta ({a} % del PIB)
+18	. El déficit está bajo control ({a} %)
+19	. El déficit sigue siendo alto ({a} %)
+20	, la deuda sube al {a} %.
+21	, la deuda baja al {a} %.
+22	En el plano social, la cohesión se refuerza
+23	En el plano social, las tensiones aumentan
+24	El clima social es estable
+25	 y vuestra popularidad se erosiona ({a})
+26	 y la opinión pública os apoya más ({a})
+27	 (popularidad {a})
+28	. La huella ecológica empeora.
+29	. Los indicadores ecológicos mejoran.
+30	Los mercados se inquietan por vuestras cuentas: el Estado se endeuda más caro de lo que debería y la carga de la deuda aumenta; es el efecto bola de nieve.
+31	Los mercados financieros se inquietan por la deuda: los tipos de interés suben.
+32	Desconfianza de los acreedores: el crecimiento está frenado por la carga de la deuda.
+33	La fractura social ha degenerado en disturbios: preparaos para nuevos desórdenes el año que viene.
+34	La sociedad está descontenta (cohesión baja o desigualdades fuertes): se preparan huelgas y movimientos sociales.
+35	Es el final: ya no podéis gobernar, vuestro mandato termina aquí.
+36	Atención: una moción de censura amenaza a vuestro Gobierno.
+37	Un aire de escándalo rodea a vuestro equipo: la integridad está en juego.
+38	No habéis cambiado ninguna palanca: el presupuesto se ha prorrogado tal cual.
+39	{a} el impuesto «{b}» ({c}{d} mil millones de euros de ingresos)
+40	{a} el presupuesto «{b}» ({c}{d} mil millones de euros de gasto)
+41	Este año habéis {a}{b}.
+42	 Ante los imprevistos, habéis elegido: {a}.
+43	{a}{b} mil M€
+44	Habéis {a} este gasto: {b} al año.
+45	Habéis {a} este gravamen: {b} de ingresos al año.
+46	+{a} más
+47	Presupuesto
+48	prorrogado tal cual
+49	Lo que habéis decidido
+50	Vuestro saldo público pasa del {a} % al {b} % del PIB{c}. 
+51	Recordatorio: un saldo negativo (déficit) es lo que el Estado gasta de más respecto a lo que ingresa en el año; tiene que pedirlo prestado. 
+52	vuestras decisiones presupuestarias lo han {a} unos {b} puntos
+53	vuestras decisiones presupuestarias casi se compensan: vuestras subidas de ingresos financian vuestros nuevos gastos (o al revés)
+54	los imprevistos lo han {a} unos {b} puntos
+55	los intereses de la deuda ({a} % → {b} % del PIB) lo han {c} unos {d} puntos
+56	el ajuste automático de la economía (la actividad ha sido {a} de lo previsto, lo que cambia ingresos y gastos sin ninguna decisión vuestra) lo ha {b} unos {c} puntos
+57	¿Por qué? {a}. 
+58	La deuda sube del {a} % al {b} % del PIB: mientras el Estado tenga déficit, pide prestado, y esos préstamos se suman a la deuda.
+59	La deuda baja del {a} % al {b} % del PIB: vuestro déficit es lo bastante bajo para que el crecimiento «diluya» la deuda. ¡Enhorabuena, es difícil!
+60	La deuda se mantiene estable en torno al {a} % del PIB.
+61	 Recordad bien: el déficit es un flujo (lo que falta este año), la deuda es un stock (la acumulación de todos los déficits pasados).
+62	 Atención: los mercados financieros se inquietan y os prestan más caro (nuevos préstamos: {a} % → {b} %).
+63	 Buena noticia: los mercados están tranquilos y os prestan más barato (nuevos préstamos: {a} % → {b} %).
+64	 El tipo medio de vuestra deuda pasa del {a} % al {b} %: cada año vencen préstamos antiguos a tipos bajos que hay que sustituir por otros nuevos, más caros. Por eso la carga de la deuda aumenta, incluso sin nuevos errores de gestión.
+65	 Hoy, Francia se endeuda en torno al 4,9 % a 10 años, mientras que una parte de su deuda se contrajo al 0-1 % hace unos años.
+66	Vuestras cuentas están equilibradas o con superávit
+67	El déficit se reduce
+68	El déficit aumenta
+69	El déficit es estable
+70	la deuda baja
+71	la deuda sube
+72	la deuda es estable
+73	: el crecimiento la diluye
+74	Saldo
+75	 % del PIB
+76	Deuda
+77	Nuevos préstamos
+78	Tipo medio
+79	Vuestras cuentas públicas
+80	Vuestras decisiones
+81	Imprevistos
+82	Intereses de la deuda
+83	Ajuste automático
+84	La inflación pasa del {a} % al {b} %. 
+85	Los precios se moderan: buena noticia para el poder adquisitivo, y los tipos de interés podrán bajar. 
+86	Los precios se disparan: los salarios y el ahorro pierden valor, y los tipos de interés siguen altos. 
+87	La inflación es estable. 
+88	Es el corazón de la batalla económica de la época: cuando los precios suben un 10 % al año, un salario que no sigue ese ritmo pierde un 10 % de poder adquisitivo. Para bajar la inflación se puede frenar la demanda (austeridad), contener precios y salarios o defender la moneda, con el riesgo de aumentar el paro a corto plazo.
+89	El frente de la inflación
+90	Los precios se moderan.
+91	Los precios se disparan.
+92	La inflación es estable.
+93	Inflación
+94	El crecimiento alcanza el {a} % y el paro pasa del {b} % al {c} %. 
+95	En conjunto, vuestro presupuesto ha sostenido la actividad: más gasto o menos impuestos es una política de estímulo. Crea actividad, pero agranda el déficit. 
+96	En conjunto, vuestro presupuesto ha frenado la actividad: menos gasto o más impuestos es una política de austeridad. A menudo es el precio que hay que pagar, a corto plazo, para reducir el déficit. 
+97	Vuestras inversiones (educación, investigación, infraestructuras) preparan el futuro: su efecto sobre el crecimiento aumentará en los años siguientes. 
+98	La subida de las cotizaciones empresariales encarece la contratación: las empresas contratan menos. 
+99	Para recordar: cuando la actividad se acelera, las empresas contratan y el paro baja; cuando se frena, sube (es la ley de Okun).
+100	Crecimiento y empleo
+101	Vuestro presupuesto ha sostenido la actividad, a costa de un déficit mayor.
+102	Vuestro presupuesto ha frenado la actividad: es el precio que hay que pagar, a corto plazo, para reducir el déficit.
+103	Vuestro presupuesto ha sido neutro para la actividad.
+104	Crecimiento
+105	Paro
+106	{a} de «{b}»
+107	(índice de igualdad {a} → {b})
+108	Las desigualdades bajan {a} gracias a {b}{c}. Redistribuir es quitar más a los más acomodados o dar más a los más modestos. 
+109	Las desigualdades bajan {a}. 
+110	Las desigualdades aumentan {a} por culpa de {b}: estas decisiones pesan proporcionalmente más sobre los hogares modestos. 
+111	Las desigualdades aumentan {a}. 
+112	La sociedad se tensa (cohesión {a} → {b}): los franceses notan los esfuerzos que se les piden. 
+113	La sociedad está más unida (cohesión {a} → {b}). 
+114	Vuestra popularidad baja ({a} → {b}): las subidas de impuestos y los recortes son impopulares, incluso cuando son necesarios.
+115	Vuestra popularidad aumenta ({a} → {b}).
+116	Vuestra popularidad es estable ({a}).
+117	 Sabed también que el poder «se desgasta»: la popularidad baja un poco cada año, se haga lo que se haga.
+118	desigualdades a la baja
+119	desigualdades al alza

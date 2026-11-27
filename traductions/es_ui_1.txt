@@ -1,0 +1,120 @@
+120	sociedad más unida
+121	sociedad más tensa
+122	popularidad al alza
+123	popularidad a la baja
+124	Sociedad y opinión pública
+125	Pocos cambios en la sociedad y la opinión pública.
+126	Igualdad
+127	Cohesión
+128	Popularidad
+129	El déficit sigue siendo alto. Para reducirlo hay dos vías: aumentar ingresos o bajar gastos. Buscad los que menos pesen sobre los hogares modestos y sobre el crecimiento.
+130	Vuestras cuentas están saneadas: tenéis margen para invertir en el futuro (educación, investigación, transición ecológica).
+131	El paro sube: evitad encarecer el coste laboral y pensad en la inversión, que crea empleo.
+132	Las desigualdades son fuertes: los impuestos progresivos (renta, patrimonio) y las ayudas a los hogares modestos permiten reducirlas.
+133	La sociedad está tensa: unos recortes demasiado bruscos podrían desencadenar huelgas o disturbios.
+134	Vigilad el tipo de vuestros nuevos préstamos: si sigue subiendo, los intereses se comerán una parte creciente de vuestro presupuesto.
+135	Recordad: cada año, vuestra deuda se refinancia más cara. Cuanto antes se reduzca el déficit, menos se disparará la carga de intereses.
+136	Vuestra situación es equilibrada: mantened el rumbo y estad atentos a los imprevistos.
+137	Mi consejo para el año que viene
+138	Obligados a dimitir
+139	Ya nadie os apoya: manifestaciones masivas, una mayoría que os abandona, llamamientos a la dimisión. Dejáis el poder antes del final de vuestro mandato. Sin la confianza de la ciudadanía no se puede gobernar.
+140	Un país ingobernable
+141	Disturbios, bloqueos, huelga general: el país está paralizado y debéis dejar el poder antes del final de vuestro mandato. Sin cohesión social, ninguna reforma se sostiene.
+142	Caída por escándalo
+143	Minado por los escándalos, vuestro Gobierno cae antes de tiempo. La honradez es la base de la confianza democrática.
+144	Gran crisis presupuestaria
+145	La deuda se ha desbocado y los mercados os han dado la espalda. El país pasa a estar bajo tutela presupuestaria. Gobernar es, ante todo, mantener las cuentas.
+146	La fractura social ha acabado con vuestro mandato. Sin cohesión, ninguna reforma se sostiene.
+147	Reelegidos de forma triunfal
+148	Cuentas en orden, país en calma: los votantes os renuevan ampliamente su confianza. Un quinquenio de referencia.
+149	Reelegidos
+150	Un balance desigual, pero suficiente para ganar en la segunda vuelta. Gobernar es arbitrar.
+151	Derrotados a pesar de vuestra popularidad
+152	Erais apreciados, pero vuestro balance (deuda, déficit, empleo) era demasiado flojo: los votantes querían resultados concretos. El inmovilismo no compensa.
+153	Derrotados en la segunda vuelta
+154	A pesar de las reformas, la opinión pública prefirió pasar página. Los esfuerzos presupuestarios rara vez dan frutos a corto plazo.
+155	Desautorizados en las urnas
+156	El país ha castigado vuestro mandato. La impopularidad de las decisiones ha tenido la última palabra.
+157	{a}, vuestro déficit medio ha sido del {b} % del PIB
+158	la deuda ha pasado del {a} % al {b} % (+{c} puntos)
+159	la deuda ha bajado del {a} % al {b} %
+160	la deuda se ha mantenido estable ({a} %)
+161	el paro ha bajado al {a} %
+162	el paro ha subido al {a} %
+163	el paro se sitúa en el {a} %
+164	y vuestra integridad, deteriorada ({a}/100), ha alimentado los escándalos
+165	Vuestra deuda pública ha pasado del {a} % al {b} % del PIB. El mecanismo es sencillo: cada año en que el Estado gasta más de lo que ingresa (vuestro déficit medio: {c} % del PIB), lo que falta se suma a la deuda. Y cuanto más alta es la deuda, más pesan los intereses que hay que pagar; es el «efecto bola de nieve», que hace que sanear las cuentas sea cada vez más difícil. Como referencia, las reglas europeas (criterios de Maastricht) apuntan a un déficit inferior al 3 % del PIB y una deuda inferior al 60 %.
+166	Habéis conseguido bajar la deuda, del {a} % al {b} % del PIB: es raro y difícil. Requiere un déficit controlado (el vuestro: {c} % de media) y un crecimiento que «diluya» la deuda en un PIB mayor. Regla clave: en cuanto el déficit baja de ~3 % del PIB, la deuda tiende a estabilizarse y luego a bajar, si la economía crece.
+167	Vuestra deuda se ha mantenido en general estable en torno al {a} % del PIB, con un déficit medio del {b} %. Estabilizar la deuda sin reducirla ya es evitar el efecto bola de nieve, pero Francia sigue claramente por encima de los umbrales europeos (déficit 3 %, deuda 60 %).
+168	Vuestras finanzas públicas
+169	El paro ha bajado al {a} %. 
+170	El paro ha subido al {a} %. 
+171	El paro se sitúa en el {a} %. 
+172	Empleo y crecimiento van de la mano (es la ley de Okun): cuando la actividad se acelera, las empresas contratan; cuando se frena, el paro sube. Pero no todas las palancas actúan igual: la inversión y la educación alimentan el crecimiento de mañana (efecto oferta), mientras que una fuerte subida de impuestos frena la demanda a corto plazo, y subir las cotizaciones encarece el coste laboral.
+173	La sociedad se ha mantenido en calma (cohesión {a}/100). El gasto social, los servicios públicos y la redistribución contribuyen a ello: reducen las desigualdades y amortiguan las crisis. 
+174	La cohesión social se ha deteriorado ({a}/100). Unos recortes demasiado fuertes en las ayudas, los servicios públicos o las transferencias a las administraciones locales fracturan la sociedad y pueden desencadenar huelgas y disturbios. 
+175	La cohesión social es media ({a}/100). 
+176	Es el arbitraje central de quien gobierna: reducir el gasto sanea las cuentas, pero cada euro ahorrado tiene un coste social para alguien.
+177	Vuestras decisiones de sociedad
+178	Ética y confianza
+179	Vuestra integridad se ha resentido ({a}/100). Ceder a los lobbies o tapar un asunto rinde a corto plazo, pero mina la confianza democrática: la transparencia protege mejor que el secreto, y los escándalos acaban estallando, a menudo en el peor momento.
+180	Transición ecológica
+181	Habéis invertido en el clima ({a}/100): un coste inmediato, pero un beneficio a largo plazo; menos dependencia energética y una transición en marcha.
+182	El medio ambiente se ha descuidado ({a}/100): ahorro a corto plazo, pero una factura ecológica y sanitaria trasladada a las generaciones siguientes.
+183	Lo que hay que recordar
+184	Gobernar es arbitrar. Un presupuesto nunca es una simple hoja de cálculo: todo gasto debe financiarse, todo ahorro tiene un coste social, toda subida de impuestos pesa sobre la actividad. No existe la elección perfecta, solo equilibrios que encontrar. Quien gobierna bien no es quien contenta a todo el mundo, sino quien concilia unas cuentas sostenibles, el empleo y la cohesión del país.
+185	Saber más
+186	Economía
+187	Sociedad
+188	Política
+189	Sociedad y vida política
+190	En la realidad
+191	El contexto histórico
+192	¿Sabíais que…?
+193	Apoyar Quinquennat
+194	Juego gratuito y sin publicidad. Una donación ayuda a mantenerlo vivo.
+195	Una luz sigue encendida. Es la vuestra.
+196	¿Lo habríais hecho mejor que ellos?
+197	¿En clase? Introducid el código que os ha dado vuestro profesor
+198	p. ej. TG2-2012
+199	Unirse a la clase
+200	Código no reconocido: debe terminar con el año del mandato (p. ej. -2012).
+201	Así toda la clase juega la misma época, con los mismos imprevistos. Profesorado: elegid NOMBRE-AÑO, siendo el año el del inicio del mandato (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 o 2027).
+202	O elegid libremente vuestra época
+203	Ocupad el lugar de un presidente, con la situación y las crisis reales de su mandato.
+204	Septenio
+205	Quinquenio
+206	Hoy
+207	Retomar mi partida
+208	Clasificación
+209	Trofeos
+210	← Cambiar de época
+211	Hoy: os toca jugar
+212	En el lugar de {a}
+213	Déficit
+214	Tipo de interés
+215	Lo que pasó antes
+216	Durante vuestro mandato afrontaréis los grandes acontecimientos reales de la época. Al final descubriréis lo que hizo el verdadero presidente y compararéis vuestros resultados con los suyos. Los importes están convertidos a euros.
+217	Poned nombre a vuestro equipo
+218	Los Reformistas
+219	Elegid vuestra doctrina
+220	Una simple orientación: después seguís siendo libres en todas vuestras decisiones.
+221	Elegid vuestro nivel
+222	Los objetivos y la dificultad son los mismos: solo cambia el número de mandos e indicadores que se muestran.
+223	palancas ·
+224	Este código de clase impone la época «
+225	»: es la que vais a jugar.
+226	Clase
+227	: toda la clase juega esta época con los mismos imprevistos.
+228	Entrar en el palacio (con el año de consejo)
+229	Saltar el año de consejo
+230	Antes de empezar, completad:
+231	el nombre del equipo
+232	la doctrina
+233	Antes de gobernar… un consejo
+234	Un aperitivo que no cuenta
+235	Estamos en
+236	. Antes de la elección, todavía hay que aprobar un
+237	último presupuesto
+238	, y el equipo en el poder busca una mirada nueva. Vuestra reputación ha llegado hasta el palacio: se os pide,
+239	, que propongáis ese presupuesto a partir de algunas palancas clave. Nada os compromete: es un entrenamiento antes de vuestra propia campaña.

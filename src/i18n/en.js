@@ -1923,5 +1923,9 @@ export default {
  " ; ": "; ",
  "mais": "but",
  "à": "to",
- "{a} €/habitant": "{a} €/inhabitant"
+ "{a} €/habitant": "{a} €/inhabitant",
+ "protectionnisme": "protectionism",
+ "% (tranche haute)": "% (top bracket)",
+ "objectifs": "goals",
+ "atteints": "reached"
 };

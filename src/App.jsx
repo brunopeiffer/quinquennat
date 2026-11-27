@@ -847,7 +847,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 /* ============================================================
    LANGUES — le français est la langue source : il sert de clé dans les fichiers src/i18n/<langue>.js
    ============================================================ */
-const LANGS = { fr: "Français", en: "English", it: "Italiano" };   // ajouter de / es quand leur dictionnaire est prêt
+const LANGS = { fr: "Français", en: "English", es: "Español", it: "Italiano" };   // ajouter de quand son dictionnaire est prêt
 const LOCALES = { fr: "fr-FR", en: "en-GB", de: "de-DE", it: "it-IT", es: "es-ES" };
 const DICT_LOADERS = { en: () => import("./i18n/en.js"), de: () => import("./i18n/de.js"), it: () => import("./i18n/it.js"), es: () => import("./i18n/es.js") };
 let LANG = "fr", DICT = {};
@@ -886,6 +886,7 @@ async function setLanguage(l) {
   try { document.documentElement.lang = lang; } catch {}
 }
 const fmt = (n, d = 0) => (n ?? 0).toLocaleString(LOCALES[LANG] || "fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d });
+const codeLabel = (c) => (c === "CLASSE" ? tr("Classe").toUpperCase() : c);   // code de classe par défaut : identifiant interne, affiché traduit
 
 // Équivalence concrète d'un montant en Md€ : euros par habitant et par an
 const parHabitant = (md) => (md * 1000) / POP_FR;   // €/habitant/an
@@ -2240,7 +2241,7 @@ function EraSetup({ eraId, lockedCode, onStart, onSkipConseil, onBack }) {
               <Icon n={d.icon.replace("ti-", "")} size={20} color={d.color} />
               <span style={{ color: C.ink, fontWeight: 500, fontSize: 14 }}>{d.label}</span>
             </div>
-            <div style={{ color: d.color, fontSize: 11, marginBottom: 4 }}>{d.ref}</div>
+            <div style={{ color: d.color, fontSize: 11, marginBottom: 4 }}>{tr(d.ref)}</div>
             <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{d.desc}</div>
           </div>
         ))}
@@ -2840,7 +2841,7 @@ function BudgetScreen({ year, indPrev, baseLevels, levels, setLevels, doctrine, 
       {/* Barre de résultat en direct : reste visible pendant le défilement */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, marginBottom: 10, padding: "8px 10px", background: C.card2, border: `1px solid ${C.line}`, borderRadius: 10, boxShadow: "0 6px 16px rgba(0,0,0,.28)" }}>
         {guided && (() => { const i = Math.max(0, guideSteps.findIndex((g) => !g.done)); return (
-          <div style={{ marginBottom: 6, paddingBottom: 6, borderBottom: `1px solid ${C.line}`, color: C.gold, fontSize: 13.5, fontWeight: 700 }}>{tr("👉 Étape")} {i + 1}/{guideSteps.length} : {guideSteps[i].title}</div>
+          <div style={{ marginBottom: 6, paddingBottom: 6, borderBottom: `1px solid ${C.line}`, color: C.gold, fontSize: 13.5, fontWeight: 700 }}>{tr("👉 Étape")} {i + 1}/{guideSteps.length}{LANG === "fr" ? " : " : ": "}{guideSteps[i].title}</div>
         ); })()}
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 160px", minWidth: 0 }}>
@@ -3755,7 +3756,7 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
       </div>
       {(() => { const L = LETTRES[game.eraId || "today"]; if (!L || game.chain) return null; const res = L.obj.map((o) => ({ o, ok: o.ok(game.ind), near: !o.ok(game.ind) && o.near(game.ind) })); const n = res.filter((r) => r.ok).length; return (
         <div data-lettre-bilan="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 14.5, fontWeight: 500, marginBottom: 10 }}><Icon n="mail-check" size={17} color={C.gold} /> {tr("Lettre de mission :")} {n} {tr("objectif")}{n > 1 ? "s" : ""} {tr("sur")} {res.length} {tr("atteint")}{n > 1 ? "s" : ""}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.ink, fontSize: 14.5, fontWeight: 500, marginBottom: 10 }}><Icon n="mail-check" size={17} color={C.gold} /> {tr("Lettre de mission :")} {n} {tr(n > 1 ? "objectifs" : "objectif")} {tr("sur")} {res.length} {tr(n > 1 ? "atteints" : "atteint")}</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{res.map(({ o, ok, near }) => { const col = ok ? C.mint : near ? C.gold : C.coral; return <span key={o.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: col, background: al(col, "18"), border: `1px solid ${al(col, "44")}`, borderRadius: 20, padding: "4px 11px" }}><Icon n={ok ? "circle-check" : near ? "circle-dot" : "circle-x"} size={14} />{o.label}</span>; })}</div>
         </div>); })()}
       {wonNew.length > 0 && (
@@ -3785,7 +3786,7 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
       <HistoryComparison game={game} />
       <DecisionsRecap decisions={game.decisions} />
       <div style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 8 }}><Icon n="trophy" size={18} color={C.gold} /> {tr("Classement —")} {game.code}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.ink, fontSize: 15, fontWeight: 500, marginBottom: 8 }}><Icon n="trophy" size={18} color={C.gold} /> {tr("Classement —")} {codeLabel(game.code)}</div>
         {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13 }}>{tr("Aucun score enregistré pour l'instant.")}</div>}
         <div style={{ display: "grid", gap: 6 }}>
           {podium.slice(0, 8).map((e, i) => {
@@ -3826,7 +3827,7 @@ function HistoryComparison({ game }) {
   return (
     <div style={{ background: C.card, border: `1px solid ${al(C.gold, "66")}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.gold, fontSize: 16, fontWeight: 600, fontFamily: "Fraunces,serif", marginBottom: 4 }}><Icon n="scale" size={18} /> {game.chain ? tr("Votre mandat face à l'Histoire") : tr("Auriez-vous fait mieux que {a} ?", { a: e.president })}</div>
-      <div style={{ color: C.sub, fontSize: 13, marginBottom: 10 }}>{tr("Vous faites mieux sur")} <b style={{ color: nb >= 3 ? C.mint : nb >= 2 ? C.gold : C.coral }}>{nb} {tr("indicateur")}{nb > 1 ? "s" : ""} {tr("sur 4")}</b> {tr("par rapport")} {game.chain ? tr("à l'Histoire réelle (votre départ était différent : voir « Votre héritage »)") : tr("au vrai mandat")} ({f.note || `fin ${f.annee}`}).</div>
+      <div style={{ color: C.sub, fontSize: 13, marginBottom: 10 }}>{tr("Vous faites mieux sur")} <b style={{ color: nb >= 3 ? C.mint : nb >= 2 ? C.gold : C.coral }}>{nb} {tr(nb > 1 ? "indicateurs" : "indicateur")} {tr("sur 4")}</b> {tr("par rapport")} {game.chain ? tr("à l'Histoire réelle (votre départ était différent : voir « Votre héritage »)") : tr("au vrai mandat")} ({f.note || `fin ${f.annee}`}).</div>
       {/* Cartes empilables : jamais de scroll horizontal, même sur petit écran */}
       <div style={{ display: "grid", gap: 7 }}>
         <div style={{ display: "flex", gap: 10, fontSize: 11, color: C.dim, padding: "0 10px" }}>
@@ -3932,7 +3933,7 @@ function LeaderboardView({ code, level = "complet", onLevel, entries, onBack }) 
   const podium = [...(entries || [])].sort((a, b) => b.score - a.score);
   return (
     <div>
-      <ScreenTitle icon="trophy" title={tr("Classement — {a}", { a: code })} sub={tr("{a} partie(s) enregistrée(s) · niveau {b}", { a: podium.length, b: LEVELS[level].label })} />
+      <ScreenTitle icon="trophy" title={tr("Classement — {a}", { a: codeLabel(code) })} sub={tr("{a} partie(s) enregistrée(s) · niveau {b}", { a: podium.length, b: LEVELS[level].label })} />
       {onLevel && <div data-lb-levels="1" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>{Object.entries(LEVELS).map(([id, L]) => <button key={id} onClick={() => onLevel(id)} style={{ cursor: "pointer", fontSize: 12.5, padding: "6px 12px", borderRadius: 20, border: `1px solid ${id === level ? C.gold : C.line}`, background: id === level ? al(C.gold, "22") : "transparent", color: id === level ? C.gold : C.sub }}>{L.label}</button>)}</div>}
       {podium.length === 0 && <div style={{ color: C.dim, fontSize: 13, marginBottom: 12 }}>{tr("Aucune partie enregistrée sous ce code.")}</div>}
       <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
@@ -4185,7 +4186,7 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 30, height: 30, borderRadius: 8, background: C.goldFill, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon n="building-bank" size={17} color="var(--on-accent)" /></div>
-                <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{game.chain ? tr("Votre {a}ᵉ mandat · {b}-{c}", { a: game.chain.n, b: CURRENT_ERA.debut, c: CURRENT_ERA.debut + CURRENT_ERA.duree }) : eraLabel(eraById(game.eraId))} · {doctrineOf(game)?.label} · {game.code}</div></div>
+                <div><div style={{ color: C.ink, fontSize: 14, fontWeight: 500, lineHeight: 1 }}>{game.team}</div><div style={{ color: C.dim, fontSize: 11 }}>{game.chain ? tr("Votre {a}ᵉ mandat · {b}-{c}", { a: game.chain.n, b: CURRENT_ERA.debut, c: CURRENT_ERA.debut + CURRENT_ERA.duree }) : eraLabel(eraById(game.eraId))} · {doctrineOf(game)?.label} · {codeLabel(game.code)}</div></div>
               </div>
               <div style={{ textAlign: "right" }} className="qmandat">
                 <div style={{ color: C.dim, fontSize: 10, textTransform: "uppercase" }}>{tr("Mandat")}</div>

@@ -1,0 +1,100 @@
+1110	Ocultar agrava la falta; en democracia, la transparencia protege mejor que el secreto.
+1111	Reconocer y reparar públicamente
+1112	La confesión y la reparación restauran la confianza a medio plazo.
+1113	Abrir una investigación independiente
+1114	Confiar el control a un tercero independiente refuerza la credibilidad.
+1115	Pulso con la Unión Europea
+1116	Bruselas exige reducir vuestro déficit so pena de sanciones.
+1117	Respetar la regla del 3 %
+1118	El Pacto de Estabilidad impone un déficit < 3 % del PIB: la disciplina presupuestaria tiene un coste social.
+1119	Negociar un plazo
+1120	La negociación europea permite repartir el esfuerzo presupuestario en el tiempo.
+1121	Ignorar y asumir las sanciones
+1122	Desafiar a la UE a veces gusta a la opinión pública pero aísla y cuesta credibilidad.
+1123	Crisis migratoria
+1124	Miles de personas llegan a las fronteras. El país se divide sobre qué hacer.
+1125	Acogida organizada e integración
+1126	La inmigración tiene un coste inicial de integración y una aportación económica a largo plazo.
+1127	Cupos y control reforzado
+1128	Una política de equilibrio, a menudo criticada por ambos lados.
+1129	Cierre de fronteras
+1130	El repliegue seduce a una parte de la opinión pero choca con los compromisos humanitarios.
+1131	Lucha contra el fraude fiscal
+1132	Un informe revela miles de millones de impuestos eludidos por grandes empresas y particulares adinerados. La opinión pública pide cuentas.
+1133	Gran plan de inspección fiscal (contratar inspectores)
+1134	Recuperar el impuesto eludido es popular y aporta una ganancia real, pero limitada: hacen falta inspectores, tiempo, y una parte del fraude es irrecuperable. Por sí solo nunca cubre el déficit.
+1135	Algunas inspecciones selectivas y mediáticas
+1136	Un esfuerzo modesto pero rápido y consensuado; el rendimiento presupuestario sigue siendo bajo.
+1137	La inacción ante el fraude fiscal se percibe muy mal y alimenta el sentimiento de injusticia.
+1138	Debate sobre el fraude en las prestaciones
+1139	La oposición pide un gran plan contra las prestaciones sociales cobradas indebidamente (RSA, subsidios…). El tema divide.
+1140	Reforzar mucho los controles a los beneficiarios
+1141	Los importes recuperados son bajos: el fraude en las prestaciones es mucho menor que el fraude fiscal. Y unos controles demasiado celosos estigmatizan a los más modestos.
+1142	Cruzar los ficheros sin estigmatizar
+1143	Un enfoque técnico y mesurado: una pequeña ganancia, sin dañar la cohesión.
+1144	Recordar que el fraude en las prestaciones es marginal
+1145	Correcto en los hechos, pero una parte de la opinión lo ve como permisividad.
+1146	Revisar todo el gasto (presupuesto base cero)
+1147	Vuestros asesores proponen dejar de prorrogar automáticamente los presupuestos: cada gasto debería justificarse desde cero, cada año.
+1148	Aplicar el presupuesto base cero a todo el Estado
+1149	El «base cero» obliga a justificar cada euro: gran potencial de ahorro, pero pesado de aplicar y fuente de conflictos con las administraciones.
+1150	Auditoría centrada en las partidas más grandes
+1151	Una auditoría parcial: ahorros más modestos, pero más consensuados y rápidos.
+1152	Prorrogar los presupuestos como siempre
+1153	La prórroga automática (base histórica) es sencilla pero deja crecer los gastos que se han vuelto ineficaces.
+1154	Campeón industrial que apoyar
+1155	Una empresa nacional puede convertirse en líder mundial de las baterías si el Estado invierte.
+1156	Invertir en el campeón nacional
+1157	La política industrial apuesta por el futuro: arriesgada pero potencialmente ganadora.
+1158	Solo un préstamo avalado
+1159	Apoyar sin gastar directamente (aval público).
+1160	Dejar que financie el sector privado
+1161	El no intervencionismo deja el riesgo y las ganancias al mercado.
+1162	Equilibrista
+1163	Terminar con un presupuesto equilibrado o con superávit.
+1164	Desendeudamiento
+1165	Reducir la deuda al menos 6 puntos del PIB durante el mandato.
+1166	Pleno empleo
+1167	Bajar el paro por debajo del 6 %.
+1168	Manos limpias
+1169	Mantener una integridad de al menos 90.
+1170	Presidencia verde
+1171	Alcanzar 70 en medio ambiente.
+1172	Unidad nacional
+1173	Mantener una cohesión de al menos 75.
+1174	Justicia social
+1175	Alcanzar un índice de igualdad de al menos 65.
+1176	Motor del crecimiento
+1177	Terminar con un crecimiento superior al 2 %.
+1178	Plebiscito
+1179	Ser reelegidos de forma triunfal.
+1180	Sin errores
+1181	Obtener una puntuación de al menos 75.
+1182	Saldo
+1183	del PIB
+1184	Diferencia entre lo que el Estado ingresa y lo que gasta, en % del PIB. Negativo = déficit: gasta más de lo que ingresa. Objetivo: acercarse a 0, o incluso a un superávit.
+1185	Deuda
+1186	Suma de todos los déficits pasados, expresada en % del PIB. Cuanto más alta es, más pesan los intereses que hay que pagar (efecto bola de nieve). La regla europea apunta al 60 %.
+1187	Paro
+1188	de la población activa
+1189	Proporción de la población activa sin empleo. Baja cuando la economía crea empleo (crecimiento) y sube cuando se frena: es la ley de Okun.
+1190	Crecimiento
+1191	al año
+1192	Evolución del PIB, la riqueza producida en el país. Si es fuerte, crea empleo e ingresos; si es débil o negativo, es la recesión.
+1193	Inflación
+1194	Subida general de los precios en un año. Si es demasiado alta, erosiona el poder adquisitivo y hace subir los tipos de interés; fue el gran problema de los años setenta y ochenta. Se acelera cuando la economía se recalienta.
+1195	Cohesión
+1196	Mide la unidad y la paz social del país. Se refuerza con los servicios públicos y la redistribución; se debilita con los recortes presupuestarios y las desigualdades. Si es demasiado baja, lleva a los disturbios.
+1197	Igualdad
+1198	Mide la igualdad entre los más ricos y los más modestos: cuanto más alto es el índice, más igualitaria es la sociedad. Los impuestos progresivos (sobre la renta, sobre el patrimonio) y las ayudas lo aumentan; los impuestos que pesan igual sobre todos (IVA) y los recortes sociales lo reducen.
+1199	Medio ambiente
+1200	Estado de la transición ecológica. Avanza con la inversión verde y la fiscalidad del carbono; se degrada poco a poco si se ignora.
+1201	Popularidad
+1202	Apoyo de la opinión pública. Decisiva el día de la elección. Se desgasta de forma natural con el tiempo («desgaste del poder»).
+1203	Integridad
+1204	Honradez de vuestro Gobierno. Se deteriora con los compromisos dudosos (aceptar un lobby, tapar un asunto). Una integridad demasiado baja acaba provocando escándalos.
+1205	Economía
+1206	Sociedad y medio ambiente
+1207	Vida política
+1208	intereses de la deuda
+1209	otros gastos

@@ -1,0 +1,120 @@
+360	% del total
+361	gastados por el Estado: tocad una partida para aislarla
+362	mil M€
+363	Las tres partidas más grandes (
+364	) representan
+365	de cada 1.000 €.
+366	Los intereses de la deuda absorben
+367	: dinero que no financia ningún servicio público.
+368	Los
+369	restantes agrupan gastos que el juego no os deja modificar.
+370	Cómo leerlo:
+371	cada cuadradito vale 1 € de cada 1.000 € gastados. Cada bloque agrupa una partida: cuanto más grande, más pesa. Tocad un bloque para aislarlo.
+372	Las tres primeras fuentes (
+373	) aportan
+374	proceden del endeudamiento: es el déficit.
+375	El año pasado:
+376	este año).
+377	Cubrir este déficit solo con el IVA exigiría unos
+378	: el IVA pasaría de
+379	mil M€ (+
+380	Los ingresos superan al gasto en
+381	: es un superávit.
+382	de «otros ingresos» agrupan ingresos que el juego no os deja modificar.
+383	Volver al balance
+384	El presupuesto en 1.000 €
+385	Todavía no ha terminado ningún año.
+386	prestados de cada 1.000 € gastados: tocad una fuente para aislarla
+387	prestados: los ingresos superan al gasto (superávit)
+388	prestados: el presupuesto está equilibrado
+389	Adónde va el dinero
+390	De dónde viene el dinero
+391	Balance {a}: imaginad que el Estado hubiera gastado 1.000 € este año. {b}
+392	Elegir la representación
+393	Gráfico de bloques: de dónde viene el dinero que gasta el Estado (impuestos, cotizaciones, endeudamiento)
+394	🧭 Vuestra misión, paso a paso
+395	Paso
+396	👇 Las palancas están justo debajo.
+397	Vuestros ingresos
+398	Ajustad vuestros ingresos (impuestos)
+399	Pestaña Ingresos: tocad + para subir un impuesto y − para bajarlo. Cambiad tantos como queráis: cada impuesto que subís reduce el déficit, pero pesa sobre alguien.
+400	Ir a los ingresos
+401	Vuestro gasto
+402	Ajustad vuestro gasto
+403	Pestaña Gasto: tocad − para ahorrar y + para gastar más. Ajustad tantas partidas como queráis: cada decisión tiene un coste social.
+404	Ir al gasto
+405	Validar
+406	Proponer este presupuesto
+407	Validar el presupuesto
+408	Validad vuestro presupuesto
+409	Todavía podéis cambiar ingresos y gasto. Seguid el resultado en la barra «Saldo previsto»; cuando os convenga, pulsad «{a}».
+410	El último presupuesto del presidente
+411	Presupuesto {a}
+412	Año de consejo (no cuenta): ayudad al presidente saliente con algunas palancas clave.
+413	Año {a}/{b}: ajustad paso a paso. Los tipos se conservan de un año a otro.
+414	El presupuesto parte con un
+415	% de déficit
+416	. Intentad reducirlo, pero atención: toda decisión tiene un coste social.
+417	Todas las palancas están aquí, y un recuadro amarillo explica el efecto de cada decisión. ¡A partir del 2.º año jugáis sin red!
+418	👉 Paso
+419	Saldo previsto este año
+420	sin cambios: {a} %
+421	respecto a «sin cambios» (
+422	Validar de todos modos
+423	Proponer
+424	No habéis abierto la pestaña
+425	Ver
+426	● por ver
+427	Código de colores de los efectos:
+428	■ verde = mejora la situación del país
+429	■ rojo = la empeora
+430	(la flecha indica si el indicador sube ↑ o baja ↓)
+431	Ver las
+432	palancas restantes
+433	Efecto neto sobre el saldo (acumulado)
+434	y al año
+435	. Echadle un vistazo antes de validar: ¡es la mitad de vuestro presupuesto!
+436	Saldo total
+437	Deuda en {a}
+438	Saldo primario
+439	− carga de la deuda
+440	mil M€; tipo medio
+441	%, nuevos préstamos al
+442	%) = saldo total
+443	al final del mandato si mantenéis este rumbo.
+444	Déficit muy alto ({a} %). 
+445	A este ritmo, la deuda sube al {a} % del PIB: riesgo de crisis presupuestaria. 
+446	Pensad en aumentar ingresos o reducir gastos.
+447	Previsión antes de los acontecimientos: las 3 cartas del año lo trastocarán todo.
+448	El saldo parte de su base cada año: vuestras decisiones presupuestarias duraderas se conservan, pero los choques puntuales del año pasado no se repiten. Solo la
+449	déficit
+450	paro
+451	cohesión
+452	igualdad
+453	El Estado ingresa unos {a} mil millones de euros más al año (≈ {b} € por habitante): el déficit baja.
+454	El Estado pierde unos {a} mil millones de euros al año (≈ {b} € por habitante): el déficit sube.
+455	Esto cuesta unos {a} mil millones de euros más al año (≈ {b} € por habitante): el déficit sube.
+456	El Estado ahorra unos {a} mil millones de euros al año (≈ {b} € por habitante): el déficit baja.
+457	el crecimiento se acelera
+458	el crecimiento se frena
+459	el paro sube
+460	el paro baja
+461	vuestra popularidad sube
+462	vuestra popularidad baja
+463	la sociedad está más unida
+464	el descontento crece
+465	el medio ambiente mejora
+466	el medio ambiente empeora
+467	las desigualdades aumentan
+468	las desigualdades disminuyen
+469	Ver el cuadro de mando (las cifras de partida)
+470	Vuestro cuadro de mando
+471	Las cifras clave de Francia: economía, sociedad, vida política. Tocad un indicador para entender lo que mide.
+472	para la sociedad y la vida política,
+473	cuanto más alto es el valor, mejor
+474	. Para la economía, una flecha
+475	indica una mejora (la deuda, el paro y la inflación son mejores cuando bajan).
+476	La evolución desde el inicio de vuestro mandato
+477	Cada punto es el final de un año: mirad en qué dirección va el país.
+478	↻ Volver a ver el trazado
+479	la línea de puntos dorada recuerda el valor de
