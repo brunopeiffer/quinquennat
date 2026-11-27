@@ -2155,6 +2155,7 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, onAbout, onTeach
           <Btn kind="primary" disabled={!ccEra} onClick={() => onPickEra(ccEra, cc.trim())}>{tr("Rejoindre le groupe")}</Btn>
         </div>
         <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6, lineHeight: 1.5 }}>{cc && !ccEra ? tr("Code non reconnu : il doit finir par l'année du mandat (ex. -2012).") : tr("Tous ceux qui ont le même code jouent la même époque, avec les mêmes imprévus. Pour créer un code : NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027).")}</div>
+        {LANG === "fr" && <button onClick={onTeachers} data-teacher-cta="1" style={{ ...linkBtn, color: C.gold, textDecoration: "none", fontWeight: 600, fontSize: 13.5, marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6 }}><Icon n="school" size={16} />Vous enseignez ? Préparez votre séance en 5 minutes →</button>}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, margin: "26px 0 12px" }}>
         <span style={{ color: C.ink, fontSize: 20, fontWeight: 600, fontFamily: "Fraunces,serif" }}>{tr("Ou choisissez librement votre époque")}</span>
@@ -2176,12 +2177,10 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, onAbout, onTeach
         {hasSave && <Btn onClick={onResume}><Icon n="refresh" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Reprendre ma partie")}</Btn>}
         <Btn onClick={() => onLeaderboard()}><Icon n="list-numbers" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Classement")}</Btn>
         <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Trophées")}</Btn>
+        {LANG === "fr" && <Btn onClick={onTeachers}><Icon n="school" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />Enseignants</Btn>}
+        <Btn onClick={onAbout}><Icon n="info-circle" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("À propos")}</Btn>
       </div>
       {!cc.trim() && <SoutienLink style={{ marginTop: 34 }} />}
-      <div data-footer-links="1" style={{ display: "flex", justifyContent: "center", gap: 18, flexWrap: "wrap", marginTop: 26, fontSize: 13 }}>
-        <button onClick={onAbout} style={linkBtn}>{tr("À propos")}</button>
-        {LANG === "fr" && <button onClick={onTeachers} style={linkBtn}>Espace enseignants</button>}
-      </div>
     </div>
   );
 }
@@ -4081,8 +4080,8 @@ export default function App() {
   useEffect(() => { window.scrollTo(0, 0); }, [screen, evtIdx, conseilEvtIdx]);
   const [theme, setTheme] = useState("dark");
   const [lang, setLang] = useState("fr");
-  const changeLang = async (l) => { await setLanguage(l); setLang(LANG); storage.set("quinq:lang", LANG); };
-  useEffect(() => { (async () => { const l = await storage.get("quinq:lang"); if (l && l !== "fr" && LANGS[l]) changeLang(l); })(); }, []);
+  // langue non mémorisée : le site s ouvre toujours en français
+  const changeLang = async (l) => { await setLanguage(l); setLang(LANG); };
   useEffect(() => { (async () => { const t = await storage.get("quinq:theme"); if (t === "light" || t === "dark") setTheme(t); })(); }, []);
   useEffect(() => { try { document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : ""); } catch {} storage.set("quinq:theme", theme); }, [theme]);
   const [unlockedTrophies, setUnlockedTrophies] = useState([]);
