@@ -1106,20 +1106,20 @@ const levRate = (lev, level) => { const r0 = ERA_RATES[lev.id] ?? lev.rate0; ret
 // Leviers de l'année conseil : 5 recettes + 5 dépenses (mise en bouche)
 const ESSENTIAL = ["tva", "ir", "csg", "is", "patrimoine", "retraites", "sante", "education", "aides", "invest"];
 const DOCTRINES = [
-  { id: "rigueur", label: "Rigueur budgétaire", ref: "façon Argentine de Milei", icon: "scissors", color: "var(--c-crise)",
-    desc: "Réduire la dépense et la dette avant tout. Les marchés vous font confiance, la société est plus fragile.",
+  { id: "rigueur", ex: ["Valéry Giscard d'Estaing (plan Barre, 1976)","François Mitterrand (« tournant de la rigueur », 1983)"], exNow: ["Javier Milei (Argentine, depuis 2023)"], label: "Rigueur budgétaire", ref: "politique de rigueur", icon: "scissors", color: "var(--c-crise)",
+    desc: "Réduire les dépenses pour faire baisser le déficit et la dette. Les prêteurs sont rassurés, mais les services publics et la cohésion en souffrent.",
     effet: "La dette pèse moins sur la croissance, mais la cohésion est plus difficile à tenir.",
     mod: { dragRelief: 0.4 } },
-  { id: "solidarite", label: "Solidarité & écologie", ref: "modèle nordique / Lula", icon: "seeding", color: "var(--c-opport)",
-    desc: "Services publics étendus et transition écologique, financés par l'impôt. Cohésion forte, dette à surveiller.",
+  { id: "solidarite", ex: ["Franklin D. Roosevelt (États-Unis, New Deal et sécurité sociale, 1935)","Michelle Bachelet (Chili, 2006-2018)"], exNow: ["Lula (Brésil, réélu en 2026)","Claudia Sheinbaum (Mexique, depuis 2024)"], label: "Solidarité & écologie", ref: "État-providence", icon: "seeding", color: "var(--c-opport)",
+    desc: "Plus de services publics, de protection sociale et de transition écologique, financés par l'impôt. La cohésion est forte, mais la dette peut monter.",
     effet: "Les dépenses sociales et d'éducation renforcent davantage la cohésion.",
     mod: { socialBonus: 1.4 } },
-  { id: "competitivite", label: "Compétitivité libérale", ref: "façon Macron / Irlande", icon: "rocket", color: "var(--c-social)",
-    desc: "Baisser les impôts des entreprises pour attirer l'activité. Croissance dopée, recettes à reconstruire.",
+  { id: "competitivite", ex: ["Ronald Reagan (États-Unis, 1981-1989)"], exNow: ["Emmanuel Macron (France, depuis 2017)"], label: "Compétitivité libérale", ref: "politique de l'offre", icon: "rocket", color: "var(--c-social)",
+    desc: "Baisser les impôts et les charges des entreprises pour qu'elles investissent et embauchent. La croissance accélère, mais l'État perd des recettes au départ.",
     effet: "L'investissement et les baisses de charges dopent plus fortement la croissance.",
     mod: { growthBonus: 1.35 } },
-  { id: "souverainete", label: "Souveraineté nationale", ref: "protectionnisme", icon: "flag", color: "var(--c-intl)",
-    desc: "Priorité à l'industrie, la défense et les frontières. Populaire, mais tensions avec les partenaires.",
+  { id: "souverainete", ex: ["Charles de Gaulle (dissuasion nucléaire, sortie du commandement intégré de l'OTAN, 1966)","Herbert Hoover (États-Unis, droits de douane, 1930)"], exNow: ["Donald Trump (États-Unis, droits de douane, 2025)"], label: "Souveraineté nationale", ref: "protectionnisme", icon: "flag", color: "var(--c-intl)",
+    desc: "Protéger l'industrie française, renforcer la défense et contrôler les frontières. C'est populaire, mais cela crée des tensions avec les partenaires commerciaux.",
     effet: "Les dépenses de défense rapportent davantage en popularité et en activité.",
     mod: { defenseBonus: 1.4 } },
 ];
@@ -2149,7 +2149,10 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, onAbout, onTeach
       </div>
 
       <div style={{ marginTop: 22, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14 }}>
-        <div style={{ color: C.ink, fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>{tr("En classe ou entre amis ? Entrez votre code commun")}</div>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+          <span style={{ color: C.ink, fontSize: 20, fontWeight: 600, fontFamily: "Fraunces,serif" }}>{tr("En classe ou entre amis ?")}</span>
+          <span style={{ color: C.dim, fontSize: 12.5 }}>{tr("Entrez votre code commun")}</span>
+        </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <input value={cc} onChange={(ev) => setCc(ev.target.value.toUpperCase())} placeholder={tr("ex. TG2-2012")} style={{ ...inp, maxWidth: 220, marginTop: 0 }} />
           <Btn kind="primary" disabled={!ccEra} onClick={() => onPickEra(ccEra, cc.trim())}>{tr("Rejoindre le groupe")}</Btn>
@@ -2330,7 +2333,19 @@ function EraSetup({ eraId, lockedCode, onStart, onSkipConseil, onBack }) {
       {step(1, tr("Nommez votre équipe"), !!team.trim())}
       <input value={team} onChange={(ev) => setTeam(ev.target.value)} placeholder={tr("Les Réformateurs")} style={{ ...inp, fontSize: 15, maxWidth: 420 }} autoFocus />
 
-      {step(2, tr("Choisissez votre doctrine"), !!doc)}
+      {step(2, tr("Choisissez votre niveau"), true)}
+      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>{tr("Les objectifs et la difficulté sont les mêmes : seul change le nombre de commandes et d'indicateurs affichés.")}</div>
+      <div data-levels="1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 10 }}>
+        {Object.entries(LEVELS).map(([id, L]) => (
+          <div key={id} role="radio" aria-checked={lvl === id} tabIndex={0} data-level={id} onClick={() => setLvl(id)} onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setLvl(id); } }} style={{ cursor: "pointer", borderRadius: 12, padding: 13, background: lvl === id ? al(L.color, "18") : C.card, border: `2px solid ${lvl === id ? L.color : C.line}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><Icon n={L.icon} size={19} color={L.color} /><span style={{ color: C.ink, fontWeight: 500, fontSize: 14 }}>{L.label}</span></div>
+            <div style={{ color: L.color, fontSize: 11.5, marginBottom: 4 }}>{L.nLev} {tr("leviers ·")} {L.nInd} {tr("indicateurs")}</div>
+            <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{L.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {step(3, tr("Choisissez votre doctrine"), !!doc)}
       <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>{tr("Une simple orientation : vous restez libre de tous vos choix ensuite.")}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
         {DOCTRINES.map((d) => (
@@ -2342,18 +2357,7 @@ function EraSetup({ eraId, lockedCode, onStart, onSkipConseil, onBack }) {
             </div>
             <div style={{ color: d.color, fontSize: 11, marginBottom: 4 }}>{tr(d.ref)}</div>
             <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{d.desc}</div>
-          </div>
-        ))}
-      </div>
-
-      {step(3, tr("Choisissez votre niveau"), true)}
-      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 8 }}>{tr("Les objectifs et la difficulté sont les mêmes : seul change le nombre de commandes et d'indicateurs affichés.")}</div>
-      <div data-levels="1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 10 }}>
-        {Object.entries(LEVELS).map(([id, L]) => (
-          <div key={id} role="radio" aria-checked={lvl === id} tabIndex={0} data-level={id} onClick={() => setLvl(id)} onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setLvl(id); } }} style={{ cursor: "pointer", borderRadius: 12, padding: 13, background: lvl === id ? al(L.color, "18") : C.card, border: `2px solid ${lvl === id ? L.color : C.line}` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><Icon n={L.icon} size={19} color={L.color} /><span style={{ color: C.ink, fontWeight: 500, fontSize: 14 }}>{L.label}</span></div>
-            <div style={{ color: L.color, fontSize: 11.5, marginBottom: 4 }}>{L.nLev} {tr("leviers ·")} {L.nInd} {tr("indicateurs")}</div>
-            <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.5 }}>{L.desc}</div>
+            {(() => { const ex = e.id === "today" ? d.exNow : d.ex; return <div data-doc-ex="1" style={{ color: C.dim, fontSize: 11, lineHeight: 1.45, marginTop: 6, fontStyle: "italic" }}>{tr(ex.length > 1 ? "Exemples :" : "Exemple :")} {ex.map((x) => tr(x)).join(" · ")}</div>; })()}
           </div>
         ))}
       </div>
