@@ -2107,6 +2107,8 @@ function Note({ text }) {
 
 /* ---------- Écran d'accueil ---------- */
 const KOFI_URL = "https://ko-fi.com/quinquennat";
+// Auteur affiché sur « À propos » et l'Espace enseignants : laisser "" pour rester anonyme
+const AUTEUR = { nom: "Bruno Peiffer", linkedin: "https://www.linkedin.com/in/brunopeiffer/" };
 function SoutienLink({ style }) {
   return (
     <div data-soutien="1" style={{ textAlign: "center", ...style }}>
@@ -2118,7 +2120,7 @@ function SoutienLink({ style }) {
   );
 }
 
-function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
+function Home({ onPickEra, onResume, onLeaderboard, onTrophies, onAbout, onTeachers, hasSave }) {
   const [cc, setCc] = useState("");
   const ccEra = parseClassCode(cc);
   return (
@@ -2176,6 +2178,104 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
         <Btn onClick={onTrophies}><Icon n="trophy" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Trophées")}</Btn>
       </div>
       {!cc.trim() && <SoutienLink style={{ marginTop: 34 }} />}
+      <div data-footer-links="1" style={{ display: "flex", justifyContent: "center", gap: 18, flexWrap: "wrap", marginTop: 26, fontSize: 13 }}>
+        <button onClick={onAbout} style={linkBtn}>{tr("À propos")}</button>
+        {LANG === "fr" && <button onClick={onTeachers} style={linkBtn}>Espace enseignants</button>}
+      </div>
+    </div>
+  );
+}
+const linkBtn = { background: "none", border: "none", padding: 0, color: C.dim, textDecoration: "underline", cursor: "pointer", fontSize: 13, fontFamily: "inherit" };
+
+function InfoSection({ title, children }) {
+  return (
+    <section style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
+      <h3 style={{ margin: "0 0 8px", color: C.ink, fontSize: 16, fontFamily: "Fraunces,serif", fontWeight: 600 }}>{title}</h3>
+      <div style={{ color: C.sub, fontSize: 14, lineHeight: 1.6 }}>{children}</div>
+    </section>
+  );
+}
+const P = ({ children }) => <p style={{ margin: "0 0 8px" }}>{children}</p>;
+const LinkedInLink = () => AUTEUR.linkedin ? <a href={AUTEUR.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: C.gold }}>{tr("Profil LinkedIn")}</a> : null;
+const BackBtn = ({ onBack }) => <Btn kind="primary" onClick={onBack}><Icon n="arrow-left" size={15} style={{ verticalAlign: -2, marginRight: 6 }} />{tr("Retour")}</Btn>;
+
+function AboutView({ onBack }) {
+  return (
+    <div>
+      <ScreenTitle icon="info-circle" title={tr("À propos")} />
+      <InfoSection title={tr("Qui a fait ce jeu ?")}>
+        {AUTEUR.nom && <P><b style={{ color: C.ink }}>{AUTEUR.nom}</b></P>}
+        <P>{tr("Quinquennat a été conçu par un professeur d'économie-gestion, pour ses élèves de terminale STMG.")}</P>
+        <P>{tr("L'idée : rendre concret le budget de l'État. En quelques années de mandat, on découvre qu'on ne peut pas tout financer, que chaque choix fait des gagnants et des perdants, et que la dette passe d'un gouvernement à l'autre.")}</P>
+        <LinkedInLink />
+      </InfoSection>
+      <InfoSection title={tr("D'où viennent les chiffres ?")}>
+        <P>{tr("Les chiffres de départ de chaque époque sont des ordres de grandeur arrondis, issus des comptes nationaux de l'INSEE et des publications officielles (dette, déficit, chômage, croissance, inflation).")}</P>
+        <P>{tr("Les effets des décisions sont simplifiés : ils montrent le sens et l'ampleur des mécanismes, pas une prévision. Les événements après 2027 et les crises mondiales sont imaginés.")}</P>
+        <P>{tr("Le jeu ne défend aucun camp : chaque orientation politique a ses forces et ses limites.")}</P>
+      </InfoSection>
+      <InfoSection title={tr("Vos données")}>
+        <P>{tr("Pas de compte, pas de publicité, pas de mesure d'audience. Votre partie, vos trophées et le classement sont enregistrés uniquement dans votre navigateur, sur cet appareil : rien n'est envoyé à un serveur.")}</P>
+        <P>{tr("Les polices de caractères sont chargées depuis Google Fonts, ce qui transmet votre adresse IP à Google. Le bouton de don mène au site Ko-fi, qui applique ses propres règles.")}</P>
+      </InfoSection>
+      <InfoSection title={tr("Mentions légales")}>
+        <P><b style={{ color: C.ink }}>{tr("Éditeur :")}</b> {AUTEUR.nom || tr("un enseignant, à titre personnel et non commercial.")}</P>
+        <P><b style={{ color: C.ink }}>{tr("Hébergeur :")}</b> Netlify, Inc., 101 2nd Street, San Francisco, CA 94105, {tr("États-Unis")}.</P>
+        {AUTEUR.linkedin && <P><b style={{ color: C.ink }}>{tr("Contact :")}</b> <LinkedInLink /></P>}
+      </InfoSection>
+      <BackBtn onBack={onBack} />
+    </div>
+  );
+}
+
+/* Espace enseignants : en français seulement (la STMG n'existe qu'en France) */
+function TeachersView({ onBack }) {
+  const li = { margin: "0 0 6px" };
+  return (
+    <div>
+      <ScreenTitle icon="school" title="Espace enseignants" sub="Utiliser Quinquennat en classe" />
+      <InfoSection title="En bref">
+        <P>Par équipes de 2 ou 3, les élèves gouvernent la France pendant un mandat de 5 ou 7 ans. Chaque année, ils fixent le budget (impôts et dépenses), réagissent à des imprévus, puis affrontent l'élection. Ils voient l'effet de leurs choix sur le déficit, la dette, le chômage, la croissance et la popularité.</P>
+        <P><b style={{ color: C.ink }}>Notions travaillées :</b> budget de l'État, recettes et dépenses publiques, solde budgétaire, déficit et dette, prélèvements obligatoires, politique de relance ou de rigueur, arbitrages entre objectifs.</P>
+      </InfoSection>
+      <InfoSection title="Préparer la séance (5 min)">
+        <ul style={{ margin: 0, paddingLeft: 20 }}>
+          <li style={li}>Choisissez une époque et créez un code <b style={{ color: C.ink }}>NOM-ANNÉE</b>, par exemple <b style={{ color: C.ink }}>TSTMG2-2012</b> (le mandat de F. Hollande). L'année est celle du début du mandat : 1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027.</li>
+          <li style={li}>Écrivez le code au tableau. Toutes les équipes qui le saisissent jouent la même époque, avec les mêmes imprévus dans le même ordre : les scores sont comparables.</li>
+          <li style={li}>Niveau : <b style={{ color: C.ink }}>Découverte</b> (12 leviers, 6 indicateurs) pour une première séance. Les niveaux Intermédiaire et Complet ajoutent des leviers et des indicateurs.</li>
+          <li style={li}>Un ordinateur ou une tablette par équipe ; un téléphone convient aussi.</li>
+        </ul>
+      </InfoSection>
+      <InfoSection title="Déroulé conseillé (2 h)">
+        <ul style={{ margin: 0, paddingLeft: 20 }}>
+          <li style={li}><b style={{ color: C.ink }}>10 min — Lancement :</b> présentation du jeu, constitution des équipes, saisie du code.</li>
+          <li style={li}><b style={{ color: C.ink }}>15 min — Année conseil :</b> une première année guidée pas à pas, pour prendre le jeu en main.</li>
+          <li style={li}><b style={{ color: C.ink }}>60 min — Le mandat :</b> chaque année, un budget puis des imprévus. Circulez et faites justifier les choix.</li>
+          <li style={li}><b style={{ color: C.ink }}>5 min — L'élection.</b></li>
+          <li style={li}><b style={{ color: C.ink }}>30 min — Débrief collectif,</b> avec les questions ci-dessous.</li>
+        </ul>
+        <P>En 1 h : choisissez un quinquennat (2002 ou après), passez l'année conseil (bouton « Passer l'année conseil ») et gardez 15 min de débrief.</P>
+      </InfoSection>
+      <InfoSection title="Comparer les résultats">
+        <P>Les scores sont enregistrés sur chaque appareil : il n'y a pas de classement partagé en ligne. À la fin, chaque équipe annonce son score, sa dette finale et le résultat de l'élection ; notez-les au tableau.</P>
+        <P>Le score départage les équipes, mais la réélection dépend surtout de la popularité. Les deux classements diffèrent souvent : c'est un bon point de départ pour le débat.</P>
+      </InfoSection>
+      <InfoSection title="Questions pour le débrief">
+        <ul style={{ margin: 0, paddingLeft: 20 }}>
+          <li style={li}>Quelle a été votre première décision, et pourquoi ?</li>
+          <li style={li}>Votre dette a-t-elle augmenté ou baissé ? Qu'est-ce qui l'explique ?</li>
+          <li style={li}>Quel levier rapporte le plus ? Lequel coûte le plus en popularité ?</li>
+          <li style={li}>Un imprévu vous a-t-il obligés à changer de stratégie ?</li>
+          <li style={li}>Peut-on à la fois réduire le déficit et rester populaire ?</li>
+          <li style={li}>Qui supporte le coût de vos choix : les ménages, les entreprises, les générations futures ?</li>
+          <li style={li}>Comparez vos résultats avec ceux du vrai président de l'époque.</li>
+        </ul>
+      </InfoSection>
+      <InfoSection title="Prolonger">
+        <P>Rejouez avec un autre code et une autre époque (par exemple 1981, puis 2012) pour comparer deux contextes : inflation forte et taux élevés d'un côté, dette lourde et crise de la zone euro de l'autre.</P>
+        {AUTEUR.linkedin && <P>Une remarque, une idée d'amélioration ? <LinkedInLink /></P>}
+      </InfoSection>
+      <BackBtn onBack={onBack} />
     </div>
   );
 }
@@ -4203,13 +4303,15 @@ export default function App() {
           </Dashboard>
         )}
 
-        {screen === "home" && <Home hasSave={hasSave} onPickEra={(id, cc) => { setPickedEra(id); setLockedCode(cc || null); setScreen("era"); }} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
+        {screen === "home" && <Home hasSave={hasSave} onAbout={() => { setScreen("about"); window.scrollTo(0, 0); }} onTeachers={() => { setScreen("teachers"); window.scrollTo(0, 0); }} onPickEra={(id, cc) => { setPickedEra(id); setLockedCode(cc || null); setScreen("era"); }} onResume={resume} onLeaderboard={openLeaderboard} onTrophies={openTrophies} />}
         {screen === "era" && <EraSetup eraId={pickedEra} lockedCode={lockedCode} onStart={startConseil} onSkipConseil={start} onBack={() => setScreen("home")} />}
         {screen === "conseil_intro" && setup && <ConseilIntro team={setup.team} onGo={() => setScreen("conseil_budget")} />}
         {screen === "conseil_budget" && conseil && <BudgetScreen year={1} indPrev={conseil.ind} baseLevels={{}} levels={conseilWork} setLevels={setConseilWork} doctrine={null} taux={TAUX0} marche={MARCHE0} onValidate={validateConseil} leverFilter={ESSENTIAL} conseil={true} />}
         {screen === "conseil_events" && conseil && conseilEvts[conseilEvtIdx] && <EventScreen key={conseilEvts[conseilEvtIdx].id} event={conseilEvts[conseilEvtIdx]} index={conseilEvtIdx} total={conseilEvts.length} onChoose={chooseConseilEvent} />}
         {screen === "conseil_bilan" && conseil && <ConseilBilan indBefore={START} ind={conseil.ind} onElection={() => setScreen("election_intro")} />}
         {screen === "election_intro" && setup && <ElectionIntro team={setup.team} onElected={() => start(setup.code, setup.team, setup.doctrineId, setup.eraId)} />}
+        {screen === "about" && <AboutView onBack={() => setScreen("home")} />}
+        {screen === "teachers" && <TeachersView onBack={() => setScreen("home")} />}
         {screen === "trophies" && <TrophiesView unlocked={unlockedTrophies} onBack={() => setScreen("home")} />}
         {screen === "mission" && game && <Mission team={game.team} doctrine={doctrineOf(game)} chain={game.chain || null} onGo={() => setScreen("budget")} />}
         {screen === "budget" && game && <BudgetScreen year={game.year} indPrev={game.ind} baseLevels={game.levels} levels={workLevels} setLevels={setWorkLevels} doctrine={doctrineOf(game)} taux={game.taux ?? TAUX0} marche={game.tauxMarche ?? MARCHE0} onValidate={validateBudget} />}
