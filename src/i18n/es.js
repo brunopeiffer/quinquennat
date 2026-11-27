@@ -1927,5 +1927,12 @@ export default {
  "protectionnisme": "proteccionismo",
  "% (tranche haute)": "% (tramo más alto)",
  "objectifs": "objetivos",
- "atteints": "alcanzados"
+ "atteints": "alcanzados",
+ "En classe ou entre amis ? Entrez votre code commun": "¿En clase o entre amigos? Introducid vuestro código común",
+ "Rejoindre le groupe": "Unirse al grupo",
+ "Tous ceux qui ont le même code jouent la même époque, avec les mêmes imprévus. Pour créer un code : NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027).": "Todos los que tienen el mismo código juegan la misma época, con los mismos imprevistos. Para crear un código: NOMBRE-AÑO, siendo el año el del inicio del mandato (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 o 2027).",
+ "Groupe": "Grupo",
+ ": tout le groupe joue cette époque avec les mêmes imprévus.": ": todo el grupo juega esta época con los mismos imprevistos.",
+ "Ce code impose l'époque «": "Este código impone la época «",
+ "Mandat enchaîné : son score n'entre pas dans le classement du groupe, car votre départ dépendait de votre mandat précédent.": "Mandato encadenado: su puntuación no cuenta en la clasificación del grupo, porque vuestro punto de partida dependía de vuestro mandato anterior."
 };

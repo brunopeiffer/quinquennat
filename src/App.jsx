@@ -2147,12 +2147,12 @@ function Home({ onPickEra, onResume, onLeaderboard, onTrophies, hasSave }) {
       </div>
 
       <div style={{ marginTop: 22, background: C.card2, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14 }}>
-        <div style={{ color: C.ink, fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>{tr("En classe ? Entrez le code donné par votre professeur")}</div>
+        <div style={{ color: C.ink, fontSize: 14.5, fontWeight: 600, marginBottom: 4 }}>{tr("En classe ou entre amis ? Entrez votre code commun")}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <input value={cc} onChange={(ev) => setCc(ev.target.value.toUpperCase())} placeholder={tr("ex. TG2-2012")} style={{ ...inp, maxWidth: 220, marginTop: 0 }} />
-          <Btn kind="primary" disabled={!ccEra} onClick={() => onPickEra(ccEra, cc.trim())}>{tr("Rejoindre la classe")}</Btn>
+          <Btn kind="primary" disabled={!ccEra} onClick={() => onPickEra(ccEra, cc.trim())}>{tr("Rejoindre le groupe")}</Btn>
         </div>
-        <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6, lineHeight: 1.5 }}>{cc && !ccEra ? tr("Code non reconnu : il doit finir par l'année du mandat (ex. -2012).") : tr("Toute la classe joue alors la même époque, avec les mêmes imprévus. Professeur : choisissez NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027).")}</div>
+        <div style={{ fontSize: 11.5, color: C.dim, marginTop: 6, lineHeight: 1.5 }}>{cc && !ccEra ? tr("Code non reconnu : il doit finir par l'année du mandat (ex. -2012).") : tr("Tous ceux qui ont le même code jouent la même époque, avec les mêmes imprévus. Pour créer un code : NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027).")}</div>
       </div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, margin: "26px 0 12px" }}>
         <span style={{ color: C.ink, fontSize: 20, fontWeight: 600, fontFamily: "Fraunces,serif" }}>{tr("Ou choisissez librement votre époque")}</span>
@@ -2258,9 +2258,9 @@ function EraSetup({ eraId, lockedCode, onStart, onSkipConseil, onBack }) {
           </div>
         ))}
       </div>
-      {imposed && imposed !== eraId && <div style={{ margin: "18px 0 0", fontSize: 12.5, color: C.gold, display: "flex", gap: 6 }}><Icon n="info-circle" size={14} />{tr("Ce code de classe impose l'époque «")} {e.president} {e.debut} {tr("» : c'est celle que vous allez jouer.")}</div>}
+      {imposed && imposed !== eraId && <div style={{ margin: "18px 0 0", fontSize: 12.5, color: C.gold, display: "flex", gap: 6 }}><Icon n="info-circle" size={14} />{tr("Ce code impose l'époque «")} {e.president} {e.debut} {tr("» : c'est celle que vous allez jouer.")}</div>}
       {lockedCode
-        ? <div data-class-note="1" style={{ fontSize: 12.5, color: C.dim, margin: "22px 0 18px", display: "flex", alignItems: "center", gap: 6 }}><Icon n="users-group" size={15} color={C.gold} />{tr("Classe")} <b style={{ color: C.sub }}>{lockedCode}</b> {tr(": toute la classe joue cette époque avec les mêmes imprévus.")}</div>
+        ? <div data-class-note="1" style={{ fontSize: 12.5, color: C.dim, margin: "22px 0 18px", display: "flex", alignItems: "center", gap: 6 }}><Icon n="users-group" size={15} color={C.gold} />{tr("Groupe")} <b style={{ color: C.sub }}>{lockedCode}</b> {tr(": tout le groupe joue cette époque avec les mêmes imprévus.")}</div>
         : <div style={{ height: 18 }} />}
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
@@ -3745,7 +3745,7 @@ function Debrief({ game, sc, end, leaderboard, newTrophies = [], onReplay, onHom
           <Btn kind="primary" onClick={onContinue}>{tr("Poursuivre : mandat")} {nx.debut}–{nx.debut + nx.duree} <Icon n="arrow-right" size={15} style={{ verticalAlign: -2 }} /></Btn>
           <div style={{ color: C.dim, fontSize: 11.5, marginTop: 8 }}>{nx.futur ? tr("Ces scénarios sont fictifs : ce ne sont pas des prévisions.") : tr("Version d'essai : seul le passage 1974 → 1981 est disponible.")}</div>
         </div>); })()}
-      {game.chain && <div data-chain-note="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, color: C.dim, fontSize: 12.5, lineHeight: 1.55 }}>{tr("Mandat enchaîné : son score n'entre pas dans le classement de la classe, car votre départ dépendait de votre mandat précédent.")}</div>}
+      {game.chain && <div data-chain-note="1" style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, color: C.dim, fontSize: 12.5, lineHeight: 1.55 }}>{tr("Mandat enchaîné : son score n'entre pas dans le classement du groupe, car votre départ dépendait de votre mandat précédent.")}</div>}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
         {[[tr("Économie"), sc.eco, "55 %"], [tr("Social"), sc.social, "30 %"], [tr("Politique"), sc.politique, "15 %"], [tr("SCORE"), sc.total, tr("final")]].map(([l, v, w], i) => (
           <div key={l} style={{ background: i === 3 ? C.goldFill : C.card, borderRadius: 12, padding: "12px 10px", textAlign: "center", border: `1px solid ${i === 3 ? C.gold : C.line}` }}>

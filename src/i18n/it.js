@@ -1936,5 +1936,12 @@ export default {
  "protectionnisme": "protezionismo",
  "% (tranche haute)": "% (aliquota massima)",
  "objectifs": "obiettivi",
- "atteints": "raggiunti"
+ "atteints": "raggiunti",
+ "En classe ou entre amis ? Entrez votre code commun": "In classe o tra amici? Inserite il vostro codice comune",
+ "Rejoindre le groupe": "Unirsi al gruppo",
+ "Tous ceux qui ont le même code jouent la même époque, avec les mêmes imprévus. Pour créer un code : NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027).": "Tutti quelli che hanno lo stesso codice giocano la stessa epoca, con gli stessi imprevisti. Per creare un codice: NOME-ANNO, dove l'anno è quello di inizio del mandato (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 o 2027).",
+ "Groupe": "Gruppo",
+ ": tout le groupe joue cette époque avec les mêmes imprévus.": ": tutto il gruppo gioca questa epoca con gli stessi imprevisti.",
+ "Ce code impose l'époque «": "Questo codice impone l'epoca «",
+ "Mandat enchaîné : son score n'entre pas dans le classement du groupe, car votre départ dépendait de votre mandat précédent.": "Mandato consecutivo: il suo punteggio non conta nella classifica del gruppo, perché il vostro punto di partenza dipendeva dal mandato precedente."
 };

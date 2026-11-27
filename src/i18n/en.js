@@ -1927,5 +1927,12 @@ export default {
  "protectionnisme": "protectionism",
  "% (tranche haute)": "% (top bracket)",
  "objectifs": "goals",
- "atteints": "reached"
+ "atteints": "reached",
+ "En classe ou entre amis ? Entrez votre code commun": "In class or with friends? Enter your shared code",
+ "Rejoindre le groupe": "Join the group",
+ "Tous ceux qui ont le même code jouent la même époque, avec les mêmes imprévus. Pour créer un code : NOM-ANNÉE, l'année étant celle du début du mandat (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 ou 2027).": "Everyone with the same code plays the same era, with the same unexpected events. To create a code: NAME-YEAR, the year being when the term starts (1974, 1981, 1988, 1995, 2002, 2007, 2012, 2017, 2022 or 2027).",
+ "Groupe": "Group",
+ ": tout le groupe joue cette époque avec les mêmes imprévus.": ": the whole group plays this era with the same unexpected events.",
+ "Ce code impose l'époque «": "This code sets the era to \"",
+ "Mandat enchaîné : son score n'entre pas dans le classement du groupe, car votre départ dépendait de votre mandat précédent.": "Consecutive term: its score does not count in the group ranking, because your starting point depended on your previous term."
 };
